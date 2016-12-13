@@ -86,32 +86,32 @@ namespace radioHeadSerialAddon {
    * Parameter die vom NodeJS-Aufruf übergeben weden müssen:
    *  addr - Die Empfängeradresse. (z.B. 0x05)
    *  len  - Die Anzahl an Bytes, die gesendet werden sollen.
-   *  data - Die zu sendenden Daten als String oder Buffer.
+   *  data - Die zu sendenden Daten als Buffer.
    *  cb   - Callback-Funktion.
    */
   void Send(const Nan::FunctionCallbackInfo<v8::Value>& info){
 
-    if (info.Length() < 4) {
+    if(info.Length() < 4){
       Nan::ThrowError("Wrong number of arguments");
       return;
     }
 
-    if (!info[0]->IsNumber()) {
+    if(!info[0]->IsNumber()){
       Nan::ThrowError("Args[0] (Address) must be a number");
       return;
     }
 
-    if (!info[1]->IsNumber()) {
+    if(!info[1]->IsNumber()){
       Nan::ThrowError("Args[1] (Len) must be a number");
       return;
     }
 
-    if (!info[2]->IsString() && !info[2]->IsObject()) {
-      Nan::ThrowError("Args[2] (Data) must be a string or a buffer");
+    if(!info[2]->IsObject()){
+      Nan::ThrowError("Args[2] (Data) must be a buffer");
       return;
     }
 
-    if (!info[3]->IsFunction()) {
+    if(!info[3]->IsFunction()){
       Nan::ThrowError("Args[3] (Callback) must be a function");
       return;
     }
@@ -133,10 +133,9 @@ namespace radioHeadSerialAddon {
       return;
     }
 
-    // Daten in den TX-Buffer kopieren
-    // TODO Buffer verwenden
-    v8::String::Utf8Value string(info[2]->ToString());
-    memcpy(&bufTx[0], (char*) *string, txLen);
+    // Daten aus dem NodeJS-Buffer in den TX-Buffer kopieren
+    char* buffer = (char*) node::Buffer::Data(info[2]->ToObject());
+    memcpy(&bufTx[0], buffer, txLen);
 
     // Callback-Funktion merken
     work->txCallback.Reset(callback);
@@ -231,8 +230,12 @@ namespace radioHeadSerialAddon {
 
       if(work->rxLen > 0){
         // Daten empfangen... für Argumente der Callback-Funktion übernehmen
-        // TODO Buffer verwenden
-        argv[3] = Nan::New((char*) bufRx).ToLocalChecked();
+
+        // Einen Buffer zurückgeben, da evtl. mit Binärdaten gearbeitet wird
+        // CopyBuffer anstelle von NewBuffer verwenden, da NewBuffer den Pointer auf
+        // bufRx übernehmen und über den Garbage Collector freigeben würde.
+        // siehe https://github.com/nodejs/nan/blob/master/doc/buffers.md#nannewbuffer
+        argv[3] = Nan::CopyBuffer((char*) bufRx, work->rxLen).ToLocalChecked();
 
       }else{
         // Keine Daten empfangen
