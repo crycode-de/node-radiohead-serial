@@ -52,21 +52,19 @@ namespace radioHeadSerialAddon {
     }
 
     if (!info[2]->IsNumber()) {
-      Nan::ThrowError("Args[2] (Adress) must be a number");
+      Nan::ThrowError("Args[2] (Address) must be a number");
       return;
     }
 
     // Argumente übernehmen
     v8::String::Utf8Value port(info[0]->ToString());
     int baud = info[1]->NumberValue();
-    int ownAddress = info[2]->NumberValue();
+    uint8_t ownAddress = info[2]->NumberValue();
 
     // RadioHead initialisieren
     hardwareserial = new HardwareSerial((char*)*port);
     driver = new RH_Serial(*hardwareserial);
     manager = new RHReliableDatagram(*driver, ownAddress);
-
-    //manager.setThisAddress(ownAddress);
 
     // Serielle Kommunikation starten
     driver->serial().begin(baud);
@@ -341,6 +339,60 @@ namespace radioHeadSerialAddon {
   }
 
   /**
+   * Ändern der eigenen Adresse im RadioHead-Netzwerk.
+   *
+   * Parameter der vom NodeJS-Aufruf übergeben weden muss:
+   *  addr - Die Empfängeradresse. (z.B. 0x05)
+   */
+  void SetAddress(const Nan::FunctionCallbackInfo<v8::Value>& info){
+    if (!info[0]->IsNumber()) {
+      Nan::ThrowError("Args[0] (Address) must be a number");
+      return;
+    }
+
+    uint8_t ownAddress = info[0]->NumberValue();
+    manager->setThisAddress(ownAddress);
+
+    info.GetReturnValue().Set(Nan::Undefined());
+  }
+
+  /**
+   * Ändern der Anzahl der Sendeversuche für eine Nachricht.
+   *
+   * Parameter der vom NodeJS-Aufruf übergeben weden muss:
+   *  retries - Anzahl der Sendeversuche. (Standard 3)
+   */
+  void SetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info){
+    if (!info[0]->IsNumber()) {
+      Nan::ThrowError("Args[0] (Retries) must be a number");
+      return;
+    }
+
+    uint8_t retries = info[0]->NumberValue();
+    manager->setRetries(retries);
+
+    info.GetReturnValue().Set(Nan::Undefined());
+  }
+
+  /**
+   * Ändern des Timeouts für Sendeversuche für eine Nachricht.
+   *
+   * Parameter der vom NodeJS-Aufruf übergeben weden muss:
+   *  timeout - Zeit in Millisekunden für einen Sendeversuch. (Standard 200)
+   */
+  void SetTimeout(const Nan::FunctionCallbackInfo<v8::Value>& info){
+    if (!info[0]->IsNumber()) {
+      Nan::ThrowError("Args[0] (Timeout) must be a number");
+      return;
+    }
+
+    uint16_t timeout = info[0]->NumberValue();
+    manager->setTimeout(timeout);
+
+    info.GetReturnValue().Set(Nan::Undefined());
+  }
+
+  /**
    * Hook für das Beenden des Addons.
    * Gibt Spreicherbereiche von RadioHead wieder frei.
    */
@@ -362,6 +414,9 @@ namespace radioHeadSerialAddon {
     exports->Set(Nan::New("send").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Send)->GetFunction());
     exports->Set(Nan::New("start").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(StartAsyncWork)->GetFunction());
     exports->Set(Nan::New("stop").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(StopAsyncWork)->GetFunction());
+    exports->Set(Nan::New("setAddress").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetAddress)->GetFunction());
+    exports->Set(Nan::New("setRetries").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetRetries)->GetFunction());
+    exports->Set(Nan::New("setTimeout").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetTimeout)->GetFunction());
 
     // AtExit-Hook registrieren
     node::AtExit(atExit);
