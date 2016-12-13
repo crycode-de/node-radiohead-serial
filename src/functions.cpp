@@ -1,3 +1,9 @@
+/*
+ * NodeJS RadioHead RH_Serial
+ *
+ * Functions for simulation Arduino things for RadioHead.
+ * Parts taken from RadioHead tools.
+ */
 
 #include <unistd.h>
 #include <iostream>
