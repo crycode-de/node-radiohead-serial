@@ -1,3 +1,9 @@
+/*
+ * NodeJS RadioHead RH_Serial
+ *
+ * Functions for simulation Arduino things for RadioHead.
+ * Parts taken from RadioHead tools.
+ */
 
 #ifndef NODE_RADIOHEAD_SERIAL_functions_h
 #define NODE_RADIOHEAD_SERIAL_functions_h

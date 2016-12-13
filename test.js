@@ -12,10 +12,10 @@ rh.start((err, from, len , data)=>{
     console.log('error:', err);
     return;
   }
-  console.log(`--> Von: 0x${from.toString(16)}, Länge: ${len}, Daten:`, data);
+  console.log(`--> Von: 0x${from.toString(16)}, Länge: ${len}, Daten:`, data, 'ToString: ', data.toString());
 
   var ans = new Buffer('Huhu\0');
-  rh.send(from, ans.length, ans.toString(), (err)=>{
+  rh.send(from, ans.length, ans, (err)=>{
     if(err){
       console.log(`<-- ${ans} error:`, err);
       return;

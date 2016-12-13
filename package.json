@@ -15,8 +15,13 @@
   "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
   "license": "GPL-2.0",
   "gypfile": true,
-  "os": ["linux"],
+  "os": [
+    "linux"
+  ],
   "engines": {
     "node": ">=4.0.0"
+  },
+  "dependencies": {
+    "nan": "^2.4.0"
   }
 }
