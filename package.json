@@ -1,0 +1,22 @@
+{
+  "name": "radiohead-serial",
+  "version": "1.0.0",
+  "description": "NodeJS bindings for the serial driver of the RadioHead library.",
+  "keywords": [
+    "radiohead",
+    "serial",
+    "rh_serial",
+    "reliabledatagram"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
+  "license": "GPL-2.0",
+  "gypfile": true,
+  "os": ["linux"],
+  "engines": {
+    "node": ">=4.0.0"
+  }
+}
