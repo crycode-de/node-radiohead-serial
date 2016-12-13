@@ -1,5 +1,4 @@
-#include <node.h>
-#include <node_buffer.h>
+#include <nan.h>
 #include <v8.h>
 
 #include <uv.h>
@@ -19,21 +18,6 @@
 
 
 namespace radioHeadAddon {
-  // TODO check if needed
-  using v8::Exception;
-  using v8::Function;
-  using v8::FunctionCallbackInfo;
-  using v8::HandleScope;
-  using v8::Isolate;
-  using v8::Local;
-  using v8::Object;
-  using v8::Boolean;
-  using v8::String;
-  using v8::Value;
-  using v8::Persistent;
-  using v8::Null;
-
-  using node::AtExit;
 
   //HardwareSerial globalhardwareserial("/dev/ttyUSB0");
   //RH_Serial globaldriver(globalhardwareserial);
@@ -56,8 +40,8 @@ namespace radioHeadAddon {
 
   struct Work {
     uv_work_t request;
-    Persistent<Function> rxCallback;
-    Persistent<Function> txCallback;
+    Nan::Persistent<v8::Function> rxCallback;
+    Nan::Persistent<v8::Function> txCallback;
 
     bool rxRunCallback;
     bool txRunCallback;
@@ -120,33 +104,31 @@ namespace radioHeadAddon {
     }
   }*/
 
-  void Init(const FunctionCallbackInfo<Value>& args){
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+  void Init(const Nan::FunctionCallbackInfo<v8::Value>& info){
 
-    if (args.Length() < 3) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
+    if (info.Length() < 3) {
+      Nan::ThrowError("Wrong number of arguments");
       return;
     }
 
-    if (!args[0]->IsString()) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Args[0] (Port) must be a string")));
+    if (!info[0]->IsString()) {
+      Nan::ThrowError("Args[0] (Port) must be a string");
       return;
     }
 
-    if (!args[1]->IsNumber()) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Args[1] (Baud) must be a number")));
+    if (!info[1]->IsNumber()) {
+      Nan::ThrowError("Args[1] (Baud) must be a number");
       return;
     }
 
-    if (!args[2]->IsNumber()) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Args[2] (Adress) must be a number")));
+    if (!info[2]->IsNumber()) {
+      Nan::ThrowError("Args[2] (Adress) must be a number");
       return;
     }
 
-    String::Utf8Value port(args[0]->ToString());
-    int baud = args[1]->NumberValue();
-    int ownAddress = args[2]->NumberValue();
+    v8::String::Utf8Value port(info[0]->ToString());
+    int baud = info[1]->NumberValue();
+    int ownAddress = info[2]->NumberValue();
 
     hardwareserial = new HardwareSerial((char*)*port);
     driver = new RH_Serial(*hardwareserial);
@@ -157,75 +139,74 @@ namespace radioHeadAddon {
     driver->serial().begin(baud);
 
     if (!manager->init()){
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Init failed")));
+      Nan::ThrowError("Init failed");
       return;
     }
 
-    args.GetReturnValue().Set(Undefined(isolate));
+    info.GetReturnValue().Set(Nan::Undefined());
   }
 
-  void Send(const FunctionCallbackInfo<Value>& args){
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+  void Send(const Nan::FunctionCallbackInfo<v8::Value>& info){
 
-    if (args.Length() < 4) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
+    if (info.Length() < 4) {
+      Nan::ThrowError("Wrong number of arguments");
       return;
     }
 
-    if (!args[0]->IsNumber()) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Args[0] (Address) must be a number")));
+    if (!info[0]->IsNumber()) {
+      Nan::ThrowError("Args[0] (Address) must be a number");
       return;
     }
 
-    if (!args[1]->IsNumber()) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Args[1] (Len) must be a number")));
+    if (!info[1]->IsNumber()) {
+      Nan::ThrowError("Args[1] (Len) must be a number");
       return;
     }
 
-    if (!args[2]->IsString() && !args[1]->IsObject()) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Args[2] (Message) must be a string or a buffer")));
+    if (!info[2]->IsString() && !info[2]->IsObject()) {
+      Nan::ThrowError("Args[2] (Data) must be a string or a buffer");
       return;
     }
 
-    if (!args[3]->IsFunction()) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Args[3] (Callback) must be a function")));
+    if (!info[3]->IsFunction()) {
+      Nan::ThrowError("Args[3] (Callback) must be a function");
       return;
     }
 
-    work->txAddr = (uint8_t) args[0]->NumberValue();
-    uint8_t txLen = (uint8_t) args[1]->NumberValue();
+    v8::Local<v8::Function> callback = info[3].As<v8::Function>();
+
+    work->txAddr = (uint8_t) info[0]->NumberValue();
+    uint8_t txLen = (uint8_t) info[1]->NumberValue();
     if(txLen > RH_SERIAL_MAX_MESSAGE_LEN){
       // Daten zu lang... Callback mit Fehlermeldung aufrufen
-      args.GetReturnValue().Set(Undefined(isolate));
+      info.GetReturnValue().Set(Nan::Undefined());
       const unsigned argc = 1;
-      Local<Value> argv[argc] = {
-        String::NewFromUtf8(isolate, "data too long")
+      v8::Local<v8::Value> argv[argc] = {
+        Nan::Error("data too long")
       };
-      Local<Function>::Cast(args[3])->Call(isolate->GetCurrentContext()->Global(), argc, argv);
+      Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, argc, argv);
       return;
     }
 
     // TODO Buffer verwenden
-    String::Utf8Value string(args[2]->ToString());
+    v8::String::Utf8Value string(info[2]->ToString());
     memcpy(&bufTx[0], (char*) *string, txLen);
     //std::cout << "dataToSend: " << unsigned(txLen) << " bytes -> " << *string << std::endl;
 
     // Länge übernehmen, damit die Daten gesendet werden
     work->txLen = txLen;
 
-    //Local<Function> cb = Local<Function>::Cast(args[3]);
-    work->txCallback.Reset(isolate, Local<Function>::Cast(args[3]));
+    work->txCallback.Reset(callback);
 
-    args.GetReturnValue().Set(Undefined(isolate));
+    info.GetReturnValue().Set(Nan::Undefined());
   }
 
-
-  void Available(const FunctionCallbackInfo<Value>& args){
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    args.GetReturnValue().Set(Boolean::New(isolate, manager->available()));
+  void Available(const Nan::FunctionCallbackInfo<v8::Value>& info){
+    if(manager->available()){
+      info.GetReturnValue().Set(Nan::True());
+    }else{
+      info.GetReturnValue().Set(Nan::False());
+    }
   }
 
   static void WorkAsync(uv_work_t *req){
@@ -283,25 +264,25 @@ namespace radioHeadAddon {
    * Die Arbeit anschließend einstellen oder neu starten.
    */
   static void WorkAsyncComplete(uv_work_t *req, int status){
-    Isolate * isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+    // HandleScope wird hier explizit benötigt, da dies keine eigentlich NaN-Methode ist
+    Nan::HandleScope scope;
 
     // ggf. RX-Callback ausführen
     if(work->rxRunCallback){
       // 4 Argumente für die Callback-Funktion...
       // Error, Sender-Adresse, Länge und Daten
       const unsigned argc = 4;
-      Local<Value> argv[argc] = {
-        Undefined(isolate),
-        v8::Number::New(isolate, work->rxAddr),
-        v8::Number::New(isolate, work->rxLen),
-        Null(isolate)
+      v8::Local<v8::Value> argv[argc] = {
+        Nan::Undefined(),
+        Nan::New(work->rxAddr),
+        Nan::New(work->rxLen),
+        Nan::Undefined()
       };
 
       if(work->rxLen > 0){
         // Daten empfangen
         //std::cout << "work->dataRx: " << work->dataRx << std::endl;
-        argv[3] = String::NewFromUtf8(isolate, (char*) bufRx);
+        argv[3] = Nan::New((char*) bufRx).ToLocalChecked();
         //argv[2] = v8::ArrayBuffer::New(isolate, /*&bufRx,*/ work->rxLen);
         /*node::Buffer *slowBuffer = node::Buffer::New(RH_SERIAL_MAX_MESSAGE_LEN);
         memcpy(node::Buffer::Data(slowBuffer), bufRx, RH_SERIAL_MAX_MESSAGE_LEN);
@@ -315,28 +296,28 @@ namespace radioHeadAddon {
 
       }else{
         // Keine Daten empfangen
-        argv[0] = String::NewFromUtf8(isolate, "nothing revcived");
+        argv[0] = Nan::Error("nothing revcived");
       }
 
       // Callback-Funktion aufrufen
-      Local<Function>::New(isolate, work->rxCallback)->
-        Call(isolate->GetCurrentContext()->Global(), argc, argv);
+      v8::Local<v8::Function> callback = Nan::New(work->rxCallback);
+      Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, argc, argv);
 
     }
 
     // ggf. TX-Callback ausführen
     if(work->txRunCallback){
       const unsigned argc = 1;
-      Local<Value> argv[argc] = {
-        Undefined(isolate)
+      v8::Local<v8::Value> argv[argc] = {
+        Nan::Undefined()
       };
       if(!work->txOk){
-        argv[0] = String::NewFromUtf8(isolate, "sendToWait failed");
+        argv[0] = Nan::Error("sendToWait failed");
       }
       // Callback-Funktion aufrufen
       // TODO check if callback is set
-      Local<Function>::New(isolate, work->txCallback)->
-        Call(isolate->GetCurrentContext()->Global(), argc, argv);
+      v8::Local<v8::Function> callback = Nan::New(work->txCallback);
+      Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, argc, argv);
 
       work->txCallback.Reset();
     }
@@ -357,9 +338,12 @@ namespace radioHeadAddon {
   }
 
 
-  void StartAsyncWork(const FunctionCallbackInfo<Value>& args){
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+  void StartAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info){
+
+    if (!info[0]->IsFunction()) {
+      Nan::ThrowError("Args[0] (Callback) must be a function");
+      return;
+    }
 
     work = new Work();
     work->request.data = work;
@@ -370,26 +354,23 @@ namespace radioHeadAddon {
     work->txLen = 0;
     work->txOk = false;
 
-    Local<Function> callback = Local<Function>::Cast(args[0]);
-    work->rxCallback.Reset(isolate, callback);
+    v8::Local<v8::Function> callback = info[0].As<v8::Function>();
+    work->rxCallback.Reset(callback);
 
     work->txCallback.Reset();
 
     uv_queue_work(uv_default_loop(), &work->request, WorkAsync, WorkAsyncComplete);
 
 
-    args.GetReturnValue().Set(Undefined(isolate));
+    info.GetReturnValue().Set(Nan::Undefined());
   }
 
 
-  void StopAsyncWork(const FunctionCallbackInfo<Value>& args){
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
+  void StopAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info){
     std::cout << "NodeJS-Addon Stop" << std::endl;
     work->stop = true;
 
-    args.GetReturnValue().Set(Undefined(isolate));
+    info.GetReturnValue().Set(Nan::Undefined());
   }
 
   static void atExit(void*){
@@ -403,16 +384,16 @@ namespace radioHeadAddon {
   /**
   * init function declares what we will make visible to node
   */
-  void initNode(Local<Object> exports) {
+  void initNode(v8::Local<v8::Object> exports) {
     start_millis = time_in_millis();
 
-    NODE_SET_METHOD(exports, "init", Init);
-    NODE_SET_METHOD(exports, "send", Send);
-    NODE_SET_METHOD(exports, "available", Available);
-    NODE_SET_METHOD(exports, "start", StartAsyncWork);
-    NODE_SET_METHOD(exports, "stop", StopAsyncWork);
+    exports->Set(Nan::New("init").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Init)->GetFunction());
+    exports->Set(Nan::New("send").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Send)->GetFunction());
+    exports->Set(Nan::New("available").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Available)->GetFunction());
+    exports->Set(Nan::New("start").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(StartAsyncWork)->GetFunction());
+    exports->Set(Nan::New("stop").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(StopAsyncWork)->GetFunction());
 
-    AtExit(atExit);
+    node::AtExit(atExit);
 
 
   }

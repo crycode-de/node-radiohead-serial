@@ -13,6 +13,7 @@
         "deps/RadioHead/RHCRC.cpp"
       ],
       "include_dirs": [
+        "<!(node -e \"require('nan')\")",
         "deps/RadioHead",
         "deps/RadioHead/RHutil"
       ]
