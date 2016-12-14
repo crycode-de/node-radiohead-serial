@@ -25,6 +25,7 @@ namespace radioHeadSerialAddon {
 
     Nan::Persistent<v8::Function> rxCallback;
     Nan::Persistent<v8::Function> txCallback;
+    Nan::Persistent<v8::Function> stopCallback;
 
     bool rxRunCallback;
     bool txRunCallback;

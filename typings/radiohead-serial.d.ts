@@ -7,12 +7,16 @@
  * the RH_Serial driver of the RadioHead library.
  */
 declare namespace RH_Serial {
+
+  /**
+   * Interface to the Addon.
+   */
   interface Addon {
     init(port:string, baud:number, address:number):void;
 
     start(onRecvCallback:(err:Error, from:number, length:number, data:Buffer)=>void):void;
 
-    stop():void;
+    stop(callback:()=>void):void;
 
     send(to:number, length:number, data:Buffer, callback:(err:Error)=>void):void;
 
@@ -58,8 +62,10 @@ declare namespace RH_Serial {
 
     /**
      * Stop the worker for receiving and sending data.
+     *
+     * @param callback Callback which is called when the worker as been stopped.
      */
-    stop();
+    stop(callback:()=>void);
 
     /**
      * Send a message through the RadioHead network.

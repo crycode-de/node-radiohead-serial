@@ -37,10 +37,12 @@ export class RadioHeadSerial {
 
   /**
    * Stop the worker for receiving and sending data.
+   *
+   * @param callback Callback which is called when the worker as been stopped.
    */
-  public stop():void{
+  public stop(callback:()=>void):void{
     this.workerActive = false;
-    this._addon.stop();
+    this._addon.stop(callback);
   }
 
   /**

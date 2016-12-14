@@ -261,7 +261,6 @@ namespace radioHeadSerialAddon {
       }
 
       // Callback-Funktion aufrufen
-      // TODO check if callback is set
       v8::Local<v8::Function> callback = Nan::New(work->txCallback);
       Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, argc, argv);
 
@@ -274,6 +273,13 @@ namespace radioHeadSerialAddon {
       // Arbeit einstellen
       work->rxCallback.Reset();
       work->txCallback.Reset();
+
+      // run the callback
+      const unsigned argc = 1;
+      v8::Local<v8::Value> argv[argc] = {Nan::Undefined()};
+      v8::Local<v8::Function> callback = Nan::New(work->stopCallback);
+      Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, argc, argv);
+
       delete work;
     }else{
       // Arbeit erneut starten...
@@ -324,9 +330,6 @@ namespace radioHeadSerialAddon {
     v8::Local<v8::Function> callback = info[0].As<v8::Function>();
     work->rxCallback.Reset(callback);
 
-    // TX-Callback-Funktion zurücksetzen, da hier noch nicht vorhanden
-    work->txCallback.Reset();
-
     // Arbeit mittels libuv starten
     uv_queue_work(uv_default_loop(), &work->request, WorkAsync, WorkAsyncComplete);
 
@@ -337,9 +340,20 @@ namespace radioHeadSerialAddon {
    * Funktion zum Stoppen der Arbeit im Hintergrund.
    * Setzt ein Flag, dass der Arbeitsschleife mitteilt, dass die Arbeit eingestellt werden soll.
    *
-   * TODO Callback-Funktion hinzufügen für Zeichen, dass gestoppt wurde
+   * Parameter from NodeJS:
+   *  callback Functon called if the work has been stopped.
    */
   void StopAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info){
+
+    if (!info[0]->IsFunction()) {
+      Nan::ThrowError("Args[0] (Callback) must be a function");
+      return;
+    }
+
+    // persist callback function
+    v8::Local<v8::Function> callback = info[0].As<v8::Function>();
+    work->stopCallback.Reset(callback);
+
     work->stop = true;
 
     info.GetReturnValue().Set(Nan::Undefined());
