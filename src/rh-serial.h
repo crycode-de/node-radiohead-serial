@@ -1,5 +1,5 @@
 /*
- * NodeJS RadioHead RH_Serial
+ * NodeJS RadioHead Serial
  *
  * (c) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *

@@ -6,14 +6,25 @@
     "radiohead",
     "serial",
     "rh_serial",
-    "reliabledatagram"
+    "reliabledatagram",
+    "network"
   ],
-  "main": "index.js",
+  "main": "dist/radiohead-serial.js",
+  "typings": "typings/index.d.ts",
   "scripts": {
+    "prepublish": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
   "license": "GPL-2.0",
+  "homepage": "https://git.cryhost.de/crycode/node-radiohead-serial",
+  "repository": {
+    "type": "git",
+    "url": "https://git.cryhost.de/crycode/node-radiohead-serial.git"
+  },
+  "bugs": {
+    "url": "https://git.cryhost.de/crycode/node-radiohead-serial/issues"
+  },
   "gypfile": true,
   "os": [
     "linux"
@@ -23,5 +34,8 @@
   },
   "dependencies": {
     "nan": "^2.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.1.4"
   }
 }

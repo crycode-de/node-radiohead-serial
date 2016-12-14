@@ -1,5 +1,5 @@
 /*
- * NodeJS RadioHead RH_Serial
+ * NodeJS RadioHead Serial
  *
  * (c) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
@@ -237,7 +237,7 @@ namespace radioHeadSerialAddon {
 
       }else{
         // Keine Daten empfangen
-        argv[0] = Nan::Error("nothing revcived");
+        argv[0] = Nan::Error("nothing received");
       }
 
       // Callback-Funktion aufrufen
@@ -301,6 +301,13 @@ namespace radioHeadSerialAddon {
     if (!info[0]->IsFunction()) {
       Nan::ThrowError("Args[0] (Callback) must be a function");
       return;
+    }
+
+    // read and discard all the old trash in cache
+    uint8_t len;
+    uint8_t from;
+    while(manager->available()){
+      manager->recvfromAck(bufRx, &len, &from);
     }
 
     // Work initialisieren

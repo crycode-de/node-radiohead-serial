@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "declaration": false,
+    "module": "commonjs",
+    "target": "es5",
+    "noImplicitAny": false,
+    "removeComments": false,
+    "outDir": "dist"
+  },
+  "files": [
+    "src/radiohead-serial.ts",
+    "typings/index.d.ts"
+  ]
+}
