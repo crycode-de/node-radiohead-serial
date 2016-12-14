@@ -54,6 +54,9 @@ namespace radioHeadSerialAddon {
   static void WorkAsyncComplete(uv_work_t *req, int status);
   void StartAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info);
   void StopAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  void SetAddress(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  void SetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  void SetTimeout(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void atExit(void*);
   void initNode(v8::Local<v8::Object> exports);
 }
