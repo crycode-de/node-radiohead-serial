@@ -1,7 +1,7 @@
 /*
  * NodeJS RadioHead Serial
  *
- * (c) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (C) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * NodeJS Addon for communiation between some RadioHead nodes and NodeJS using
  * the RH_Serial driver of the RadioHead library.
