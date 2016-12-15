@@ -23,7 +23,7 @@ The other nodes on the bus can be some microcontrollers (e.g. ATMega8 or Arduino
 ## Installation
 
 ```
-npm install git+https://git@git.cryhost.de/crycode/node-radiohead-serial.git
+npm install radiohead-serial
 ```
 
 

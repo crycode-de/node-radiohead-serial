@@ -1,0 +1,31 @@
+image: crycode/nodejs-dev-env
+
+stages:
+  - build
+  - deploy
+
+cache:
+  paths:
+    - node_modules/
+
+node-gyp-build:
+  stage: build
+  script:
+    - npm install
+    - node-gyp rebuild
+
+typescript-check:
+  stage: build
+  script:
+    - tsc
+
+publish-tp-npm:
+  stage: deploy
+  script:
+    - npm publish
+  environment:
+    name: production
+    url: https://www.npmjs.com/package/radiohead-serial
+  when: manual
+  only:
+    - tags
