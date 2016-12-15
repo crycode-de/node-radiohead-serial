@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
- * NodeJS module for communiation between some RadioHead nodes and NodeJS using
+ * NodeJS module for communication between some RadioHead nodes and NodeJS using
  * the RH_Serial driver of the RadioHead library.
  */
 declare namespace RH_Serial {
@@ -65,7 +65,7 @@ declare namespace RH_Serial {
      * Stop the worker for receiving and sending data.
      * If the worker is not active, the callback is immediately called.
      *
-     * @param callback Callback which is called when the worker as been stopped.
+     * @param callback Callback which is called when the worker has been stopped.
      */
     stop(callback:()=>void);
 

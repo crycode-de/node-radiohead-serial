@@ -35,7 +35,7 @@ rhs.start(onRecv);
 // Counter for the number of send messages
 var i = 0;
 
-// Start an interval for senden one message every 2 seconds
+// Start an interval for sending one message every 2 seconds
 var interval = setInterval(function(){
 
   // Create the data to be send to the server

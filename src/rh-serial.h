@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
- * NodeJS Addon for communiation between some RadioHead nodes and NodeJS using
+ * NodeJS Addon for communication between some RadioHead nodes and NodeJS using
  * the RH_Serial driver of the RadioHead library.
  */
 
