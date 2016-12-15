@@ -238,7 +238,7 @@ Default is 200.
 
 ## License
 
-Licensed under GPL V2
+Licensed under GPL Version 2
 
 Copyright (C) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
 
