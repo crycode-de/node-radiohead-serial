@@ -73,7 +73,7 @@ declare namespace RH_Serial {
      * @param to Recipient address. Use 255 for broadcast messages.
      * @param length Number ob bytes to send from the buffer.
      * @param data Buffer containing the message to send.
-     * @param callback Callback called after the message is send. First Argument is a possible Error object.
+     * @param callback Callback called after the message is send. First argument is a possible Error object.
      */
     send(to:number, length:number, data:Buffer, callback:(err:Error)=>void):void;
 
