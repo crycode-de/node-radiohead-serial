@@ -19,9 +19,11 @@ typescript-check:
   script:
     - tsc
 
-publish-tp-npm:
+publish-to-npm:
   stage: deploy
   script:
+    - npm config set unsafe-perm true
+    - npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
     - npm publish
   environment:
     name: production
