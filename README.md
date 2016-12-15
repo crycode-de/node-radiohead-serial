@@ -54,6 +54,7 @@ Loads an initializes the RadioHead driver and manager.
 start(onRecvCallback:(err:Error, from:number, length:number, data:Buffer)=>void):void;
 ```
 Starts the asynchronous worker for receiving and sending messages through the RadioHead network.
+If the worker already active, an error is thrown.
 Before start is called, no messages an be received or send.
 
 * `onRecvCallback` - Callback function, which is called on every received message. The callback takes the following arguments:
@@ -67,6 +68,7 @@ Before start is called, no messages an be received or send.
 stop(callback:()=>void);
 ```
 Stops the asynchronous worker.
+If the worker is not active, the callback is immediately called.
 After stop is called, no messages an be received or send.
 
 * `callback` - Callback function, which is called if the worker has been stopped.

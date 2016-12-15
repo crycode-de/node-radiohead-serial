@@ -55,6 +55,7 @@ declare namespace RH_Serial {
 
     /**
      * Start the worker for receiving and sending data.
+     * If the worker already active, an error is thrown.
      *
      * @param onRecvCallback Callback which is called when a new message is revcived.
      */
@@ -62,6 +63,7 @@ declare namespace RH_Serial {
 
     /**
      * Stop the worker for receiving and sending data.
+     * If the worker is not active, the callback is immediately called.
      *
      * @param callback Callback which is called when the worker as been stopped.
      */

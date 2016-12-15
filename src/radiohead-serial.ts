@@ -27,20 +27,31 @@ export class RadioHeadSerial {
 
   /**
    * Start the worker for receiving and sending data.
+   * If the worker already active, an error is thrown.
    *
    * @param onRecvCallback Callback which is called when a new message is revcived.
    */
   public start(onRecvCallback:(err:Error, from:number, length:number, data:Buffer)=>void):void{
+    if(this.workerActive){
+      throw new Error('already started');
+    }
+
     this._addon.start(onRecvCallback);
     this.workerActive = true;
   }
 
   /**
    * Stop the worker for receiving and sending data.
+   * If the worker is not active, the callback is immediately called.
    *
    * @param callback Callback which is called when the worker as been stopped.
    */
   public stop(callback:()=>void):void{
+    if(!this.workerActive){
+      callback();
+      return;
+    }
+
     this.workerActive = false;
     this._addon.stop(callback);
   }
