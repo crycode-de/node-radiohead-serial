@@ -27,7 +27,130 @@ npm install git+https://git@git.cryhost.de/crycode/node-radiohead-serial.git
 
 ## Examples
 
-Comming soon...
+The examples blow can be found in the *examples* directory of this package.
+
+The examples assume a Linux system with two USB-RS485 adapters connected.
+The A and B lines of the RS485 are connected between both adapters.
+You can also use two machines with respectively one adapter.
+
+Depending on you system you may have to change the used ports (/dev/ttyUSB0) in the examples.
+
+If you want to use ES6 style imports you can use
+```ts
+import {RadioHeadSerial} from 'radiohead-serial';
+```
+
+### A server replying to messages sent by clients
+```js
+// Require the radiohead-serial module
+var RadioHeadSerial = require('radiohead-serial').RadioHeadSerial;
+
+// Create an instance of the RadioHeadSerial class
+var rhs = new RadioHeadSerial('/dev/ttyUSB0', 9600, 0x01);
+
+// Define a callback function for received messages
+function onRecv(err, from, length, data){
+  // Check if an error occurred
+  if(err){
+    console.log('-> Error:', err);
+    return;
+  }
+
+  // Convert the decimal from address to hex
+  var sender = ('0' + from.toString(16)).slice(-2).toUpperCase();
+
+  // Print info to the console
+  console.log('-> Got ' + length + ' Bytes from 0x' + sender + ': "' + data.toString() + '" Raw:', data);
+
+  // Create the answer for the client
+  var answer = new Buffer('Hello back to you, client!');
+
+  // Send the answer to the client
+  rhs.send(from, answer.length, answer, function(err){
+    // Check if an error occured
+    if(err){
+      console.log('<- Error:', err);
+      return;
+    }
+
+    // Print info to the console
+    console.log('<- Ok! Answered to 0x' + sender + ': "' + answer.toString() + '" Raw:', answer);
+  });
+}
+
+// Start the asynchronous worker
+rhs.start(onRecv);
+
+// Print some info
+console.log('Server example running.');
+console.log('Now start the client example...');
+```
+
+### A client sending messages to a server
+```js
+// Require the radiohead-serial module
+var RadioHeadSerial = require('radiohead-serial').RadioHeadSerial;
+
+// Create an instance of the RadioHeadSerial class
+var rhs = new RadioHeadSerial('/dev/ttyUSB1', 9600, 0x02);
+
+// Define a callback function for received messages
+function onRecv(err, from, length, data){
+  // Check if an error occurred
+  if(err){
+    console.log('-> Error:', err);
+    return;
+  }
+
+  // Convert the decimal from address to hex
+  var sender = ('0' + from.toString(16)).slice(-2).toUpperCase();
+
+  // Print info to the console
+  console.log('-> Got ' + length + ' Bytes from 0x' + sender + ': "' + data.toString() + '" Raw:', data);
+}
+
+// Start the asynchronous worker
+rhs.start(onRecv);
+
+// Counter for the number of send messages
+var i = 0;
+
+// Start an interval for senden one message every 2 seconds
+var interval = setInterval(function(){
+
+  // Create the data to be send to the server
+  var data = new Buffer('Hello server!');
+
+  // Send the data to the server
+  rhs.send(0x01, data.length, data, function(err){
+    // Check if an error occurred
+    if(err){
+      console.log('<- Error:', err);
+      return;
+    }
+
+    // Print info to the console
+    console.log('<- Ok! Send: "' + data.toString() + '" Raw:', data);
+  });
+
+  // Count up the counter an check if we tried to send ten messages
+  if(++i >= 10){
+    // We send ten messages
+    // Clear the interval
+    clearInterval(interval);
+
+    // Stop the asynchronous worker
+    rhs.stop(function(){
+      // Print some info when the worker has been stopped
+      console.log('Client example done.');
+    });
+  }
+}, 2000);
+
+// Print some info
+console.log('Client example running.');
+console.log('I\'ll try to send hello to the Server ten times...');
+```
 
 
 ## API
