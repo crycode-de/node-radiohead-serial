@@ -1,9 +1,11 @@
 # radiohead-serial
 
+[![build status](https://git.cryhost.de/crycode/node-radiohead-serial/badges/master/build.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/master)
+
 Communication between some **RadioHead** nodes and **Node.js** using the *RH_Serial* driver and the *RHReliableDatagram* manager of the RadioHead library.
 
 [RadioHead](http://www.airspayce.com/mikem/arduino/RadioHead/) is a Packet Radio library for embedded microprocessors.
-> RH_Serial Works with RS232, RS422, RS485, RS488 and other point-to-point and multidropped serial connections, or with TTL serial UARTs such as those on Arduino and many other processors, or with data radios with a serial port interface. RH_Serial provides packetization and error detection over any hardware or virtual serial connection.
+> RH_Serial works with RS232, RS422, RS485, RS488 and other point-to-point and multidropped serial connections, or with TTL serial UARTs such as those on Arduino and many other processors, or with data radios with a serial port interface. RH_Serial provides packetization and error detection over any hardware or virtual serial connection.
 
 > RHReliableDatagram provides Addressed, reliable, retransmitted, acknowledged variable length messages.
 
