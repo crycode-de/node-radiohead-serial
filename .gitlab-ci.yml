@@ -12,7 +12,7 @@ node-gyp-build:
   stage: build
   script:
     - npm config set unsafe-perm true
-    - npm install
+    - npm install nan@^2.4.0
     - node-gyp rebuild
 
 typescript-check:
