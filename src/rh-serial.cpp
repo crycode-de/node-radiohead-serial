@@ -26,13 +26,12 @@
 namespace radioHeadSerialAddon {
 
   /**
-   * Initialisierung der RadioHead Library.
+   * Initialisation of the RadioHead library.
    *
-   * Parameter die vom NodeJS-Aufruf übergeben weden müssen:
-   *  port - String mit dem Device, dass für die Serielle Kommunikation genutzt
-   *         werden soll. (z.B. /dev/ttyUSB0)
-   *  baud - Baudrate für die Serielle Kommunikation. (z.B. 9600)
-   *  addr - Die Adresse dieses Kontens im RadioHead-Netzwerk. (z.B. 0x01)
+   * Parameters for the Node.js call:
+   *  port - String with the device used for the serial communiation (e.g. /dev/ttyUSB0)
+   *  baud - Baud rate for the serial communiation. (e.g. 9600)
+   *  addr - Address of this node in the RadioHead network. (e.g. 0x01)
    */
   void Init(const Nan::FunctionCallbackInfo<v8::Value>& info){
 
@@ -56,20 +55,20 @@ namespace radioHeadSerialAddon {
       return;
     }
 
-    // Argumente übernehmen
+    // get arguments
     v8::String::Utf8Value port(info[0]->ToString());
     int baud = info[1]->NumberValue();
     uint8_t ownAddress = info[2]->NumberValue();
 
-    // RadioHead initialisieren
+    // init RadioHead
     hardwareserial = new HardwareSerial((char*)*port);
     driver = new RH_Serial(*hardwareserial);
     manager = new RHReliableDatagram(*driver, ownAddress);
 
-    // Serielle Kommunikation starten
+    // start serial communication
     driver->serial().begin(baud);
 
-    // Manager initialisieren
+    // init the RadioHead manager
     if (!manager->init()){
       Nan::ThrowError("Init failed");
       return;
@@ -79,13 +78,13 @@ namespace radioHeadSerialAddon {
   }
 
   /**
-   * Daten an einen anderen Knoten im RadioHead-Netzwerk senden.
+   * Send a message through the RadioHead network.
    *
-   * Parameter die vom NodeJS-Aufruf übergeben weden müssen:
-   *  addr - Die Empfängeradresse. (z.B. 0x05)
-   *  len  - Die Anzahl an Bytes, die gesendet werden sollen.
-   *  data - Die zu sendenden Daten als Buffer.
-   *  cb   - Callback-Funktion.
+   * Parameters for the Node.js call:
+   *  addr - Recipient address. Use 255 for broadcast messages. (e.g. 0x05)
+   *  len  - Number ob bytes to send from the buffer.
+   *  data - Buffer containing the message to send.
+   *  cb   - Callback called after the message is send. First argument is a possible Error object.
    */
   void Send(const Nan::FunctionCallbackInfo<v8::Value>& info){
 
@@ -114,14 +113,14 @@ namespace radioHeadSerialAddon {
       return;
     }
 
-    // Callback-Funktion, Empfängeradresse und Länge der Daten holen
+    // get callback function, receiver address and length of data
     v8::Local<v8::Function> callback = info[3].As<v8::Function>();
     work->txAddr = (uint8_t) info[0]->NumberValue();
     uint8_t txLen = (uint8_t) info[1]->NumberValue();
 
-    // Prüfen ob die Daten evtl. zu lang sind
+    // check if data is too long
     if(txLen > RH_SERIAL_MAX_MESSAGE_LEN){
-      // Daten zu lang... Callback mit Fehlermeldung aufrufen
+      // too long... call the callback with an error
       info.GetReturnValue().Set(Nan::Undefined());
       const unsigned argc = 1;
       v8::Local<v8::Value> argv[argc] = {
@@ -131,73 +130,72 @@ namespace radioHeadSerialAddon {
       return;
     }
 
-    // Daten aus dem NodeJS-Buffer in den TX-Buffer kopieren
+    // copy data from the Node.js buffer to the TX buffer
     char* buffer = (char*) node::Buffer::Data(info[2]->ToObject());
     memcpy(&bufTx[0], buffer, txLen);
 
-    // Callback-Funktion merken
+    // persist callback function
     work->txCallback.Reset(callback);
 
-    // Länge übernehmen, damit die Daten gesendet werden
+    // set length, so that the worker knows that there is some data to send
     work->txLen = txLen;
 
     info.GetReturnValue().Set(Nan::Undefined());
   }
 
   /**
-   * Funktion zur Abarbeitung der async Hauptschleife.
-   * Hier wird regelmäßig geprüft, ob eine neue Meldung empfangen wurde und es
-   * werden die Daten aus dem TX-Buffer versendet.
-   * Wurden Daten empfangen oder versendet werden entsprechende Flags gesetzt
-   * und die Schleife verlassen.
+   * Worker for the asynchronous "main" loop.
+   * Checks periodically if a new message has been received.
+   * Also sends the data from the tx buffer, if txLen is greater than zero.
+   * If some data has been received or sent a flag is set and the loop is exited.
    */
   static void WorkAsync(uv_work_t *req){
 
-    // Hauptschleife, die auf Aktionen wartet
+    // main loop watching for actions
     while(!work->stop && !work->rxRunCallback && !work->txRunCallback){
 
-      // Daten empfangen?
+      // data received?
       if(manager->available()){
-        // Daten empfangen
+        // data received...
         work->rxLen = sizeof(bufRx);
 
-        // Daten abrufen und prüfen
+        // get the received data
         if(manager->recvfromAck(bufRx, &work->rxLen, &work->rxAddr)){
-          // Empfangene Daten sind ok...
-          // Länge der Daten ist in work->rxLen
-          // Die Absenderadresse ist in work->rxAddr
+          // received data is ok...
+          // length of the data is in work->rxLen
+          // sender address is in work->rxAddr
 
-          // Flag setzen, dass die RX-Callback-Funktion ausgeführt werden soll
+          // set the flag, to run the rx callback
           work->rxRunCallback = true;
 
         }else{
-          // Empfangene Daten sind nicht ok (z.B. Checksummenfehler) ...
+          // data is NOT ok (e.g. checksumerror)...
 
-          // Länge der empfangen Daten auf 0 setzen und Flag für RX-Callback-Funktion setzen
+          // set length to zero and set the flag, to run the rx callback
           work->rxLen = 0;
           work->rxRunCallback = true;
 
         }
 
-      // Zu sendende Daten vorhanden?
+      // is there data to send?
       }else if(work->txLen > 0){
-        // Daten senden
+        // send data
         if(manager->sendtoWait(bufTx, work->txLen, work->txAddr)){
-          // erfolgreich gesendet... Flag setzen
+          // ok... set flag
           work->txOk = true;
         }else{
-          // Senden fehlgeschlagen... Flag setzen
+          // error... set flag
           work->txOk = false;
         }
 
-        // Flag setzen, dass die TX-Callback-Funktion ausgeführt werden soll
-        work->txRunCallback = true;
-
-        // Länge der zu sendenden Daten auf 0 setzen, da bereits gesendet
+        // set txLen to zero, because the actual data is already sent
         work->txLen = 0;
 
+        // set the flag, to run the tx callback
+        work->txRunCallback = true;
+
       }else {
-        // nichts zu tun... 50ms warten
+        // nothing to do... just wait 50ms
         usleep(50000);
       }
 
@@ -205,19 +203,19 @@ namespace radioHeadSerialAddon {
   }
 
   /**
-   * Async-Arbeit abgeschlossen.
-   * Callback-Funktionen aufrufen mit entsprechenden Argumenten. (Error und Data)
-   * Die Arbeit anschließend einstellen oder neu starten.
+   * Asynchronous work done.
+   * Call the callback functions with the corresponding arguments.
+   * Then stop the work or start is again.
    */
   static void WorkAsyncComplete(uv_work_t *req, int status){
-    // HandleScope wird hier explizit benötigt, da dies keine eigentlich NaN-Methode ist
+    // HandleScope explicit needed, because this isnt is real NaN-method
     Nan::HandleScope scope;
 
-    // RX-Callback ausführen, wenn Flag gesetzt
+    // run rx callback if the flag is set
     if(work->rxRunCallback){
-      // 4 Argumente für die Callback-Funktion...
-      // Error, Sender-Adresse, Länge und Daten
-      // Error und Daten undefined, wenn nicht vorhanden
+      // 4 arguments for the callback function
+      // error, sender address, length and data
+      // error and data are undefined if not present
       const unsigned argc = 4;
       v8::Local<v8::Value> argv[argc] = {
         Nan::Undefined(),
@@ -227,50 +225,50 @@ namespace radioHeadSerialAddon {
       };
 
       if(work->rxLen > 0){
-        // Daten empfangen... für Argumente der Callback-Funktion übernehmen
+        // received some data... set argument of the callback
 
-        // Einen Buffer zurückgeben, da evtl. mit Binärdaten gearbeitet wird
-        // CopyBuffer anstelle von NewBuffer verwenden, da NewBuffer den Pointer auf
-        // bufRx übernehmen und über den Garbage Collector freigeben würde.
-        // siehe https://github.com/nodejs/nan/blob/master/doc/buffers.md#nannewbuffer
+        // Return a Node.js Buffer, so that binary data can be used.
+        // Use CopyBuffer because NewBuffer takes the pointer, so that rxBuf will be
+        // delete by the garbage collector.
+        // see https://github.com/nodejs/nan/blob/master/doc/buffers.md#nannewbuffer
         argv[3] = Nan::CopyBuffer((char*) bufRx, work->rxLen).ToLocalChecked();
 
       }else{
-        // Keine Daten empfangen
+        // no data received
         argv[0] = Nan::Error("nothing received");
       }
 
-      // Callback-Funktion aufrufen
+      // call the callback
       v8::Local<v8::Function> callback = Nan::New(work->rxCallback);
       Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, argc, argv);
 
     }
 
-    // TX-Callback ausführen, wenn Flag gesetzt
+    // run tx callback if the flag is set
     if(work->txRunCallback){
-      // 1 Argument für die Callback-Funktion...
-      // Error (undefined, wenn es keinen Fehler gab)
+      // 1 argument for the callback
+      // error (undefined, if not present)
       const unsigned argc = 1;
       v8::Local<v8::Value> argv[argc] = {
         Nan::Undefined()
       };
 
-      // Error setzen, wenn Senden nicht ok war
+      // set error, if sending was not ok
       if(!work->txOk){
         argv[0] = Nan::Error("sendToWait failed");
       }
 
-      // Callback-Funktion aufrufen
+      // call the callback
       v8::Local<v8::Function> callback = Nan::New(work->txCallback);
       Nan::MakeCallback(Nan::GetCurrentContext()->Global(), callback, argc, argv);
 
-      // Callback-Funktion zurücksetzen, da bereits ausgeführt
+      // reset the callback, because it has been triggert
       work->txCallback.Reset();
     }
 
-    // Arbeit beenden oder erneut starten?
+    // stop the work or restart it?
     if(work->stop){
-      // Arbeit einstellen
+      // stop the work
       work->rxCallback.Reset();
       work->txCallback.Reset();
 
@@ -282,25 +280,26 @@ namespace radioHeadSerialAddon {
 
       delete work;
     }else{
-      // Arbeit erneut starten...
-      // Flags zurücksetzen
+      // restart the work
+      // reset flags
       work->rxRunCallback = false;
       work->rxLen = 0;
       work->txRunCallback = false;
-      // Arbeit mittels libuv starten
+
+      // start the work using libuv
       uv_queue_work(uv_default_loop(), &work->request, WorkAsync, WorkAsyncComplete);
     }
   }
 
   /**
-   * Funktion zum Starten der Arbeit im Hintergrund.
+   * Start the worker for receiving and sending data.
    *
-   * Parameter der vom NodeJS-Aufruf übergeben weden muss:
-   *  cb - Callback-Funktion, die bei eingehenden Daten aufgerufen wird mit den Folgenden Argumenten:
-   *         err  - Ein ggf. aufgetretener Fehler.
-   *         from - Absenderadresse der Nachricht.
-   *         len  - Länge der Daten in Bytes.
-   *         data - Die empfangen Daten.
+   * Parameters for the Node.js call:
+   *  cb - Callback funktion, which is called when data is received with the following arguments:
+   *         err  - A possible occurred error.
+   *         from - Sender address of the message.
+   *         len  - Length of the message in bytes.
+   *         data - The received data as a Node.js Buffer.
    */
   void StartAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info){
 
@@ -316,7 +315,7 @@ namespace radioHeadSerialAddon {
       manager->recvfromAck(bufRx, &len, &from);
     }
 
-    // Work initialisieren
+    // init work
     work = new Work();
     work->request.data = work;
     work->stop = false;
@@ -326,22 +325,22 @@ namespace radioHeadSerialAddon {
     work->txLen = 0;
     work->txOk = false;
 
-    // RX-Callback-Funktion übernehmen
+    // persist the rx callback function
     v8::Local<v8::Function> callback = info[0].As<v8::Function>();
     work->rxCallback.Reset(callback);
 
-    // Arbeit mittels libuv starten
+    // start the work using libuv
     uv_queue_work(uv_default_loop(), &work->request, WorkAsync, WorkAsyncComplete);
 
     info.GetReturnValue().Set(Nan::Undefined());
   }
 
   /**
-   * Funktion zum Stoppen der Arbeit im Hintergrund.
-   * Setzt ein Flag, dass der Arbeitsschleife mitteilt, dass die Arbeit eingestellt werden soll.
+   * Stop the worker for receiving and sending data.
+   * Sets a flag for the worker, that the worker should stop.
    *
-   * Parameter from NodeJS:
-   *  callback Functon called if the work has been stopped.
+   * Parameters for the Node.js call:
+   *  cb - Callback funktion, which is called when the work has been stopped.
    */
   void StopAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info){
 
@@ -354,16 +353,17 @@ namespace radioHeadSerialAddon {
     v8::Local<v8::Function> callback = info[0].As<v8::Function>();
     work->stopCallback.Reset(callback);
 
+    // set the flag
     work->stop = true;
 
     info.GetReturnValue().Set(Nan::Undefined());
   }
 
   /**
-   * Ändern der eigenen Adresse im RadioHead-Netzwerk.
+   * Set the address of this node in the RadioHead network.
    *
-   * Parameter der vom NodeJS-Aufruf übergeben weden muss:
-   *  addr - Die Empfängeradresse. (z.B. 0x05)
+   * Parameters for the Node.js call:
+   *  addr - The new address (e.g. 0x05)
    */
   void SetAddress(const Nan::FunctionCallbackInfo<v8::Value>& info){
     if (!info[0]->IsNumber()) {
@@ -378,10 +378,11 @@ namespace radioHeadSerialAddon {
   }
 
   /**
-   * Ändern der Anzahl der Sendeversuche für eine Nachricht.
+   * Sets the maximum number of retries.
+   * If set to 0, each message will only ever be sent once.
    *
-   * Parameter der vom NodeJS-Aufruf übergeben weden muss:
-   *  retries - Anzahl der Sendeversuche. (Standard 3)
+   * Parameters for the Node.js call:
+   *  retries - New number of retries. (default 3)
    */
   void SetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info){
     if (!info[0]->IsNumber()) {
@@ -396,10 +397,10 @@ namespace radioHeadSerialAddon {
   }
 
   /**
-   * Ändern des Timeouts für Sendeversuche für eine Nachricht.
+   * Sets the minimum retransmit timeout in milliseconds.
    *
-   * Parameter der vom NodeJS-Aufruf übergeben weden muss:
-   *  timeout - Zeit in Millisekunden für einen Sendeversuch. (Standard 200)
+   * Parameters for the Node.js call:
+   *  timeout - New timeout in milliseconds. (default 200)
    */
   void SetTimeout(const Nan::FunctionCallbackInfo<v8::Value>& info){
     if (!info[0]->IsNumber()) {
@@ -414,8 +415,8 @@ namespace radioHeadSerialAddon {
   }
 
   /**
-   * Hook für das Beenden des Addons.
-   * Gibt Spreicherbereiche von RadioHead wieder frei.
+   * Hook for addon exit.
+   * Deletes the RadioHead objects.
    */
   static void atExit(void*){
     delete manager;
@@ -424,13 +425,14 @@ namespace radioHeadSerialAddon {
   }
 
   /**
-  * Init-Funktion, die festlegt was von NodeJS aus sichtbar gemacht wird.
+  * Initialisation of the addon.
+  * Defines what is visible to Node.js
   */
   void initNode(v8::Local<v8::Object> exports){
-    // Startzeit festlegen (für RadioHead erforderlich)
+    // set the start time (needed for RadioHead)
     start_millis = time_in_millis();
 
-    // Funktionen exportieren
+    // export functions
     exports->Set(Nan::New("init").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Init)->GetFunction());
     exports->Set(Nan::New("send").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Send)->GetFunction());
     exports->Set(Nan::New("start").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(StartAsyncWork)->GetFunction());
@@ -439,11 +441,11 @@ namespace radioHeadSerialAddon {
     exports->Set(Nan::New("setRetries").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetRetries)->GetFunction());
     exports->Set(Nan::New("setTimeout").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetTimeout)->GetFunction());
 
-    // AtExit-Hook registrieren
+    // reister AtExit-Hook
     node::AtExit(atExit);
   }
 
-  // Init des NodeJS-Addons
-  // Achtung: Kein ; am Ende!
+  // Init of the Addons
+  // Attention: No ; at the End!
   NODE_MODULE(radiohead, initNode)
 }

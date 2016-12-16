@@ -11,6 +11,7 @@ cache:
 node-gyp-build:
   stage: build
   script:
+    - npm config set unsafe-perm true
     - npm install
     - node-gyp rebuild
 

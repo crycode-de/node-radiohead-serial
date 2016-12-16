@@ -14,12 +14,12 @@
 
 namespace radioHeadSerialAddon {
 
-  // Pointer für RadioHead
+  // Pointer for RadioHead
   HardwareSerial * hardwareserial;
   RH_Serial * driver;
   RHReliableDatagram * manager;
 
-  // Struct für die Arbeiten im Hintergrund
+  // Struct for the asynchronous work in background
   struct Work {
     uv_work_t request;
 
@@ -41,14 +41,14 @@ namespace radioHeadSerialAddon {
     bool stop;
   };
 
-  // Pointer auf die Arbeit im Hintergrund
+  // Pointer to the asynchronous work in background
   Work * work;
 
   // RX/TX Buffer
   uint8_t bufRx[RH_SERIAL_MAX_MESSAGE_LEN];
   uint8_t bufTx[RH_SERIAL_MAX_MESSAGE_LEN];
 
-  // Funktionen
+  // Functions
   void Init(const Nan::FunctionCallbackInfo<v8::Value>& info);
   void Send(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void WorkAsync(uv_work_t *req);
