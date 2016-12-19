@@ -397,6 +397,15 @@ namespace radioHeadSerialAddon {
   }
 
   /**
+   * Returns the currently configured maximum retries count. Can be changed with setRetries().
+   */
+  void GetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info){
+    uint8_t retries = manager->retries();
+
+    info.GetReturnValue().Set(Nan::New(retries));
+  }
+
+  /**
    * Sets the minimum retransmit timeout in milliseconds.
    *
    * Parameters for the Node.js call:
@@ -410,6 +419,24 @@ namespace radioHeadSerialAddon {
 
     uint16_t timeout = info[0]->NumberValue();
     manager->setTimeout(timeout);
+
+    info.GetReturnValue().Set(Nan::Undefined());
+  }
+
+  /*
+   * Returns the number of retransmissions we have had to send since starting or since the last call to resetRetransmissions().
+   */
+  void GetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info){
+    uint8_t retransmissions = manager->retransmissions();
+
+    info.GetReturnValue().Set(Nan::New(retransmissions));
+  }
+
+  /*
+   * Resets the count of the number of retransmissions to 0.
+   */
+  void ResetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info){
+    manager->resetRetransmissions();
 
     info.GetReturnValue().Set(Nan::Undefined());
   }
@@ -439,7 +466,10 @@ namespace radioHeadSerialAddon {
     exports->Set(Nan::New("stop").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(StopAsyncWork)->GetFunction());
     exports->Set(Nan::New("setAddress").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetAddress)->GetFunction());
     exports->Set(Nan::New("setRetries").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetRetries)->GetFunction());
+    exports->Set(Nan::New("getRetries").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetRetries)->GetFunction());
     exports->Set(Nan::New("setTimeout").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetTimeout)->GetFunction());
+    exports->Set(Nan::New("getRetransmissions").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetRetransmissions)->GetFunction());
+    exports->Set(Nan::New("resetRetransmissions").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(ResetRetransmissions)->GetFunction());
 
     // reister AtExit-Hook
     node::AtExit(atExit);

@@ -93,6 +93,14 @@ export class RadioHeadSerial {
   }
 
   /**
+   * Returns the currently configured maximum retries count.
+   * Can be changed with setRetries().
+   */
+  public getRetries():number{
+    return this._addon.getRetries();
+  }
+
+  /**
    * Sets the minimum retransmit timeout in milliseconds.
    * If an ack is taking longer than this time, a message will be retransmitted.
    * Default is 200.
@@ -101,5 +109,20 @@ export class RadioHeadSerial {
    */
   public setTimeout(timeout:number):void{
     this._addon.setTimeout(timeout);
+  }
+
+  /**
+   * Returns the number of retransmissions we have had to send since starting
+   * or since the last call to resetRetransmissions().
+   */
+  public getRetransmissions():number{
+    return this._addon.getRetransmissions();
+  }
+
+  /**
+   * Resets the count of the number of retransmissions to 0.
+   */
+  public resetRetransmissions():void{
+    this._addon.resetRetransmissions();
   }
 }

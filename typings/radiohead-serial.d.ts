@@ -24,7 +24,13 @@ declare namespace RH_Serial {
 
     setRetries(count:number):void;
 
+    getRetries():number;
+
     setTimeout(timeout:number):void;
+
+    getRetransmissions():number;
+
+    resetRetransmissions():void;
   }
 
   /**
@@ -96,6 +102,12 @@ declare namespace RH_Serial {
     setRetries(count:number):void;
 
     /**
+     * Returns the currently configured maximum retries count.
+     * Can be changed with setRetries().
+     */
+    getRetries():number;
+
+    /**
      * Sets the minimum retransmit timeout in milliseconds.
      * If an ack is taking longer than this time, a message will be retransmittet.
      * Default is 200.
@@ -103,6 +115,17 @@ declare namespace RH_Serial {
      * @param timeout New timeout in milliseconds.
      */
     setTimeout(timeout:number):void;
+
+    /**
+     * Returns the number of retransmissions we have had to send since starting
+     * or since the last call to resetRetransmissions().
+     */
+    getRetransmissions():number
+
+    /**
+     * Resets the count of the number of retransmissions to 0.
+     */
+    resetRetransmissions():void;
   }
 }
 
