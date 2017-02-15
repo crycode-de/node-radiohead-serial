@@ -308,13 +308,6 @@ namespace radioHeadSerialAddon {
       return;
     }
 
-    // read and discard all the old trash in cache
-    uint8_t len;
-    uint8_t from;
-    while(manager->available()){
-      manager->recvfromAck(bufRx, &len, &from);
-    }
-
     // init work
     work = new Work();
     work->request.data = work;
@@ -324,6 +317,14 @@ namespace radioHeadSerialAddon {
     work->txRunCallback = false;
     work->txLen = 0;
     work->txOk = false;
+
+    // read and discard all the old trash in cache
+    while(manager->available()){
+      manager->recvfromAck(bufRx, &work->rxLen);
+    }
+
+    // reset the rxLen to 0
+    work->rxLen = 0;
 
     // persist the rx callback function
     v8::Local<v8::Function> callback = info[0].As<v8::Function>();
