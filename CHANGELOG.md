@@ -1,3 +1,7 @@
+## v1.0.3 2017-02-28
+- Finally fixed segmentation fault bug
+- Added serial gateway description and example arduino sketch
+
 ## v1.0.2 2017-02-15
 - Fixed segmentation fault bug
 

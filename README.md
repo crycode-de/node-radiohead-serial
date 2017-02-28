@@ -20,6 +20,18 @@ The radiohead-serial module is perfect if you want to build your own bus system 
 
 As a head station you can use a Raspberry Pi mini computer with a USB-RS485 adapter.
 The other nodes on the bus can be some microcontrollers (e.g. ATMega8 or Arduino) with an TTL-RS485 converter (e.g. Max485) connected.
+In addition using a serial to radio gateway is possible (see below).
+
+
+## Using other RadioHead drivers with a gateway
+
+If you want to use other RadioHead drivers (for example *RH_ASK*), you can simply use an Arduino nano ($2 to $10) as an serial gateway.
+Other microcontrollers can be used too.
+
+Connect your radio hardware to the Arduino and upload the `rh_serial_gateway` sketch. An example sketch is included in the *examples* directory.
+The Arduino will act as a gateway between the serial and the radio network.
+
+Optionally the gateway can filter messages, so that only a specific address range is transmitted through the radio network.
 
 
 ## Installation

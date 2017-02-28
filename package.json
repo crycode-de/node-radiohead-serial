@@ -1,13 +1,14 @@
 {
   "name": "radiohead-serial",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Node.js bindings for the serial driver of the RadioHead library.",
   "keywords": [
     "radiohead",
     "serial",
     "rh_serial",
     "reliabledatagram",
-    "network"
+    "network",
+    "gatway"
   ],
   "main": "dist/radiohead-serial.js",
   "typings": "typings/index.d.ts",
