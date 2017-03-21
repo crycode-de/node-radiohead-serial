@@ -9,7 +9,7 @@ Communication between some **RadioHead** nodes and **Node.js** using the *RH_Ser
 
 > RHReliableDatagram provides Addressed, reliable, retransmitted, acknowledged variable length messages.
 
-Version of the used RadioHead library: *1.64 2016-12-10*
+Version of the used RadioHead library: *1.74 2017-03-08*
 
 This module can be used on any Linux system, for example a Raspberry Pi with Raspbian or a regular computer.
 
