@@ -1,6 +1,6 @@
 {
   "name": "radiohead-serial",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Node.js bindings for the serial driver of the RadioHead library.",
   "keywords": [
     "radiohead",

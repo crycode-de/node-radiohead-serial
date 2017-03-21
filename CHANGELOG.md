@@ -1,3 +1,6 @@
+## v1.0.4 2017-03-21
+- Updated RadioHead library to v1.74
+
 ## v1.0.3 2017-02-28
 - Finally fixed segmentation fault bug
 - Added serial gateway description and example arduino sketch
