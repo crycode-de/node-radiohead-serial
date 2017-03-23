@@ -15,10 +15,11 @@ node-gyp-build:
     - npm install nan@^2.4.0
     - node-gyp rebuild
 
-typescript-check:
+typescript-build:
   stage: build
   script:
     - tsc
+    - tsc --noEmit examples/*.ts
 
 publish-to-npm:
   stage: deploy

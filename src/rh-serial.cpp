@@ -1,7 +1,7 @@
 /*
  * NodeJS RadioHead Serial
  *
- * Copyright (C) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * NodeJS Addon for communication between some RadioHead nodes and NodeJS using
  * the RH_Serial driver of the RadioHead library.
@@ -13,6 +13,7 @@
 
 #include <unistd.h>
 
+#include <RHGenericDriver.h>
 #include <RHReliableDatagram.h>
 #include <RH_Serial.h>
 #include <RHutil/HardwareSerial.h>
@@ -115,7 +116,7 @@ namespace radioHeadSerialAddon {
 
     // get callback function, receiver address and length of data
     v8::Local<v8::Function> callback = info[3].As<v8::Function>();
-    work->txAddr = (uint8_t) info[0]->NumberValue();
+    work->txTo = (uint8_t) info[0]->NumberValue();
     uint8_t txLen = (uint8_t) info[1]->NumberValue();
 
     // check if data is too long
@@ -158,12 +159,14 @@ namespace radioHeadSerialAddon {
       if(manager->available()){
         // data received...
         work->rxLen = sizeof(bufRx);
+        work->rxFrom = 0;
+        work->rxTo = 0;
+        work->rxId = 0;
+        work->rxFlags = RH_FLAGS_NONE;
 
         // get the received data
-        if(manager->recvfromAck(bufRx, &work->rxLen, &work->rxAddr)){
+        if(manager->recvfromAck(bufRx, &work->rxLen, &work->rxFrom, &work->rxTo, &work->rxId, &work->rxFlags)){
           // received data is ok...
-          // length of the data is in work->rxLen
-          // sender address is in work->rxAddr
 
           // set the flag, to run the rx callback
           work->rxRunCallback = true;
@@ -180,7 +183,7 @@ namespace radioHeadSerialAddon {
       // is there data to send?
       }else if(work->txLen > 0){
         // send data
-        if(manager->sendtoWait(bufTx, work->txLen, work->txAddr)){
+        if(manager->sendtoWait(bufTx, work->txLen, work->txTo)){
           // ok... set flag
           work->txOk = true;
         }else{
@@ -213,15 +216,16 @@ namespace radioHeadSerialAddon {
 
     // run rx callback if the flag is set
     if(work->rxRunCallback){
-      // 4 arguments for the callback function
-      // error, sender address, length and data
-      // error and data are undefined if not present
-      const unsigned argc = 4;
+      // 7 arguments for the callback function
+      const unsigned argc = 7;
       v8::Local<v8::Value> argv[argc] = {
-        Nan::Undefined(),
-        Nan::New(work->rxAddr),
-        Nan::New(work->rxLen),
-        Nan::Undefined()
+        Nan::Undefined(),        // error (undefined if not present)
+        Nan::New(work->rxLen),   // length
+        Nan::New(work->rxFrom),  // from address
+        Nan::New(work->rxTo),    // to address
+        Nan::New(work->rxId),    // message id
+        Nan::New(work->rxFlags), // message flags
+        Nan::Undefined()         // data (undefined if not present)
       };
 
       if(work->rxLen > 0){
@@ -231,7 +235,7 @@ namespace radioHeadSerialAddon {
         // Use CopyBuffer because NewBuffer takes the pointer, so that rxBuf will be
         // delete by the garbage collector.
         // see https://github.com/nodejs/nan/blob/master/doc/buffers.md#nannewbuffer
-        argv[3] = Nan::CopyBuffer((char*) bufRx, work->rxLen).ToLocalChecked();
+        argv[6] = Nan::CopyBuffer((char*) bufRx, work->rxLen).ToLocalChecked();
 
       }else{
         // no data received
@@ -441,6 +445,24 @@ namespace radioHeadSerialAddon {
   }
 
   /**
+   * Tells the receiver to accept messages with any TO address, not just messages addressed to thisAddress or the broadcast address.
+   *
+   * Parameters for the Node.js call:
+   *  promiscuous - true if you wish to receive messages with any TO address. (default false)
+   */
+  void SetPromiscuous(const Nan::FunctionCallbackInfo<v8::Value>& info){
+    if (!info[0]->IsBoolean()) {
+      Nan::ThrowError("Args[0] (Promiscuous) must be a boolean");
+      return;
+    }
+
+    bool promiscuous = info[0]->BooleanValue();
+    driver->setPromiscuous(promiscuous);
+
+    info.GetReturnValue().Set(Nan::Undefined());
+  }
+
+  /**
    * Hook for addon exit.
    * Deletes the RadioHead objects.
    */
@@ -469,6 +491,7 @@ namespace radioHeadSerialAddon {
     exports->Set(Nan::New("setTimeout").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetTimeout)->GetFunction());
     exports->Set(Nan::New("getRetransmissions").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetRetransmissions)->GetFunction());
     exports->Set(Nan::New("resetRetransmissions").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(ResetRetransmissions)->GetFunction());
+    exports->Set(Nan::New("setPromiscuous").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetPromiscuous)->GetFunction());
 
     // reister AtExit-Hook
     node::AtExit(atExit);

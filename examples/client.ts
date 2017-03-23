@@ -7,20 +7,23 @@
  * This client example sends ten messages to the server and prints all received messages.
  */
 
-// Require the radiohead-serial module
-//var RadioHeadSerial = require('radiohead-serial').RadioHeadSerial;
-var RadioHeadSerial = require('../').RadioHeadSerial;
+// The following references are only needed for the examples in the examples directory
+///<reference path="../typings/index.d.ts" />
+///<reference path="../typings/radiohead-serial.d.ts" />
+
+// Import the radiohead-serial module
+import {RadioHeadSerial} from 'radiohead-serial';
 
 // Create an instance of the RadioHeadSerial class
-var rhs = new RadioHeadSerial('/dev/ttyUSB1', 9600, 0x02);
+let rhs:RadioHeadSerial = new RadioHeadSerial('/dev/ttyUSB1', 9600, 0x01);
 
 // Listen on the 'data' event for received messages
-rhs.on('data', function(message){
+rhs.on('data', (message:RadioHeadSerial.ReceivedData) => {
   // Print the received message object
   console.log('-> recv:', message);
 
   // Convert the decimal from address to hex
-  var sender = ('0' + message.from.toString(16)).slice(-2).toUpperCase();
+  let sender:string = ('0' + message.from.toString(16)).slice(-2).toUpperCase();
 
   // Print a readable form of the data
   if(message.length > 0){
@@ -29,10 +32,10 @@ rhs.on('data', function(message){
 });
 
 // Listen on the 'started' and 'stopped' events
-rhs.on('started', function(){
+rhs.on('started', () => {
   console.log('* The worker has been started.');
 });
-rhs.on('stopped', function(){
+rhs.on('stopped', () => {
   console.log('* The worker has been stopped.');
 });
 
@@ -40,23 +43,23 @@ rhs.on('stopped', function(){
 rhs.start();
 
 // Counter for the number of send messages
-var sentCount = 0;
+let sentCount:number = 0;
 
 // Function to send a message (calls itself with a timeout until five messages are sent)
 function sendData(){
   // Create the data to be send to the server
-  var data = new Buffer('Hello server!');
+  let data:Buffer = new Buffer('Hello server!');
 
   // Send the data to the server
-  rhs.send(0x01, data).then(function(){
+  rhs.send(0x01, data).then(() => {
     // Message has been sent successfully
     console.log('<- sent to 0x01: "' + data.toString() + '" Raw:', data);
 
-  }).catch(function(error){
+  }).catch((error:Error) => {
     // Error while sending the message
     console.log('<- ERROR', error);
 
-  }).finally(function(){
+  }).finally(() => {
     // After sending the message, even if failed
     sentCount++;
 
@@ -67,8 +70,8 @@ function sendData(){
     }else{
       // Stop the asynchronous worker after 1 second and exit the client example
       // Use the timeout before stop() to receive the answer from the server
-      setTimeout(function(){
-        rhs.stop().then(function(){
+      setTimeout(() => {
+        rhs.stop().then(() => {
           // The worker has been stopped
           console.log('Client example done. :-)');
         });

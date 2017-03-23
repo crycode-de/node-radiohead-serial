@@ -1,14 +1,16 @@
 {
   "name": "radiohead-serial",
-  "version": "1.0.4",
-  "description": "Node.js bindings for the serial driver of the RadioHead library.",
+  "version": "2.0.0",
+  "description": "Bindings for the serial driver of the RadioHead library, useful to build reliable networks based on e.g. RS485 or radio.",
   "keywords": [
     "radiohead",
     "serial",
     "rh_serial",
     "reliabledatagram",
     "network",
-    "gatway"
+    "gatway",
+    "rs485",
+    "rs232"
   ],
   "main": "dist/radiohead-serial.js",
   "typings": "typings/index.d.ts",
@@ -34,9 +36,12 @@
     "node": ">=4.0.0"
   },
   "dependencies": {
+    "bluebird": "^3.5.0",
     "nan": "^2.4.0"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.1",
+    "@types/node": "^4.2.3",
     "typescript": "^2.1.4"
   }
 }

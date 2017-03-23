@@ -1,7 +1,7 @@
 /*
  * NodeJS RadioHead Serial
  *
- * Copyright (C) 2016 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * NodeJS Addon for communication between some RadioHead nodes and NodeJS using
  * the RH_Serial driver of the RadioHead library.
@@ -31,10 +31,13 @@ namespace radioHeadSerialAddon {
     bool txRunCallback;
 
     uint8_t rxLen;
-    uint8_t txLen;
+    uint8_t rxFrom;
+    uint8_t rxTo;
+    uint8_t rxId;
+    uint8_t rxFlags;
 
-    uint8_t rxAddr;
-    uint8_t txAddr;
+    uint8_t txLen;
+    uint8_t txTo;
 
     bool txOk;
 
@@ -57,7 +60,11 @@ namespace radioHeadSerialAddon {
   void StopAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info);
   void SetAddress(const Nan::FunctionCallbackInfo<v8::Value>& info);
   void SetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  void GetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info);
   void SetTimeout(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  void GetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  void ResetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  void SetPromiscuous(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void atExit(void*);
   void initNode(v8::Local<v8::Object> exports);
 }
