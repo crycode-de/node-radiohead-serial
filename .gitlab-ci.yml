@@ -18,6 +18,9 @@ node-gyp-build:
 typescript-build:
   stage: build
   script:
+    - npm config set unsafe-perm true
+    - npm install @types/bluebird@^3.5.1
+    - npm install @types/node@^4.2.3
     - tsc
     - tsc --noEmit examples/*.ts
 
