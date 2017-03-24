@@ -42,6 +42,7 @@ tests:
     - typescript-build
   script:
     - npm config set unsafe-perm true
+    - npm install bluebird@^3.5.0
     - npm test
 
 publish-to-npm:
