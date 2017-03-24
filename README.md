@@ -1,6 +1,7 @@
 # radiohead-serial
 
 [![build status](https://git.cryhost.de/crycode/node-radiohead-serial/badges/master/build.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/master)
+[![coverage report](https://git.cryhost.de/crycode/node-radiohead-serial/badges/master/coverage.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/master)
 [![npm version](https://badge.fury.io/js/radiohead-serial.svg)](https://badge.fury.io/js/radiohead-serial)
 
 Communication between some **RadioHead** nodes and **Node.js** using the *RH_Serial* driver and the *RHReliableDatagram* manager of the RadioHead library.
