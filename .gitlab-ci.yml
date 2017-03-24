@@ -2,6 +2,7 @@ image: crycode/nodejs-dev-env
 
 stages:
   - build
+  - test
   - deploy
 
 cache:
@@ -23,6 +24,12 @@ typescript-build:
     - npm install @types/node@^4.2.3
     - tsc
     - tsc --noEmit examples/*.ts
+
+tests:
+  stage: test
+  script:
+    - npm config set unsafe-perm true
+    - npm test
 
 publish-to-npm:
   stage: deploy
