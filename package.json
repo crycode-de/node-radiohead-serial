@@ -16,7 +16,7 @@
   "typings": "typings/index.d.ts",
   "scripts": {
     "prepublish": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./test/test.sh"
   },
   "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
   "license": "GPL-2.0",
@@ -42,6 +42,9 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.1",
     "@types/node": "^4.2.3",
+    "expect.js": "^0.3.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
     "typescript": "^2.1.4"
   }
 }
