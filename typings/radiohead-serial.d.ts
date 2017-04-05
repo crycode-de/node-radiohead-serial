@@ -1,9 +1,9 @@
 /*
- * NodeJS RadioHead Serial
+ * Node.js RadioHead Serial
  *
  * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
- * NodeJS module for communication between some RadioHead nodes and Node.js using
+ * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver of the RadioHead library.
  */
 
@@ -13,11 +13,22 @@
 declare namespace RadioHeadSerial {
 
   /**
-   * Interface to the Addon.
+   * Interface to the class of the Addon.
    */
   interface Addon {
-    init(port:string, baud:number, address:number):void;
+    /**
+     * Constructor for a new instance of the native addon this class.
+     * @param  {string} port    The serial port/device to be used for the communication. (e.g. /dev/ttyUSB0)
+     * @param  {number} baud    The baud rate to be used for the communication. (e.g. 9600)
+     * @param  {number} address The address of this node in the RadioHead network. Address range goes from 1 to 254.
+     */
+    RadioHeadSerial(port:string, baud:number, address:number):void;
+  }
 
+  /**
+   * Interface to an instance of the Addon.
+   */
+  interface AddonInstance {
     start(onRecvCallback:(err:Error, length:number, from:number, to:number, id:number, flags:number, data:Buffer)=>void):void;
 
     stop(callback:()=>void):void;

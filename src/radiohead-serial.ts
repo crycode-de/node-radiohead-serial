@@ -3,15 +3,15 @@
  *
  * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
- * NodeJS module for communication between some RadioHead nodes and Node.js using
+ * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
  */
 
 import {EventEmitter} from 'events';
 import * as Promise from 'bluebird';
 
-// TODO Typings
-const addon = require('../build/Release/radiohead-serial.node');
+// require the native addon
+const addon:RadioHeadSerial.Addon = require('../build/Release/radiohead-serial.node');
 
 export class RadioHeadSerial extends EventEmitter {
 
@@ -24,7 +24,7 @@ export class RadioHeadSerial extends EventEmitter {
   /**
    * The loaded Node.js addon.
    */
-  private _addon:RadioHeadSerial.Addon;
+  private _addon:RadioHeadSerial.AddonInstance;
 
   /**
    * Indicator if the worker is active.
@@ -41,7 +41,6 @@ export class RadioHeadSerial extends EventEmitter {
     super();
 
     // load the addon
-    // TODO typings!!!
     this._addon = new addon.RadioHeadSerial(port, baud, address);
   }
 
