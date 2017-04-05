@@ -37,6 +37,9 @@ RadioHeadSerial::RadioHeadSerial(void){
   hardwareserial = 0;
   driver = 0;
   manager = 0;
+
+  // set the worker as inactive
+  workerActive = false;
 }
 
 /**
@@ -141,6 +144,11 @@ void RadioHeadSerial::New(const Nan::FunctionCallbackInfo<v8::Value>& info){
       return;
     }
 
+    // create the worker
+    rhs->work = new Work();
+    rhs->work->rhs = rhs;
+    rhs->work->request.data = rhs->work;
+
     // Wrap for Node.js
     rhs->Wrap(info.This());
 
@@ -167,6 +175,11 @@ void RadioHeadSerial::New(const Nan::FunctionCallbackInfo<v8::Value>& info){
 void RadioHeadSerial::Send(const Nan::FunctionCallbackInfo<v8::Value>& info){
   // Get the instance of the RadioHeadSerial
   RadioHeadSerial* rhs = ObjectWrap::Unwrap<RadioHeadSerial>(info.Holder());
+
+  if(!rhs->workerActive){
+    Nan::ThrowError("Worker not active");
+    return;
+  }
 
   if(info.Length() < 4){
     Nan::ThrowError("Wrong number of arguments");
@@ -370,8 +383,8 @@ void RadioHeadSerial::WorkAsyncComplete(uv_work_t *req, int status){
     // Reset the callback
     work->stopCallback.Reset();
 
-    delete work;
-    work = 0;
+    // set the worker as inactive
+    work->rhs->workerActive = false;
 
   }else{
     // restart the work
@@ -400,7 +413,7 @@ void RadioHeadSerial::StartAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>&
   RadioHeadSerial* rhs = ObjectWrap::Unwrap<RadioHeadSerial>(info.Holder());
 
   // check if already active
-  if(rhs->work){
+  if(rhs->workerActive){
     Nan::ThrowError("The worker is already active");
     return;
   }
@@ -417,9 +430,6 @@ void RadioHeadSerial::StartAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>&
   }
 
   // init work
-  rhs->work = new Work();
-  rhs->work->rhs = rhs;
-  rhs->work->request.data = rhs->work;
   rhs->work->stop = false;
   rhs->work->rxRunCallback = false;
   rhs->work->rxLen = 0;
@@ -433,6 +443,9 @@ void RadioHeadSerial::StartAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>&
 
   // start the work using libuv
   uv_queue_work(uv_default_loop(), &rhs->work->request, rhs->WorkAsync, rhs->WorkAsyncComplete);
+
+  // set the worker as active
+  rhs->workerActive = true;
 
   info.GetReturnValue().Set(Nan::Undefined());
 }
@@ -596,7 +609,7 @@ void RadioHeadSerial::Destroy(const Nan::FunctionCallbackInfo<v8::Value>& info){
   RadioHeadSerial* rhs = ObjectWrap::Unwrap<RadioHeadSerial>(info.Holder());
 
   // check if the worker is active
-  if(rhs->work){
+  if(rhs->workerActive){
     Nan::ThrowError("Worker still active, you must stop it first");
     return;
   }

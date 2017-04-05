@@ -81,6 +81,9 @@ class RadioHeadSerial : public Nan::ObjectWrap {
     // Pointer to the asynchronous work in background
     Work * work;
 
+    // If the worker is currently active
+    bool workerActive;
+
     // RX/TX Buffer
     uint8_t bufRx[RH_SERIAL_MAX_MESSAGE_LEN];
     uint8_t bufTx[RH_SERIAL_MAX_MESSAGE_LEN];
