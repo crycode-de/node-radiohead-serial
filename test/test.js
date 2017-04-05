@@ -161,7 +161,7 @@ describe('send and receive messages', function(){
 // Functions //
 ///////////////
 describe('test functions', function(){
-  it('isWorkerActive', function(done){
+  it('isWorkerActive()', function(done){
     if(rhs1.isWorkerActive()){
       done();
     }else{
@@ -169,15 +169,15 @@ describe('test functions', function(){
     }
   });
 
-  it('setAddress', function(){
+  it('setAddress(0x05)', function(){
     rhs1.setAddress(0x05);
   });
 
-  it('setRetries', function(){
+  it('setRetries(7)', function(){
     rhs1.setRetries(7);
   });
 
-  it('getRetries', function(done){
+  it('getRetries()', function(done){
     if(rhs1.getRetries() === 7){
       done();
     }else{
@@ -185,20 +185,24 @@ describe('test functions', function(){
     }
   });
 
-  it('setTimeout', function(){
+  it('setTimeout(100)', function(){
     rhs1.setTimeout(100);
   });
 
-  it('getRetransmissions', function(){
+  it('getRetransmissions()', function(){
     let retransmissions = rhs1.getRetransmissions();
   });
 
-  it('resetRetransmissions', function(){
+  it('resetRetransmissions()', function(){
     rhs1.resetRetransmissions();
   });
 
-  it('setPromiscuous', function(){
+  it('setPromiscuous(true)', function(){
     rhs1.setPromiscuous(true);
+  });
+
+  it('setWorkerSleepTime(25000)', function(){
+    rhs1.setWorkerSleepTime(25000);
   });
 
 });

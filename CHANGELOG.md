@@ -3,6 +3,7 @@
 - Added support for multiple instances of the RadioHeadSerial class
 - Added more information for received messages (length, from, to, id, flags)
 - Added support for the promiscuous mode of the receiver, to receive messages with any to address
+- Added ability to change the sleep time of the asynchronous worker
 - Added constant MAX_MESSAGE_LEN
 - Updated TypeScript typings
 - Added TypeScript examples

@@ -206,6 +206,14 @@ export class RadioHeadSerial extends EventEmitter {
   }
 
   /**
+   * Sets the time in microseconds the worker is sleeping between actions.
+   * @param {number} time The new sleep time in microseconds. (default 50000)
+   */
+  public setWorkerSleepTime(sleepTime:number):void{
+    this._addon.setWorkerSleepTime(sleepTime);
+  };
+
+  /**
    * Releases the reference to the current instance of this class.
    * If no other reference exists (e.g. the Node.js variable is also deleted) the
    * garbage collector can destroy this instance.

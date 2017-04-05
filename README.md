@@ -294,6 +294,15 @@ Tells the receiver to accept messages with any to address, not just messages add
 
 * `promiscuous` - true if you wish to receive messages with any to address. (default false)
 
+### rhs.setWorkerSleepTime(sleepTime)
+```ts
+setWorkerSleepTime(sleepTime:number):void;
+```
+Sets the time in microseconds the asynchronous worker is sleeping between actions.
+Default is 50000.
+
+* `time` - The new sleep time in microseconds.
+
 ### rhs.destroy()
 ```ts
 destroy():void;

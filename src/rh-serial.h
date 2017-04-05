@@ -17,6 +17,8 @@
 #include <RH_Serial.h>
 #include <RHutil/HardwareSerial.h>
 
+#define WORKER_DEFAULT_SLEEPTIME 50000 // 50ms
+
 class RadioHeadSerial : public Nan::ObjectWrap {
 
   // Struct used for the asynchronous worker
@@ -45,6 +47,9 @@ class RadioHeadSerial : public Nan::ObjectWrap {
     bool txOk;
 
     bool stop;
+
+    // time in usec the worker should sleep between actions
+    int sleepTime;
   };
 
   public:
@@ -68,6 +73,7 @@ class RadioHeadSerial : public Nan::ObjectWrap {
     static void GetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info);
     static void ResetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info);
     static void SetPromiscuous(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void SetWorkerSleepTime(const Nan::FunctionCallbackInfo<v8::Value>& info);
     static void Destroy(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
     // Constructor for the Node.js construction of a new instance of this class

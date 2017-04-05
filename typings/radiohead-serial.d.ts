@@ -49,6 +49,8 @@ declare namespace RadioHeadSerial {
 
     setPromiscuous(promiscuous:boolean):void;
 
+    setWorkerSleepTime(timeout:number):void;
+
     destroy():void;
   }
 
@@ -217,6 +219,12 @@ declare module 'radiohead-serial' {
      * @param {boolean} promiscuous true if you wish to receive messages with any to address. (default false)
      */
     public setPromiscuous(promiscuous:boolean):void;
+
+    /**
+     * Sets the time in microseconds the worker is sleeping between actions.
+     * @param {number} time The new sleep time in microseconds. (default 50000)
+     */
+    public setWorkerSleepTime(sleepTime:number):void;
 
     /**
      * Releases the reference to the current instance of this class.

@@ -83,6 +83,7 @@ void RadioHeadSerial::Init(v8::Local<v8::Object> exports){
   Nan::SetPrototypeMethod(tpl, "getRetransmissions", GetRetransmissions);
   Nan::SetPrototypeMethod(tpl, "resetRetransmissions", ResetRetransmissions);
   Nan::SetPrototypeMethod(tpl, "setPromiscuous", SetPromiscuous);
+  Nan::SetPrototypeMethod(tpl, "setWorkerSleepTime", SetWorkerSleepTime);
   Nan::SetPrototypeMethod(tpl, "destroy", Destroy);
 
   constructor.Reset(tpl->GetFunction());
@@ -148,6 +149,7 @@ void RadioHeadSerial::New(const Nan::FunctionCallbackInfo<v8::Value>& info){
     rhs->work = new Work();
     rhs->work->rhs = rhs;
     rhs->work->request.data = rhs->work;
+    rhs->work->sleepTime = WORKER_DEFAULT_SLEEPTIME;
 
     // Wrap for Node.js
     rhs->Wrap(info.This());
@@ -294,7 +296,7 @@ void RadioHeadSerial::WorkAsync(uv_work_t *req){
 
     }else {
       // nothing to do... just wait 50ms
-      usleep(50000);
+      usleep(work->sleepTime);
     }
 
   }
@@ -593,6 +595,26 @@ void RadioHeadSerial::SetPromiscuous(const Nan::FunctionCallbackInfo<v8::Value>&
 
   bool promiscuous = info[0]->BooleanValue();
   rhs->driver->setPromiscuous(promiscuous);
+
+  info.GetReturnValue().Set(Nan::Undefined());
+}
+
+/**
+ * Sets the time in microseconds the worker is sleeping between actions.
+ *
+ * Parameters for the Node.js call:
+ *  time - The new sleep time in microseconds. (default 50000)
+ */
+void RadioHeadSerial::SetWorkerSleepTime(const Nan::FunctionCallbackInfo<v8::Value>& info){
+  // Get the instance of the RadioHeadSerial
+  RadioHeadSerial* rhs = ObjectWrap::Unwrap<RadioHeadSerial>(info.Holder());
+
+  if (!info[0]->IsNumber()) {
+    Nan::ThrowError("Args[0] (SleepTime) must be a number");
+    return;
+  }
+
+  rhs->work->sleepTime = info[0]->NumberValue();
 
   info.GetReturnValue().Set(Nan::Undefined());
 }
