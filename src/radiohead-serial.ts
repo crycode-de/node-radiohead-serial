@@ -1,14 +1,17 @@
 /*
- * NodeJS RadioHead Serial
+ * Node.js RadioHead Serial
  *
  * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * NodeJS module for communication between some RadioHead nodes and Node.js using
- * the RH_Serial driver of the RadioHead library.
+ * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
  */
 
 import {EventEmitter} from 'events';
 import * as Promise from 'bluebird';
+
+// TODO Typings
+const addon = require('../build/Release/radiohead-serial.node');
 
 export class RadioHeadSerial extends EventEmitter {
 
@@ -38,9 +41,8 @@ export class RadioHeadSerial extends EventEmitter {
     super();
 
     // load the addon
-    this._addon = require('../build/Release/radiohead-serial.node');
-
-    this._addon.init(port, baud, address);
+    // TODO typings!!!
+    this._addon = new addon.RadioHeadSerial(port, baud, address);
   }
 
   /**
@@ -202,5 +204,16 @@ export class RadioHeadSerial extends EventEmitter {
    */
   public setPromiscuous(promiscuous:boolean):void{
     this._addon.setPromiscuous(promiscuous);
+  }
+
+  /**
+   * Releases the reference to the current instance of this class.
+   * If no other reference exists (e.g. the Node.js variable is also deleted) the
+   * garbage collector can destroy this instance.
+   * After destroy is called, no interaction with this class should be made.
+   * This should be used to free up memory if this instance will not be used again.
+   */
+  public destroy():void{
+    this._addon.destroy();
   }
 }

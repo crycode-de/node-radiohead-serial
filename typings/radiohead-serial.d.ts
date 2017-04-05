@@ -37,6 +37,8 @@ declare namespace RadioHeadSerial {
     resetRetransmissions():void;
 
     setPromiscuous(promiscuous:boolean):void;
+
+    destroy():void;
   }
 
   /**
@@ -204,5 +206,14 @@ declare module 'radiohead-serial' {
      * @param {boolean} promiscuous true if you wish to receive messages with any to address. (default false)
      */
     public setPromiscuous(promiscuous:boolean):void;
+
+    /**
+     * Releases the reference to the current instance of this class.
+     * If no other reference exists (e.g. the Node.js variable is also deleted) the
+     * garbage collector can destroy this instance.
+     * After destroy is called, no interaction with this class should be made.
+     * This should be used to free up memory if this instance will not be used again.
+     */
+    public destroy():void;
   }
 }

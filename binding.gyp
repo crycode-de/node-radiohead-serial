@@ -3,6 +3,7 @@
     {
       "target_name": "radiohead-serial",
       "sources": [
+        "src/addon.cpp",
         "src/rh-serial.cpp",
         "src/functions.cpp",
         "deps/RadioHead/RHDatagram.cpp",

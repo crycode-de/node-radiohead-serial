@@ -1,10 +1,10 @@
 /*
- * NodeJS RadioHead Serial
+ * Node.js RadioHead Serial
  *
  * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
- * NodeJS Addon for communication between some RadioHead nodes and NodeJS using
- * the RH_Serial driver of the RadioHead library.
+ * Node.js Addon for communication between some RadioHead nodes and Node.js using
+ * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
  */
 
 #ifndef NODE_RADIOHEAD_SERIAL_h
@@ -12,16 +12,19 @@
 
 #include <nan.h>
 
-namespace radioHeadSerialAddon {
+#include <RHGenericDriver.h>
+#include <RHReliableDatagram.h>
+#include <RH_Serial.h>
+#include <RHutil/HardwareSerial.h>
 
-  // Pointer for RadioHead
-  HardwareSerial * hardwareserial;
-  RH_Serial * driver;
-  RHReliableDatagram * manager;
+class RadioHeadSerial : public Nan::ObjectWrap {
 
-  // Struct for the asynchronous work in background
+  // Struct used for the asynchronous worker
   struct Work {
     uv_work_t request;
+
+    // reference to the RadioHeadSerial instance this work belongs to
+    RadioHeadSerial * rhs;
 
     Nan::Persistent<v8::Function> rxCallback;
     Nan::Persistent<v8::Function> txCallback;
@@ -44,29 +47,43 @@ namespace radioHeadSerialAddon {
     bool stop;
   };
 
-  // Pointer to the asynchronous work in background
-  Work * work;
+  public:
+    static void Init(v8::Local<v8::Object> exports);
 
-  // RX/TX Buffer
-  uint8_t bufRx[RH_SERIAL_MAX_MESSAGE_LEN];
-  uint8_t bufTx[RH_SERIAL_MAX_MESSAGE_LEN];
+  private:
+    explicit RadioHeadSerial(void);
+    ~RadioHeadSerial();
 
-  // Functions
-  void Init(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void Send(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  static void WorkAsync(uv_work_t *req);
-  static void WorkAsyncComplete(uv_work_t *req, int status);
-  void StartAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void StopAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void SetAddress(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void SetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void GetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void SetTimeout(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void GetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void ResetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  void SetPromiscuous(const Nan::FunctionCallbackInfo<v8::Value>& info);
-  static void atExit(void*);
-  void initNode(v8::Local<v8::Object> exports);
-}
+    static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void InitRH(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void Send(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void WorkAsync(uv_work_t *req);
+    static void WorkAsyncComplete(uv_work_t *req, int status);
+    static void StartAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void StopAsyncWork(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void SetAddress(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void SetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void GetRetries(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void SetTimeout(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void GetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void ResetRetransmissions(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void SetPromiscuous(const Nan::FunctionCallbackInfo<v8::Value>& info);
+    static void Destroy(const Nan::FunctionCallbackInfo<v8::Value>& info);
+
+    // Constructor for the Node.js construction of a new instance of this class
+    static Nan::Persistent<v8::Function> constructor;
+
+    // Pointer to the instances of the RadioHead classes
+    HardwareSerial * hardwareserial;
+    RH_Serial * driver;
+    RHReliableDatagram * manager;
+
+    // Pointer to the asynchronous work in background
+    Work * work;
+
+    // RX/TX Buffer
+    uint8_t bufRx[RH_SERIAL_MAX_MESSAGE_LEN];
+    uint8_t bufTx[RH_SERIAL_MAX_MESSAGE_LEN];
+};
 
 #endif
