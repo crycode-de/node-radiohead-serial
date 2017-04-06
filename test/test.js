@@ -5,6 +5,8 @@
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
+ *
+ * The test uses `socat` to create virtual serial ports.
  */
 "use strict";
 
@@ -43,7 +45,7 @@ describe('prepare virtual tty\'s with socat', function(){
             tty1 = m[1];
           }else if(tty2 === null){
             tty2 = m[1];
-            done();
+            setTimeout(done, 50);
           }
         }
       }
@@ -61,12 +63,16 @@ describe('prepare virtual tty\'s with socat', function(){
 // Start two RadioHeadSerial instances //
 /////////////////////////////////////////
 describe('create and start the two RadioHeadSerial instances', function(){
-  it('start rhs1 (address 0x01)', function(){
+  it('create rhs1 (address 0x01)', function(){
     rhs1 = new RadioHeadSerial(tty1, 9600, 0x01);
+  });
+  it('start rhs1', function(){
     rhs1.start();
   });
-  it('start rhs2 (address 0x02) using event', function(done){
+  it('create rhs2 (address 0x02)', function(){
     rhs2 = new RadioHeadSerial(tty2, 9600, 0x02);
+  });
+  it('start rhs2 (address 0x02) using event', function(done){
     rhs2.on('started', ()=>{
       done();
     });
