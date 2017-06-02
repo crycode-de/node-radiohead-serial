@@ -1,6 +1,16 @@
 /*
- * NodeJS RadioHead Serial
+ * Node.js module radiohead-serial
  *
+ * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ *
+ * Node.js module for communication between some RadioHead nodes and Node.js using
+ * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
+ *
+ *
+ * RadioHead Library (http://www.airspayce.com/mikem/arduino/RadioHead/)
+ * Copyright (c) 2014 Mike McCauley
+ *
+ * Port from native C/C++ code to TypeScript
  * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Example for the communiation between two nodes.
@@ -8,8 +18,8 @@
  */
 
 // The following references are only needed for the examples in the examples directory
-///<reference path="../typings/index.d.ts" />
-///<reference path="../typings/radiohead-serial.d.ts" />
+///<reference types="node" />
+///<reference path="../dist/src/radiohead-serial.d.ts" />
 
 // Import the radiohead-serial module
 import {RadioHeadSerial} from 'radiohead-serial';
@@ -30,17 +40,6 @@ rhs.on('data', (message:RadioHeadSerial.ReceivedData) => {
     console.log('-> received ' + message.length + ' bytes from 0x' + sender + ': "' + message.data.toString() + '"');
   }
 });
-
-// Listen on the 'started' and 'stopped' events
-rhs.on('started', () => {
-  console.log('* The worker has been started.');
-});
-rhs.on('stopped', () => {
-  console.log('* The worker has been stopped.');
-});
-
-// Start the asynchronous worker
-rhs.start();
 
 // Counter for the number of send messages
 let sentCount:number = 0;

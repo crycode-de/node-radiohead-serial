@@ -9,18 +9,6 @@ cache:
   paths:
     - node_modules/
 
-node-gyp-build:
-  stage: build
-  artifacts:
-    expire_in: 1 week
-    name: "node-gyp-build-${CI_COMMIT_SHA:0:8}"
-    paths:
-      - build/
-  script:
-    - npm config set unsafe-perm true
-    - npm install nan@^2.4.0
-    - node-gyp rebuild
-
 typescript-build:
   stage: build
   artifacts:
@@ -30,7 +18,7 @@ typescript-build:
       - dist/
   script:
     - npm config set unsafe-perm true
-    - npm install @types/bluebird@^3.5.1
+    - npm install @types/bluebird@^3.5.4
     - npm install @types/node@^4.2.3
     - tsc
     - tsc --noEmit examples/*.ts
@@ -38,7 +26,6 @@ typescript-build:
 tests:
   stage: test
   dependencies:
-    - node-gyp-build
     - typescript-build
   script:
     - npm config set unsafe-perm true

@@ -19,4 +19,4 @@ fi
 
 export PATH=$PATH:$MAIN_DIR/node_modules/mocha/bin:$MAIN_DIR/node_modules/istanbul/bin
 
-istanbul cover _mocha test
+istanbul cover _mocha --harmony dist/test

@@ -1,6 +1,16 @@
 /*
- * NodeJS RadioHead Serial
+ * Node.js module radiohead-serial
  *
+ * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ *
+ * Node.js module for communication between some RadioHead nodes and Node.js using
+ * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
+ *
+ *
+ * RadioHead Library (http://www.airspayce.com/mikem/arduino/RadioHead/)
+ * Copyright (c) 2014 Mike McCauley
+ *
+ * Port from native C/C++ code to TypeScript
  * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Example for the communiation between two nodes.
@@ -39,9 +49,6 @@ rhs.on('data', function(message){
     console.log('<- ERROR', error);
   });
 });
-
-// Start the asynchronous worker
-rhs.start();
 
 // Print some info
 console.log('Server example running.');

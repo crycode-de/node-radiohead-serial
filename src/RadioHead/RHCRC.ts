@@ -31,74 +31,59 @@
 
 //	Port to Energia / MPS430 by Yannick DEVOS XV4Y - (c) 2013
 //	http://xv4y.radioclub.asia/
-//	
+//
 
 // Adapted to RadioHead use by Mike McCauley 2014
 // This is to prevent name collisions with other similar library functions
 // and to provide a consistent API amonng all processors
 //
 
-/* $Id: RHCRC.cpp,v 1.1 2014/06/24 02:40:12 mikem Exp $ */
+/*
+ * Node.js module radiohead-serial
+ *
+ * RadioHead Library (http://www.airspayce.com/mikem/arduino/RadioHead/)
+ * Copyright (c) 2014 Mike McCauley
+ *
+ * Port from native C/C++ code to TypeScript
+ * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ */
 
-#include <RHCRC.h>
-
-#define lo8(x) ((x)&0xff) 
-#define hi8(x) ((x)>>8)
-
-uint16_t RHcrc16_update(uint16_t crc, uint8_t a)
-{
-    int i;
-
-    crc ^= a;
-    for (i = 0; i < 8; ++i)
-    {
-	if (crc & 1)
-	    crc = (crc >> 1) ^ 0xA001;
-	else
-	    crc = (crc >> 1);
-    }
-    return crc;
+/**
+ * Get the lower 8 bits from a 16-bit number.
+ * @param  {number} x The original 16-bit number.
+ * @return {number}   The new number from the lower 8 bits.
+ */
+function lo8(x:number):number{
+  return (x)&0xff;
 }
 
-uint16_t RHcrc_xmodem_update (uint16_t crc, uint8_t data)
-{
-    int i;
-    
-    crc = crc ^ ((uint16_t)data << 8);
-    for (i=0; i<8; i++)
-    {
-	if (crc & 0x8000)
-	    crc = (crc << 1) ^ 0x1021;
-	else
-	    crc <<= 1;
-    }
-    
-    return crc;
+/**
+ * Get the higher 8 bits from a 16-bit number.
+ * @param  {number} x The original 16-bit number.
+ * @return {number}   The new number from the higher 8 bits.
+ */
+function hi8(x:number):number{
+  return (x)>>8;
 }
 
-uint16_t RHcrc_ccitt_update (uint16_t crc, uint8_t data)
-{
-    data ^= lo8 (crc);
-    data ^= data << 4;
-    
-    return ((((uint16_t)data << 8) | hi8 (crc)) ^ (uint8_t)(data >> 4) 
-	    ^ ((uint16_t)data << 3));
+/**
+ * Get the lower 16 bits from a 16-bit+ number.
+ * @param  {number} x The original number.
+ * @return {number}   The new number from the lower 16 bits.
+ */
+function lo16(x:number):number{
+  return (x)&0xffff;
 }
 
-uint8_t RHcrc_ibutton_update(uint8_t crc, uint8_t data)
-{
-    uint8_t i;
-    
-    crc = crc ^ data;
-    for (i = 0; i < 8; i++)
-    {
-	if (crc & 0x01)
-	    crc = (crc >> 1) ^ 0x8C;
-	else
-	    crc >>= 1;
-    }
-    
-    return crc;
+/**
+ * Update a 16-bit CRCITT checksum with one new byte.
+ * @param  {number} crc  The old CRCITT checksum.
+ * @param  {number} data The new byte.
+ * @return {number}      The new CRCITT checksum.
+ */
+export function RHcrc_ccitt_update (crc:number, data:number):number{
+  data ^= lo8 (crc);
+  data ^= lo8 (data << 4);
+
+  return ((lo16(data << 8) | hi8 (crc)) ^ (data >> 4) ^ lo16(data << 3));
 }
-
-

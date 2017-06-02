@@ -1,6 +1,6 @@
 {
   "name": "radiohead-serial",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Bindings for the serial driver of the RadioHead library, useful to build reliable networks based on e.g. RS485 or radio.",
   "keywords": [
     "radiohead",
@@ -12,8 +12,8 @@
     "rs485",
     "rs232"
   ],
-  "main": "dist/radiohead-serial.js",
-  "typings": "typings/index.d.ts",
+  "main": "dist/src/radiohead-serial.js",
+  "typings": "dist/src/radiohead-serial.d.ts",
   "scripts": {
     "prepublish": "tsc",
     "test": "./test/test.sh"
@@ -28,23 +28,22 @@
   "bugs": {
     "url": "https://git.cryhost.de/crycode/node-radiohead-serial/issues"
   },
-  "gypfile": true,
-  "os": [
-    "linux"
-  ],
   "engines": {
     "node": ">=4.0.0"
   },
   "dependencies": {
     "bluebird": "^3.5.0",
-    "nan": "^2.4.0"
+    "serialport": "^4.0.7"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.1",
+    "@types/bluebird": "^3.5.4",
+    "@types/expect.js": "^0.3.29",
     "@types/node": "^4.2.3",
+    "@types/serialport": "^4.0.9",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "typescript": "^2.1.4"
+    "mocha": "^3.4.2",
+    "mocha-typescript": "^1.1.4",
+    "typescript": "^2.3.4"
   }
 }

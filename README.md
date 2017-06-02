@@ -13,9 +13,11 @@ With `radiohead-serial` you can build reliable networks based on serial hardware
 
 > RHReliableDatagram provides Addressed, reliable, retransmitted, acknowledged variable length messages.
 
-Version of the used RadioHead library: *1.74 2017-03-08*
+Based on RadioHead library *1.74 2017-03-08*
 
-This module can be used on any Linux system, for example a Raspberry Pi with Raspbian or a regular computer.
+Since Version 3 this module is based on a TypeScript/JavaScript port of the native RadioHead library.
+
+This module can be used on any Linux, Mac or Windows system, for example a Raspberry Pi with Raspbian or a regular computer.
 It requires Node.js version 4 or higher.
 
 
@@ -44,8 +46,6 @@ Optionally the gateway can filter messages, so that only a specific address rang
 ```
 npm install radiohead-serial
 ```
-
-Installed build tools (e.g. build-essential) are required for building the native addon part of this module.
 
 
 ## Examples
@@ -97,9 +97,6 @@ rhs.on('data', function(message){
   });
 });
 
-// Start the asynchronous worker
-rhs.start();
-
 // Print some info
 console.log('Server example running.');
 console.log('Now start the client example...');
@@ -126,17 +123,6 @@ rhs.on('data', function(message){
     console.log('-> received ' + message.length + ' bytes from 0x' + sender + ': "' + message.data.toString() + '"');
   }
 });
-
-// Listen on the 'started' and 'stopped' events
-rhs.on('started', function(){
-  console.log('* The worker has been started.');
-});
-rhs.on('stopped', function(){
-  console.log('* The worker has been stopped.');
-});
-
-// Start the asynchronous worker
-rhs.start();
 
 // Counter for the number of send messages
 var sentCount = 0;
@@ -185,13 +171,11 @@ console.log('I\'ll try to send hello to the Server five times...');
 ```
 
 
-## APIv2
+## APIv3
 
-*The new APIv2 uses __Events__ and __Promises__ and has some breaking changes against the old APIv1.*
+*The new APIv3 uses __Events__ and __Promises__ and has some breaking changes against the old APIv1.*
 
 Receiving and sending of messages is always done asynchronous.
-
-Most methods are able to throw an error, if their arguments mismatched or any other error occurs.
 
 TypeScript typings are available in the `typings` directory.
 
@@ -205,29 +189,6 @@ Loads and initializes the RadioHead driver and manager.
 * `port` - The serial port/device to be used for the communication. For example /dev/ttyUSB0.
 * `baud` - The baud rate to be used for the communication. Supported are 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400.
 * `address` - The address of this node in the RadioHead network. Address range goes from 1 to 254.
-
-### rhs.start()
-```ts
-start():void;
-```
-Starts the asynchronous worker for receiving and sending messages through the RadioHead network.
-If the worker is already active, this will be ignored.
-Before start() is called, no messages can be received or send.
-
-### rhs.stop()
-```ts
-stop():Promise<{}>;
-```
-Stops the asynchronous worker.
-Returns a Promise which will be resolved when the worker has been fully stopped.
-If the worker is not active, the promise is immediately resolved.
-After stop() is called, no messages can be received or send.
-
-### rhs.isWorkerActive()
-```ts
-isWorkerActive():boolean;
-```
-Returns true if the asynchronous worker is active.
 
 ### rhs.send(to, data, length)
 ```ts
@@ -247,6 +208,12 @@ setAddress(address:number):void;
 Sets the address of this node in the RadioHead network.
 
 * `address` - The new address. Address range goes from 1 to 254.
+
+### rhs.thisAddress()
+```ts
+thisAddress():number;
+```
+Returns the address of this node.
 
 ### rhs.setRetries(count)
 ```ts
@@ -318,7 +285,6 @@ rhs.on('data', (message:RadioHeadSerial.ReceivedData) => { /* do something */ })
 ```
 The `data` event is emitted for every received message and includes an object with the following information.
 
-* `error` - An Error or undefined if no error occurred.
 * `length` - The length of the received data.
 * `from` - The from address of the received message.
 * `to` - The to address of the received message.

@@ -1,128 +1,106 @@
 /*
- * Node.js RadioHead Serial
+ * Node.js module radiohead-serial
  *
  * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
+ *
+ *
+ * RadioHead Library (http://www.airspayce.com/mikem/arduino/RadioHead/)
+ * Copyright (c) 2014 Mike McCauley
+ *
+ * Port from native C/C++ code to TypeScript
+ * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import {EventEmitter} from 'events';
 import * as Promise from 'bluebird';
 
-// require the native addon
-const addon:RadioHeadSerial.Addon = require('../build/Release/radiohead-serial.node');
+import {RH_ReceivedMessage, RH_BROADCAST_ADDRESS, RH_FLAGS_RESERVED,
+  RH_FLAGS_APPLICATION_SPECIFIC, RH_FLAGS_NONE} from './RadioHead/RadioHead';
+import {RH_Serial, RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN,
+  RH_SERIAL_MAX_MESSAGE_LEN} from './RadioHead/RH_Serial';
+import {RHDatagram} from './RadioHead/RHDatagram';
+import {RHReliableDatagram, RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT,
+  RH_DEFAULT_RETRIES} from './RadioHead/RHReliableDatagram';
 
+// export some imports to allow an custom usage
+export {
+  RH_Serial, RHDatagram, RHReliableDatagram, RH_ReceivedMessage,
+  RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN, RH_SERIAL_MAX_MESSAGE_LEN,
+  RH_BROADCAST_ADDRESS,
+  RH_FLAGS_RESERVED, RH_FLAGS_APPLICATION_SPECIFIC, RH_FLAGS_NONE, RH_FLAGS_ACK,
+  RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES  
+};
+
+/**
+ * The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
+ */
 export class RadioHeadSerial extends EventEmitter {
 
   /**
-   * The maximum message length supported by the RH_Serial driver.
-   * This is the largest supported size of a rx or tx buffer.
+   * Private flag if RHReliableDatagram (true) or RHDatagram (false) is used.
    */
-  public static readonly MAX_MESSAGE_LEN:number = 60;
+  private _reliable:boolean;
 
   /**
-   * The loaded Node.js addon.
+   * The used driver.
    */
-  private _addon:RadioHeadSerial.AddonInstance;
+  private _driver:RH_Serial;
 
   /**
-   * Indicator if the worker is active.
+   * The used manager.
+   * An instance of either RHReliableDatagram or RHDatagram.
    */
-  private workerActive:boolean = false;
+  private _manager:RHReliableDatagram|RHDatagram;
 
   /**
    * Constructor for a new instance of this class.
-   * @param  {string} port    The serial port/device to be used for the communication. (e.g. /dev/ttyUSB0)
-   * @param  {number} baud    The baud rate to be used for the communication. (e.g. 9600)
-   * @param  {number} address The address of this node in the RadioHead network. Address range goes from 1 to 254.
+   * @param {string}  port     The serial port/device to be used for the communication. (e.g. /dev/ttyUSB0)
+   * @param {number}  baud     The baud rate to be used for the communication. (e.g. 9600)
+   * @param {number}  address  The address of this node in the RadioHead network. Address range goes from 1 to 254.
+   * @param {boolean} reliable (optional) false if RHDatagram should be used instead of RHReliableDatagram. (default true)
    */
-  constructor(port:string, baud:number, address:number){
+  constructor(port:string, baud:number, address:number, reliable:boolean=true){
     super();
 
-    // load the addon
-    this._addon = new addon.RadioHeadSerial(port, baud, address);
-  }
+    this._reliable = reliable;
 
-  /**
-   * Function for receiving a new message from the worker.
-   * Emits a 'data' event with the type of <RadioHeadSerial.ReceivedData>.
-   * @param {Error}  err    An Error or undefined if no error occured.
-   * @param {number} length The length of the received data.
-   * @param {number} from   The from address of the received message.
-   * @param {number} to     The to address of the received message.
-   * @param {number} id     The id of the received message.
-   * @param {number} flags  The flags of the received message.
-   * @param {Buffer} data   The received data as a Buffer.
-   */
-  private messageReceived(err:Error, length:number, from:number, to:number, id:number, flags:number, data:Buffer):void{
-    this.emit('data', <RadioHeadSerial.ReceivedData>{
-      error: err,
-      length: length,
-      from: from,
-      to: to,
-      id: id,
-      flags: flags,
-      data: data || new Buffer(0)
-    });
-  }
+    this._driver = new RH_Serial(port, baud);
 
-  /**
-   * Start the worker for receiving and sending data.
-   * If the worker already active, nothing is done.
-   * Emits a 'started' event if the worker has been started.
-   */
-  public start():void{
-    if(this.workerActive){
-      return;
+    if(this._reliable){
+      this._manager = new RHReliableDatagram(this._driver, address);
+    }else{
+      this._manager = new RHDatagram(this._driver, address);
     }
 
-    this._addon.start(this.messageReceived.bind(this));
-    this.workerActive = true;
-
-    this.emit('started');
-  }
-
-  /**
-   * Stop the worker for receiving and sending data.
-   * If the worker is not active, the Promise will be resolved immediately.
-   * Emits a 'stopped' event if the worker has been stopped.
-   * @return {Promise} A Promise which will be resolved when the worker has been stopped.
-   */
-  public stop():Promise<{}>{
-    if(!this.workerActive){
-      return Promise.resolve(undefined);
-    }
-
-    return new Promise((resolve:()=>void)=>{
-      this.workerActive = false;
-      this._addon.stop(()=>{
-        this.emit('stopped');
-        resolve();
-      });
+    this._manager.init()
+    .then(()=>{
+      if(this._reliable){
+        this._manager.on('recvfromAck',(message:RH_ReceivedMessage)=>{
+          this.emit('data', message);
+        });
+      }else{
+        this._manager.on('recv',(message:RH_ReceivedMessage)=>{
+          this.emit('data', message);
+        });
+      }
+      this.emit('init-done');
+    })
+    .catch((err:Error)=>{
+      throw err;
     });
-  }
-
-  /**
-   * Returns true if the worker is active.
-   * @return {boolean} Current state of the worker.
-   */
-  public isWorkerActive():boolean{
-    return this.workerActive;
   }
 
   /**
    * Send a message through the RadioHead network.
-   * If the worker is not active, the promise will be immediately rejected with an error.
    * @param  {number} to       Recipient address. Use 255 for broadcast messages.
    * @param  {Buffer} data     Buffer containing the message to send.
    * @param  {number} length   Optional number ob bytes to send from the buffer. If not given the whole buffer is sent.
    * @return {Promise}         A Promise which will be resolved when the message has been sent, or rejected in case of an error.
    */
   public send(to:number, data:Buffer, length?:number):Promise<{}>{
-    if(!this.workerActive){
-      return Promise.reject(new Error('Worker not active'))
-    }
 
     if(!length){
       length = data.length;
@@ -132,15 +110,11 @@ export class RadioHeadSerial extends EventEmitter {
       return Promise.reject(new Error('Nothing to send'))
     }
 
-    return new Promise((resolve:()=>void, reject:(err:Error)=>void)=>{
-      this._addon.send(to, length, data, (err:Error)=>{
-        if(err){
-          reject(err);
-        }else{
-          resolve();
-        }
-      });
-    });
+    if(this._reliable){
+      return (<RHReliableDatagram>this._manager).sendtoWait(data, length, to);
+    }else{
+      return this._manager.sendto(data, length, to);
+    }
 
   }
 
@@ -149,7 +123,15 @@ export class RadioHeadSerial extends EventEmitter {
    * @param {number} address The new address.
    */
   public setAddress(address:number):void{
-    this._addon.setAddress(address);
+    this._manager.setThisAddress(address);
+  }
+
+  /**
+   * Returns the address of this node.
+   * @return {number} The address of this node.
+   */
+  public thisAddress():number{
+    return this._manager.thisAddress();
   }
 
   /**
@@ -159,7 +141,8 @@ export class RadioHeadSerial extends EventEmitter {
    * @param {number} count New number of retries.
    */
   public setRetries(count:number):void{
-    this._addon.setRetries(count);
+    if(!this._reliable) return;
+    (<RHReliableDatagram>this._manager).setRetries(count);
   }
 
   /**
@@ -168,7 +151,8 @@ export class RadioHeadSerial extends EventEmitter {
    * @return {number} The currently configured maximum retries count.
    */
   public getRetries():number{
-    return this._addon.getRetries();
+    if(!this._reliable) return 0;
+    return (<RHReliableDatagram>this._manager).retries();
   }
 
   /**
@@ -178,7 +162,8 @@ export class RadioHeadSerial extends EventEmitter {
    * @param {number} timeout New timeout in milliseconds.
    */
   public setTimeout(timeout:number):void{
-    this._addon.setTimeout(timeout);
+    if(!this._reliable) return;
+    (<RHReliableDatagram>this._manager).setTimeout(timeout);
   }
 
   /**
@@ -187,14 +172,16 @@ export class RadioHeadSerial extends EventEmitter {
    * @return {number} The number of retransmissions we have had to send since starting.
    */
   public getRetransmissions():number{
-    return this._addon.getRetransmissions();
+    if(!this._reliable) return 0;
+    return (<RHReliableDatagram>this._manager).retransmissions();
   }
 
   /**
    * Resets the count of the number of retransmissions to 0.
    */
   public resetRetransmissions():void{
-    this._addon.resetRetransmissions();
+    if(!this._reliable) return;
+    (<RHReliableDatagram>this._manager).resetRetransmissions();
   }
 
   /**
@@ -202,25 +189,6 @@ export class RadioHeadSerial extends EventEmitter {
    * @param {boolean} promiscuous true if you wish to receive messages with any to address. (default false)
    */
   public setPromiscuous(promiscuous:boolean):void{
-    this._addon.setPromiscuous(promiscuous);
-  }
-
-  /**
-   * Sets the time in microseconds the worker is sleeping between actions.
-   * @param {number} time The new sleep time in microseconds. (default 50000)
-   */
-  public setWorkerSleepTime(sleepTime:number):void{
-    this._addon.setWorkerSleepTime(sleepTime);
-  };
-
-  /**
-   * Releases the reference to the current instance of this class.
-   * If no other reference exists (e.g. the Node.js variable is also deleted) the
-   * garbage collector can destroy this instance.
-   * After destroy is called, no interaction with this class should be made.
-   * This should be used to free up memory if this instance will not be used again.
-   */
-  public destroy():void{
-    this._addon.destroy();
+    this._driver.setPromiscuous(promiscuous);
   }
 }
