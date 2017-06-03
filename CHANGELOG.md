@@ -1,4 +1,4 @@
-## v3.0.0 2017-06-03
+## v3.0.1 2017-06-03
 - Recode to use only TS/JS code and dropped the native addon part
 - All needed classes from the RadioHead library are now ported to TypeScript!
 - Linux, Windows and Mac are now supported
