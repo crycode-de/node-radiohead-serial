@@ -2,23 +2,39 @@ image: crycode/nodejs-dev-env
 
 stages:
   - build
+  - test
   - deploy
 
 cache:
   paths:
     - node_modules/
 
-node-gyp-build:
+typescript-build:
   stage: build
+  artifacts:
+    expire_in: 1 week
+    name: "typescript-build-${CI_COMMIT_SHA:0:8}"
+    paths:
+      - dist/
   script:
     - npm config set unsafe-perm true
-    - npm install nan@^2.4.0
-    - node-gyp rebuild
-
-typescript-check:
-  stage: build
-  script:
+    - npm install @types/bluebird@^3.5.4
+    - npm install @types/node@^4.2.3
+    - npm install @types/expect.js
+    - npm install @types/serialport@^4.0.9
+    - npm install mocha-typescript@^1.1.4
     - tsc
+    - tsc --noEmit examples/*.ts
+
+tests:
+  stage: test
+  dependencies:
+    - typescript-build
+  script:
+    - npm config set unsafe-perm true
+    - npm install bluebird@^3.5.0
+    - npm install serialport@^4.0.7
+    - npm test
 
 publish-to-npm:
   stage: deploy

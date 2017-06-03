@@ -21,9 +21,11 @@
 #include <RH_ASK.h>
 #include <RH_Serial.h>
 #include <RHReliableDatagram.h>
+
 // Singleton instance of the radio driver
 // You can use other radio drivers if you want
 RH_ASK radio(2000, 2, 4);
+
 // Singleton instance of the serial driver which relays all messages
 // via Serial to another RadioHead RH_Serial driver, perhaps on a Unix host.
 // You could use a different Serial if the arduino has more than 1, eg Serial1 on a Mega
@@ -35,13 +37,18 @@ void setup()
   Serial.begin(9600);
   if (!radio.init())
     Serial.println("radio init failed");
+
   radio.setPromiscuous(true);
+
   if (!serial.init())
     Serial.println("serial init failed");
+
   serial.setPromiscuous(true);
 
 }
+
 uint8_t buf[RH_SERIAL_MAX_MESSAGE_LEN];
+
 void loop()
 {
   if (radio.available())

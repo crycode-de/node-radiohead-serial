@@ -1,14 +1,22 @@
 {
   "compilerOptions": {
-    "declaration": false,
+    "declaration": true,
     "module": "commonjs",
     "target": "es5",
     "noImplicitAny": false,
     "removeComments": false,
+    "experimentalDecorators": true,
+    "sourceMap": true,
     "outDir": "dist"
   },
   "files": [
     "src/radiohead-serial.ts",
-    "typings/index.d.ts"
+    "src/RH_Serial.ts",
+    "src/RHDatagram.ts",
+    "src/RHReliableDatagram.ts",
+    "src/RHCRC.ts",
+    "test/crc-test.ts",
+    "test/radiohead-serial-test.ts",
+    "test/consts-test.ts"
   ]
 }
