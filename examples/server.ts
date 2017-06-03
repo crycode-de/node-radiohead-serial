@@ -25,6 +25,7 @@ import {RadioHeadSerial, RH_ReceivedMessage} from '../';
 
 // Create an instance of the RadioHeadSerial class
 let rhs:RadioHeadSerial = new RadioHeadSerial('/dev/ttyUSB0', 9600, 0x01);
+//let rhs:RadioHeadSerial = new RadioHeadSerial('COM1', 9600, 0x01);
 
 // Listen to the 'data' event for received messages
 rhs.on('data', (message:RH_ReceivedMessage) => {
