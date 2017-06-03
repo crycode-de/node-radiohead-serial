@@ -1,6 +1,6 @@
 {
   "name": "radiohead-serial",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Bindings for the serial driver of the RadioHead library, useful to build reliable networks based on e.g. RS485 or radio.",
   "keywords": [
     "radiohead",

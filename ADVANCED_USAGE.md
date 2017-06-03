@@ -2,7 +2,7 @@
 
 This Readme contains information about the advanced usage of the `radiohead-serial` Node.js module.
 
-For the general usage see [README.md](./README.md).
+For the general usage see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md).
 
 
 ## Exported classes
@@ -10,23 +10,23 @@ For the general usage see [README.md](./README.md).
 ### RadioHeadSerial
 The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
 
-For more information see [README.md](./README.md).
+For more information see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md).
 
 ### RH_Serial(port, baud)
 Driver to send and receive unaddressed, unreliable datagrams via a serial connection.
 
-For more information see [src/RH_Serial.ts](./src/RH_Serial.ts).
+For more information see [src/RH_Serial.ts](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/src/RH_Serial.ts).
 
 
 ### RHDatagram
 Manager class for addressed, unreliable messages.
 
-For more information see [src/RHDatagram.ts](./src/RHDatagram.ts).
+For more information see [src/RHDatagram.ts](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/src/RHDatagram.ts).
 
 ### RHReliableDatagram
 RHDatagram subclass for sending addressed, acknowledged, retransmitted datagrams.
 
-For more information see [src/RHReliableDatagram.ts](./src/RHReliableDatagram.ts).
+For more information see [src/RHReliableDatagram.ts](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/src/RHReliableDatagram.ts).
 
 
 ## Exported Constants

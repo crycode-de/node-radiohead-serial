@@ -300,7 +300,7 @@ This is the maximum size for a Buffer used for sending or receiving messages.
 They represent the same classes from the native RadioHead library.
 You can use them to create custom implementations.
 
-For more information see [ADVANCED_USAGE.md](./ADVANCED_USAGE.md)
+For more information see [ADVANCED_USAGE.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/ADVANCED_USAGE.md)
 
 
 ## License
