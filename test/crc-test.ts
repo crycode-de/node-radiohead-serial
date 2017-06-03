@@ -17,7 +17,7 @@
 import { suite, test, slow, timeout, skip, only } from "mocha-typescript";
 import expect = require('expect.js');
 
-import {RHcrc_ccitt_update} from '../src/RadioHead/RHCRC';
+import {RHcrc_ccitt_update} from '../src/RHCRC';
 
 @suite('RHCRC') class RHCRC {
 

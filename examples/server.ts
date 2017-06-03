@@ -17,23 +17,22 @@
  * This server example is listening for messages from a client and responding to it.
  */
 
-// The following references are only needed for the examples in the examples directory
 ///<reference types="node" />
-///<reference path="../dist/src/radiohead-serial.d.ts" />
 
 // Import the radiohead-serial module
-import {RadioHeadSerial} from 'radiohead-serial';
+//import {RadioHeadSerial, RH_ReceivedMessage} from 'radiohead-serial';
+import {RadioHeadSerial, RH_ReceivedMessage} from '../';
 
 // Create an instance of the RadioHeadSerial class
 let rhs:RadioHeadSerial = new RadioHeadSerial('/dev/ttyUSB0', 9600, 0x01);
 
 // Listen to the 'data' event for received messages
-rhs.on('data', (message:RadioHeadSerial.ReceivedData) => {
+rhs.on('data', (message:RH_ReceivedMessage) => {
   // Print the received message object
   console.log('-> recv:', message);
 
   // Convert the decimal from address to hex
-  let sender:string = ('0' + message.from.toString(16)).slice(-2).toUpperCase();
+  let sender:string = ('0' + message.headerFrom.toString(16)).slice(-2).toUpperCase();
 
   // Print a readable form of the data
   if(message.length > 0){
@@ -44,7 +43,7 @@ rhs.on('data', (message:RadioHeadSerial.ReceivedData) => {
   let answer:Buffer = new Buffer('Hello back to you, client!');
 
   // Send the answer to the client
-  rhs.send(message.from, answer).then(()=>{
+  rhs.send(message.headerFrom, answer).then(()=>{
     // Message has been sent successfully
     console.log('<- sent to 0x' + sender + ': "' + answer.toString() + '" Raw:', answer);
   }).catch((error:Error)=>{

@@ -22,7 +22,8 @@
 var RadioHeadSerial = require('../').RadioHeadSerial;
 
 // Create an instance of the RadioHeadSerial class
-var rhs = new RadioHeadSerial('/dev/ttyUSB0', 9600, 0x01);
+//var rhs = new RadioHeadSerial('/dev/ttyUSB0', 9600, 0x01);
+var rhs = new RadioHeadSerial('/dev/pts/1', 9600, 0x01);
 
 // Listen to the 'data' event for received messages
 rhs.on('data', function(message){
@@ -30,7 +31,7 @@ rhs.on('data', function(message){
   console.log('-> recv:', message);
 
   // Convert the decimal from address to hex
-  var sender = ('0' + message.from.toString(16)).slice(-2).toUpperCase();
+  var sender = ('0' + message.headerFrom.toString(16)).slice(-2).toUpperCase();
 
   // Print a readable form of the data
   if(message.length > 0){
@@ -41,7 +42,7 @@ rhs.on('data', function(message){
   var answer = new Buffer('Hello back to you, client!');
 
   // Send the answer to the client
-  rhs.send(message.from, answer).then(function(){
+  rhs.send(message.headerFrom, answer).then(function(){
     // Message has been sent successfully
     console.log('<- sent to 0x' + sender + ': "' + answer.toString() + '" Raw:', answer);
   }).catch(function(error){

@@ -17,23 +17,22 @@
  * This client example sends ten messages to the server and prints all received messages.
  */
 
-// The following references are only needed for the examples in the examples directory
 ///<reference types="node" />
-///<reference path="../dist/src/radiohead-serial.d.ts" />
 
 // Import the radiohead-serial module
-import {RadioHeadSerial} from 'radiohead-serial';
+//import {RadioHeadSerial, RH_ReceivedMessage} from 'radiohead-serial';
+import {RadioHeadSerial, RH_ReceivedMessage} from '../';
 
 // Create an instance of the RadioHeadSerial class
 let rhs:RadioHeadSerial = new RadioHeadSerial('/dev/ttyUSB1', 9600, 0x01);
 
 // Listen on the 'data' event for received messages
-rhs.on('data', (message:RadioHeadSerial.ReceivedData) => {
+rhs.on('data', (message:RH_ReceivedMessage) => {
   // Print the received message object
   console.log('-> recv:', message);
 
   // Convert the decimal from address to hex
-  let sender:string = ('0' + message.from.toString(16)).slice(-2).toUpperCase();
+  let sender:string = ('0' + message.headerFrom.toString(16)).slice(-2).toUpperCase();
 
   // Print a readable form of the data
   if(message.length > 0){
@@ -67,11 +66,11 @@ function sendData(){
       // Send a new message after 2 seconds
       setTimeout(sendData, 2000);
     }else{
-      // Stop the asynchronous worker after 1 second and exit the client example
-      // Use the timeout before stop() to receive the answer from the server
-      setTimeout(() => {
-        rhs.stop().then(() => {
-          // The worker has been stopped
+      // Close the SerialPort worker after 1 second and exit the client example
+      // Use the timeout before close() to receive the answer from the server
+      setTimeout(()=>{
+        rhs.close().then(()=>{
+          // The SerialPort is now closed
           console.log('Client example done. :-)');
         });
       }, 1000);

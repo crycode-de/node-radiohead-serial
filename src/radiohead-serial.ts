@@ -17,25 +17,71 @@
 import {EventEmitter} from 'events';
 import * as Promise from 'bluebird';
 
-import {RH_ReceivedMessage, RH_BROADCAST_ADDRESS, RH_FLAGS_RESERVED,
-  RH_FLAGS_APPLICATION_SPECIFIC, RH_FLAGS_NONE} from './RadioHead/RadioHead';
 import {RH_Serial, RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN,
-  RH_SERIAL_MAX_MESSAGE_LEN} from './RadioHead/RH_Serial';
-import {RHDatagram} from './RadioHead/RHDatagram';
+  RH_SERIAL_MAX_MESSAGE_LEN} from './RH_Serial';
+import {RHDatagram} from './RHDatagram';
 import {RHReliableDatagram, RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT,
-  RH_DEFAULT_RETRIES} from './RadioHead/RHReliableDatagram';
+  RH_DEFAULT_RETRIES} from './RHReliableDatagram';
 
 // export the current version of this module
 export const version = '3.0.0';
 
 // export some imports to allow an custom usage
 export {
-  RH_Serial, RHDatagram, RHReliableDatagram, RH_ReceivedMessage,
+  RH_Serial, RHDatagram, RHReliableDatagram,
   RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN, RH_SERIAL_MAX_MESSAGE_LEN,
-  RH_BROADCAST_ADDRESS,
-  RH_FLAGS_RESERVED, RH_FLAGS_APPLICATION_SPECIFIC, RH_FLAGS_NONE, RH_FLAGS_ACK,
+  RH_FLAGS_ACK,
   RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES
 };
+
+/** This is the address that indicates a broadcast */
+export const RH_BROADCAST_ADDRESS = 0xff;
+
+export const RH_FLAGS_RESERVED = 0xf0;
+export const RH_FLAGS_APPLICATION_SPECIFIC = 0x0f;
+export const RH_FLAGS_NONE = 0;
+
+/**
+ * Interface for a received message.
+ */
+export interface RH_ReceivedMessage {
+
+  /**
+   * Buffer containing the received data.
+   * @type {Buffer}
+   */
+  data:Buffer;
+
+  /**
+   * Length of the received data.
+   * @type {number}
+   */
+  length:number;
+
+  /**
+   * TO header.
+   * @type {number}
+   */
+  headerTo:number;
+
+  /**
+   * FROM header.
+   * @type {number}
+   */
+  headerFrom:number;
+
+  /**
+   * ID header.
+   * @type {number}
+   */
+  headerId:number;
+
+  /**
+   * FLAGS header.
+   * @type {number}
+   */
+  headerFlags:number;
+}
 
 /**
  * The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
@@ -94,6 +140,15 @@ export class RadioHeadSerial extends EventEmitter {
     .catch((err:Error)=>{
       throw err;
     });
+  }
+
+  /**
+   * Closes the Serialport.
+   * After close() is called, no messages can be received.
+   * @return {Promise} Promise which will be resolved if the SerialPort is closed.
+   */
+  public close():Promise<{}>{
+    return this._driver.close();
   }
 
   /**

@@ -12,7 +12,7 @@ import {EventEmitter} from 'events';
 
 import * as Promise from 'bluebird';
 
-import {RH_ReceivedMessage, RH_FLAGS_APPLICATION_SPECIFIC} from './RadioHead';
+import {RH_ReceivedMessage, RH_FLAGS_APPLICATION_SPECIFIC} from './radiohead-serial';
 import {RH_Serial} from './RH_Serial';
 
 /**

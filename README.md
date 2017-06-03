@@ -50,7 +50,7 @@ npm install radiohead-serial
 
 ## Examples
 
-The examples blow can be found in the *examples* directory of this package together with TypeScript examples and a gateway Arduino sketch.
+The examples blow can be found in the [*examples*](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/examples) directory of this package together with TypeScript examples and a gateway Arduino sketch.
 
 The examples assume a Linux system with two USB-RS485 adapters connected.
 The A and B lines of the RS485 are connected between both adapters.
@@ -77,7 +77,7 @@ rhs.on('data', function(message){
   console.log('-> recv:', message);
 
   // Convert the decimal from address to hex
-  var sender = ('0' + message.from.toString(16)).slice(-2).toUpperCase();
+  var sender = ('0' + message.headerFrom.toString(16)).slice(-2).toUpperCase();
 
   // Print a readable form of the data
   if(message.length > 0){
@@ -88,7 +88,7 @@ rhs.on('data', function(message){
   var answer = new Buffer('Hello back to you, client!');
 
   // Send the answer to the client
-  rhs.send(message.from, answer).then(function(){
+  rhs.send(message.headerFrom, answer).then(function(){
     // Message has been sent successfully
     console.log('<- sent to 0x' + sender + ': "' + answer.toString() + '" Raw:', answer);
   }).catch(function(error){
@@ -116,7 +116,7 @@ rhs.on('data', function(message){
   console.log('-> recv:', message);
 
   // Convert the decimal from address to hex
-  var sender = ('0' + message.from.toString(16)).slice(-2).toUpperCase();
+  var sender = ('0' + message.headerFrom.toString(16)).slice(-2).toUpperCase();
 
   // Print a readable form of the data
   if(message.length > 0){
@@ -150,11 +150,11 @@ function sendData(){
       // Send a new message after 2 seconds
       setTimeout(sendData, 2000);
     }else{
-      // Stop the asynchronous worker after 1 second and exit the client example
-      // Use the timeout before stop() to receive the answer from the server
+      // Close the SerialPort worker after 1 second and exit the client example
+      // Use the timeout before close() to receive the answer from the server
       setTimeout(function(){
-        rhs.stop().then(function(){
-          // The worker has been stopped
+        rhs.close().then(function(){
+          // The SerialPort is now closed
           console.log('Client example done. :-)');
         });
       }, 1000);
@@ -189,6 +189,14 @@ Loads and initializes the RadioHead driver and manager.
 * `port` - The serial port/device to be used for the communication. For example /dev/ttyUSB0.
 * `baud` - The baud rate to be used for the communication. Supported are 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400.
 * `address` - The address of this node in the RadioHead network. Address range goes from 1 to 254.
+
+### rhs.close()
+```ts
+close():Promise<{}>;
+```
+Closes the serial port.
+After close() is called, no messages can be received.
+Returns a promise which will be resolved if the serial port is closed.
 
 ### rhs.send(to, data, length)
 ```ts

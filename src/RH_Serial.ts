@@ -13,7 +13,7 @@ import {EventEmitter} from 'events';
 import * as Promise from 'bluebird';
 import * as SerialPort from 'serialport';
 
-import {RH_BROADCAST_ADDRESS, RH_ReceivedMessage, RH_FLAGS_APPLICATION_SPECIFIC} from './RadioHead';
+import {RH_BROADCAST_ADDRESS, RH_ReceivedMessage, RH_FLAGS_APPLICATION_SPECIFIC} from './radiohead-serial';
 import {RHcrc_ccitt_update} from './RHCRC';
 
 /**
@@ -158,6 +158,21 @@ export class RH_Serial extends EventEmitter {
   }
 
   /**
+   * Close the Driver transport hardware and software.
+   * @return {Promise} Promise which will be resolved if the SerialPort is closed.
+   */
+  public close():Promise<{}>{
+    return new Promise((resolve, reject)=>{
+      this._port.close((err:Error)=>{
+        if(err){
+          reject(err);
+        }else{
+          resolve();
+        }
+      });
+    });
+  }
+  /**
    * Handle a character received from the serial port. Implements
    * the receiver state machine.
    * @param {number} ch One received byte.
@@ -253,7 +268,7 @@ export class RH_Serial extends EventEmitter {
       this._rxBuf.copy(buf, 0, RH_SERIAL_HEADER_LEN, this._rxBufLen);
       this.emit('recv', <RH_ReceivedMessage>{
         data:        buf,
-        len:         this._rxBufLen-RH_SERIAL_HEADER_LEN,
+        length:      this._rxBufLen-RH_SERIAL_HEADER_LEN,
         headerTo:    this._rxBuf[0],
         headerFrom:  this._rxBuf[1],
         headerId:    this._rxBuf[2],
