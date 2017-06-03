@@ -22,8 +22,7 @@
 var RadioHeadSerial = require('../').RadioHeadSerial;
 
 // Create an instance of the RadioHeadSerial class
-//var rhs = new RadioHeadSerial('/dev/ttyUSB1', 9600, 0x02);
-var rhs = new RadioHeadSerial('/dev/pts/2', 9600, 0x02);
+var rhs = new RadioHeadSerial('/dev/ttyUSB1', 9600, 0x02);
 
 // Listen on the 'data' event for received messages
 rhs.on('data', function(message){
