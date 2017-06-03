@@ -13,6 +13,7 @@
  * Port from native C/C++ code to TypeScript
  * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
+/// <reference types="node" />
 
 import {EventEmitter} from 'events';
 import * as Promise from 'bluebird';

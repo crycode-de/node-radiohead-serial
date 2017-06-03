@@ -4,7 +4,7 @@
 [![coverage report](https://git.cryhost.de/crycode/node-radiohead-serial/badges/master/coverage.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/master)
 [![npm version](https://badge.fury.io/js/radiohead-serial.svg)](https://badge.fury.io/js/radiohead-serial)
 
-Communication between some **RadioHead** nodes and **Node.js** using the *RH_Serial* driver and the *RHReliableDatagram* manager of the RadioHead library.
+Communication between some **RadioHead** nodes and **Node.js** using the *RH_Serial* driver and the *RHReliableDatagram* or *RHDatagram* manager of the RadioHead library.
 
 With `radiohead-serial` you can build reliable networks based on serial hardware (e.g. RS485 or RS232) between multiple different devices like regular computers, minicomputers (e.g. Raspberry Pi) and microprocessors (e.g. Arduino). It is also possible to include radio hardware using a microprocessor (e.g. an Arduino nano) as a serial-radio gateway.
 
@@ -35,7 +35,7 @@ In addition using a serial-radio gateway is possible (see below).
 If you want to use other RadioHead drivers (for example *RH_ASK*), you can simply use an Arduino nano ($2 to $10) as an serial gateway.
 Other microprocessors can be used too.
 
-Connect your radio hardware to the Arduino and upload the `rh_serial_gateway` sketch. An example sketch is included in the *examples* directory.
+Connect your radio hardware to the Arduino and upload the `rh_serial_ask_gateway` sketch. Some example sketches are included in the [*examples*](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/examples) directory.
 The Arduino will act as a gateway between the serial and the radio network.
 
 Optionally the gateway can filter messages, so that only a specific address range is transmitted through the radio network.
@@ -177,18 +177,20 @@ console.log('I\'ll try to send hello to the Server five times...');
 
 Receiving and sending of messages is always done asynchronous.
 
-TypeScript typings are available in the `typings` directory.
+TypeScript typings are included in the package.
 
-### RadioHeadSerial(port, baud, address)
+
+### RadioHeadSerial(port, baud, address, reliable)
 ```ts
-constructor(port:string, baud:number, address:number);
+constructor(port:string, baud:number, address:number, reliable:boolean=true);
 ```
 Constructor of the RadioHeadSerial class.
 Loads and initializes the RadioHead driver and manager.
 
-* `port` - The serial port/device to be used for the communication. For example /dev/ttyUSB0.
+* `port` - The serial port/device to be used for the communication. For example /dev/ttyUSB0 or COM1.
 * `baud` - The baud rate to be used for the communication. Supported are 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400.
 * `address` - The address of this node in the RadioHead network. Address range goes from 1 to 254.
+* `reliable` - (optional) false if RHDatagram should be used instead of RHReliableDatagram. (default true)
 
 ### rhs.close()
 ```ts
@@ -312,9 +314,21 @@ rhs.on('stopped', () => { /* do something */ });
 ```
 The `stopped` event is emitted if the asynchronous worker has been stopped.
 
-### RadioHeadSerial.MAX_MESSAGE_LEN
-A constant containing the maximum supported message length (60).
+### Exported Constants
+
+#### version
+The actual version of the module.
+
+#### RH_SERIAL_MAX_MESSAGE_LEN = 60
+The maximum supported message length.
 This is the maximum size for a Buffer used for sending or receiving messages.
+
+## Advanced usage
+`radiohead-serial` also exports classes `RH_Serial`, `RHDatagram` and `RHReliableDatagram` and some additional constants.
+They represent the same classes from the native RadioHead library.
+You can use them to create custom implementations.
+
+For more information see [ADVANCED_USAGE.md](./ADVANCED_USAGE.md)
 
 
 ## License

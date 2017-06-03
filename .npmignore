@@ -1,7 +1,5 @@
 node_modules/
-build/
 coverage/
-deps/*.patch
 **/*.log
 *.tgz
 .gitlab-ci.yml

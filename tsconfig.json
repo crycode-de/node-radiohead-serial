@@ -17,7 +17,6 @@
     "src/RHCRC.ts",
     "test/crc-test.ts",
     "test/radiohead-serial-test.ts",
-    "test/consts-test.ts",
-    "typings/index.d.ts"
+    "test/consts-test.ts"
   ]
 }
