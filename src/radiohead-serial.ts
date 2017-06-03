@@ -25,13 +25,16 @@ import {RHDatagram} from './RadioHead/RHDatagram';
 import {RHReliableDatagram, RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT,
   RH_DEFAULT_RETRIES} from './RadioHead/RHReliableDatagram';
 
+// export the current version of this module
+export const version = '3.0.0';
+
 // export some imports to allow an custom usage
 export {
   RH_Serial, RHDatagram, RHReliableDatagram, RH_ReceivedMessage,
   RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN, RH_SERIAL_MAX_MESSAGE_LEN,
   RH_BROADCAST_ADDRESS,
   RH_FLAGS_RESERVED, RH_FLAGS_APPLICATION_SPECIFIC, RH_FLAGS_NONE, RH_FLAGS_ACK,
-  RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES  
+  RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES
 };
 
 /**
