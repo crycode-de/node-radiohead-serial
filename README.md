@@ -271,48 +271,18 @@ Tells the receiver to accept messages with any to address, not just messages add
 
 * `promiscuous` - true if you wish to receive messages with any to address. (default false)
 
-### rhs.setWorkerSleepTime(sleepTime)
-```ts
-setWorkerSleepTime(sleepTime:number):void;
-```
-Sets the time in microseconds the asynchronous worker is sleeping between actions.
-Default is 50000.
-
-* `time` - The new sleep time in microseconds.
-
-### rhs.destroy()
-```ts
-destroy():void;
-```
-Releases the reference to the current instance of this class.
-If no other reference exists (e.g. the Node.js variable is also deleted) the garbage collector can destroy this instance.
-After destroy is called, no interaction with this class should be made.
-This should be used to free up memory if this instance will not be used again.
-
 ### rhs.on('data', function(receivedData){ })
 ```ts
-rhs.on('data', (message:RadioHeadSerial.ReceivedData) => { /* do something */ });
+rhs.on('data', (message:RH_ReceivedMessage) => { /* do something */ });
 ```
 The `data` event is emitted for every received message and includes an object with the following information.
 
+* `data` - The received data as a Buffer.
 * `length` - The length of the received data.
-* `from` - The from address of the received message.
-* `to` - The to address of the received message.
-* `id` - The id of the received message.
-* `flags` - The flags of the received message.
-* `data` - The received data as a Buffer or an empty Buffer if nothing was received (in case of an error).
-
-### rhs.on('started', function(){ })
-```ts
-rhs.on('started', () => { /* do something */ });
-```
-The `started` event is emitted if the asynchronous worker has been started.
-
-### rhs.on('stopped', function(){ })
-```ts
-rhs.on('stopped', () => { /* do something */ });
-```
-The `stopped` event is emitted if the asynchronous worker has been stopped.
+* `headerFrom` - The from address of the received message.
+* `headerTo` - The to address of the received message.
+* `headerId` - The id of the received message.
+* `headerFlags` - The flags of the received message.
 
 ### Exported Constants
 
