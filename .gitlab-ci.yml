@@ -22,6 +22,7 @@ typescript-build:
     - npm install @types/node@^4.2.3
     - npm install @types/expect.js
     - npm install @types/serialport@^4.0.9
+    - npm install mocha-typescript@^1.1.4
     - tsc
     - tsc --noEmit examples/*.ts
 
