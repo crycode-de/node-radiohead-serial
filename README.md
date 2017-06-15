@@ -286,6 +286,14 @@ The `data` event is emitted for every received message and includes an object wi
 * `headerId` - The id of the received message.
 * `headerFlags` - The flags of the received message.
 
+### rhs.on('error', function(err){ })
+```ts
+rhs.on('error', (err:Error) => { /* do something */ });
+```
+The `error` event is emitted if there is an error with the driver.
+
+* `err` - The error.
+
 ### Exported Constants
 
 #### version

@@ -135,6 +135,11 @@ export class RH_Serial extends EventEmitter {
       parser: SerialPort.parsers.byteLength(1) // use special parser to handle each byte separately
     });
 
+    // proxy errors
+    this._port.on('error', (err:Error)=>{
+      this.emit('error', err);
+    });
+
     // handle received bytes
     this._port.on('data', (buf:Buffer)=>{
       this.handleRx(buf[0]);

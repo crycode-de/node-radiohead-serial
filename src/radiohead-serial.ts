@@ -119,6 +119,11 @@ export class RadioHeadSerial extends EventEmitter {
 
     this._driver = new RH_Serial(port, baud);
 
+    // proxy driver errors
+    this._driver.on('error', (err:Error)=>{
+      this.emit('error', err);
+    });
+
     if(this._reliable){
       this._manager = new RHReliableDatagram(this._driver, address);
     }else{
