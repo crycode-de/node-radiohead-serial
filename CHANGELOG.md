@@ -1,3 +1,6 @@
+## v3.1.0 2017-06-15
+- Error events from the SerialPort are now proxied to RH_Serial and RadioHeadSerial classes
+
 ## v3.0.1 2017-06-03
 - Recode to use only TS/JS code and dropped the native addon part
 - All needed classes from the RadioHead library are now ported to TypeScript!
