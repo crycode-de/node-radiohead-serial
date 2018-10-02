@@ -1,4 +1,4 @@
-image: crycode/nodejs-dev-env
+image: node:8
 
 stages:
   - build
@@ -18,22 +18,18 @@ typescript-build:
       - dist/
   script:
     - npm config set unsafe-perm true
-    - npm install @types/bluebird@^3.5.4
-    - npm install @types/node@^4.2.3
-    - npm install @types/expect.js
-    - npm install @types/serialport@^4.0.9
-    - npm install mocha-typescript@^1.1.4
-    - tsc
-    - tsc --noEmit examples/*.ts
+    - npm install
+    - ./node_modules/.bin/tsc
+    - ./node_modules/.bin/tsc --noEmit examples/*.ts
 
 tests:
   stage: test
   dependencies:
     - typescript-build
   script:
+    - apt-get update && apt-get install -y socat
     - npm config set unsafe-perm true
-    - npm install bluebird@^3.5.0
-    - npm install serialport@^4.0.7
+    - npm install --only=production
     - npm test
 
 publish-to-npm:

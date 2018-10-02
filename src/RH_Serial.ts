@@ -13,6 +13,7 @@ import {EventEmitter} from 'events';
 
 import * as Promise from 'bluebird';
 import * as SerialPort from 'serialport';
+import * as ParserByteLength from '@serialport/parser-byte-length';
 
 import {RH_BROADCAST_ADDRESS, RH_ReceivedMessage, RH_FLAGS_APPLICATION_SPECIFIC} from './radiohead-serial';
 import {RHcrc_ccitt_update} from './RHCRC';
@@ -62,6 +63,11 @@ export class RH_Serial extends EventEmitter {
    * The SerialPort we will use
    */
   private _port:SerialPort;
+
+  /**
+   * The parser we will use for the SerialPort.
+   */
+  private _parser:any;
 
   /**
    * The current state of the Rx state machine
@@ -131,9 +137,12 @@ export class RH_Serial extends EventEmitter {
     // construct the SerialPort
     this._port = new SerialPort(port, {
       autoOpen: false, // will be opened at init()
-      baudRate: baud,
-      parser: SerialPort.parsers.byteLength(1) // use special parser to handle each byte separately
+      baudRate: baud
     });
+
+
+    this._parser = this._port.pipe(new ParserByteLength({ length: 1 }));
+
 
     // proxy errors
     this._port.on('error', (err:Error)=>{
@@ -141,7 +150,7 @@ export class RH_Serial extends EventEmitter {
     });
 
     // handle received bytes
-    this._port.on('data', (buf:Buffer)=>{
+    this._parser.on('data', (buf:Buffer)=>{
       this.handleRx(buf[0]);
     });
   }

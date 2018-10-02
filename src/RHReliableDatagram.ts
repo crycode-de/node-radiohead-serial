@@ -9,8 +9,6 @@
  */
 /// <reference types="node" />
 
-import {EventEmitter} from 'events';
-
 import * as Promise from 'bluebird';
 
 import {RH_BROADCAST_ADDRESS, RH_FLAGS_NONE, RH_ReceivedMessage} from './radiohead-serial';
@@ -192,7 +190,7 @@ export class RHReliableDatagram extends RHDatagram {
         resolve();
       };
 
-      let failed = (err:Error)=>{
+      let failed = (_err:Error)=>{
         // _sendtoWaitOne failed
         if(retries++ <= this._retries){
           // retry

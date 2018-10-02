@@ -1,6 +1,6 @@
 {
   "name": "radiohead-serial",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "Bindings for the serial driver of the RadioHead library, useful to build reliable networks based on e.g. RS485 or radio.",
   "keywords": [
     "radiohead",
@@ -15,7 +15,7 @@
   "main": "dist/src/radiohead-serial.js",
   "typings": "dist/src/radiohead-serial.d.ts",
   "scripts": {
-    "prepublish": "tsc",
+    "prepare": "./node_modules/.bin/tsc",
     "test": "./test/test.sh"
   },
   "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
@@ -29,21 +29,22 @@
     "url": "https://git.cryhost.de/crycode/node-radiohead-serial/issues"
   },
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=8.0.0"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "serialport": "^4.0.7"
+    "@serialport/parser-byte-length": "^2.0.1",
+    "bluebird": "^3.5.2",
+    "serialport": "^7.0.2"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.4",
+    "@types/bluebird": "^3.5.24",
     "@types/expect.js": "^0.3.29",
-    "@types/node": "^4.2.3",
-    "@types/serialport": "^4.0.9",
+    "@types/node": "^8.10.32",
+    "@types/serialport": "^6.0.4",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
-    "mocha": "^3.4.2",
-    "mocha-typescript": "^1.1.4",
-    "typescript": "^2.3.4"
+    "mocha": "^5.2.0",
+    "mocha-typescript": "^1.1.17",
+    "typescript": "^3.1.1"
   }
 }

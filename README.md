@@ -18,7 +18,8 @@ Based on RadioHead library *1.74 2017-03-08*
 Since Version 3 this module is based on a TypeScript/JavaScript port of the native RadioHead library.
 
 This module can be used on any Linux, Mac or Windows system, for example a Raspberry Pi with Raspbian or a regular computer.
-It requires Node.js version 4 or higher.
+
+**Hint:** Version 4 of `radiohead-serial` requires Node.js version 8 or higher. For older Node.js releases you may use the v3 branch of `radiohead-serial` which supports Node.js version 4 or higher.
 
 
 ## Example scenario for using radiohead-serial
@@ -43,8 +44,14 @@ Optionally the gateway can filter messages, so that only a specific address rang
 
 ## Installation
 
+To install the latest version simply use:
 ```
 npm install radiohead-serial
+```
+
+If you want install the latest version of the *v3* branch use:
+```
+npm install radiohead-serial@3
 ```
 
 
