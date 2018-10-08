@@ -31,6 +31,9 @@ For more information see [src/RHReliableDatagram.ts](https://git.cryhost.de/cryc
 
 ## Exported Constants
 
+#### version
+The actual version of the module.
+
 ### RH_SERIAL_MAX_MESSAGE_LEN = 60
 The maximum supported message length.
 This is the maximum size for a Buffer used for sending or receiving messages.

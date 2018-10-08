@@ -1,4 +1,4 @@
-## v4.0.0 2018-10-02
+## v4.0.0 2018-10-08
 - Upgraded all dependencies to use prebuild binaries and fix known vulnerabilities
 - BRAKING: v4 of radiohead-serial requires at least Node.js 8! For older released of Node.js use the latest v3.
 - Build results are now in ES6 style

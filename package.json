@@ -28,6 +28,13 @@
   "bugs": {
     "url": "https://git.cryhost.de/crycode/node-radiohead-serial/issues"
   },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "*.md",
+    "examples",
+    "test/test.sh"
+  ],
   "engines": {
     "node": ">=8.0.0"
   },
@@ -39,7 +46,7 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.24",
     "@types/expect.js": "^0.3.29",
-    "@types/node": "^8.10.32",
+    "@types/node": "^8.10.34",
     "@types/serialport": "^6.0.4",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
