@@ -1,7 +1,7 @@
 # radiohead-serial
 
-[![build status](https://git.cryhost.de/crycode/node-radiohead-serial/badges/master/build.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/master)
-[![coverage report](https://git.cryhost.de/crycode/node-radiohead-serial/badges/master/coverage.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/master)
+[![build status](https://git.cryhost.de/crycode/node-radiohead-serial/badges/v3/build.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/v3)
+[![coverage report](https://git.cryhost.de/crycode/node-radiohead-serial/badges/v3/coverage.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/v3)
 [![npm version](https://badge.fury.io/js/radiohead-serial.svg)](https://badge.fury.io/js/radiohead-serial)
 
 Communication between some **RadioHead** nodes and **Node.js** using the *RH_Serial* driver and the *RHReliableDatagram* or *RHDatagram* manager of the RadioHead library.
@@ -18,7 +18,8 @@ Based on RadioHead library *1.74 2017-03-08*
 Since Version 3 this module is based on a TypeScript/JavaScript port of the native RadioHead library.
 
 This module can be used on any Linux, Mac or Windows system, for example a Raspberry Pi with Raspbian or a regular computer.
-It requires Node.js version 4 or higher.
+
+**Hint:** Version 4 of `radiohead-serial` requires Node.js version 4 or higher and is maintained only for compatibility. Please consider to upgrade to the latest version of `radiohead-serial` if you are using Node.js version 8 or higher.
 
 
 ## Example scenario for using radiohead-serial
@@ -43,8 +44,14 @@ Optionally the gateway can filter messages, so that only a specific address rang
 
 ## Installation
 
+To install the latest version simply use:
 ```
 npm install radiohead-serial
+```
+
+If you want install the latest version of the *v3* branch use:
+```
+npm install radiohead-serial@3
 ```
 
 

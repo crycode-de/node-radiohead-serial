@@ -1,3 +1,7 @@
+## v3.2.0 2018-10-08
+- Upgraded dependencies while keeping compatibility to Node.js 4
+- Fixed wrong exported version
+
 ## v3.1.0 2017-06-15
 - Error events from the SerialPort are now proxied to RH_Serial and RadioHeadSerial classes
 
