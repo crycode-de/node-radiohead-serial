@@ -22,15 +22,23 @@ typescript-build:
     - ./node_modules/.bin/tsc
     - ./node_modules/.bin/tsc --noEmit examples/*.ts
 
-tests:
+.tests: &tests
   stage: test
   dependencies:
     - typescript-build
   script:
     - apt-get update && apt-get install -y socat
     - npm config set unsafe-perm true
-    - npm install --only=production
+    - npm install
     - npm test
+
+tests-node4:
+  image: node:4
+  <<: *tests
+
+tests-node6:
+  image: node:6
+  <<: *tests
 
 publish-to-npm:
   stage: deploy
