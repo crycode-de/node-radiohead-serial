@@ -45,7 +45,7 @@ var sentCount = 0;
 // Function to send a message (calls itself with a timeout until five messages are sent)
 function sendData(){
   // Create the data to be send to the server
-  var data = new Buffer('Hello server!');
+  var data = Buffer.from('Hello server!');
 
   // Send the data to the server
   rhs.send(0x01, data).then(function(){

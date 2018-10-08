@@ -39,7 +39,7 @@ rhs.on('data', function(message){
   }
 
   // Create the answer for the client
-  var answer = new Buffer('Hello back to you, client!');
+  var answer = Buffer.from('Hello back to you, client!');
 
   // Send the answer to the client
   rhs.send(message.headerFrom, answer).then(function(){

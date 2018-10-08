@@ -90,7 +90,7 @@ let rhs2:RadioHeadSerial = null;
 @suite('send and receive messages') class SendRecv {
 
   @test 'from 0x01 to 0x02' (done){
-    const sendData = new Buffer('Hey beauty!'); // data to be sent
+    const sendData = Buffer.from('Hey beauty!'); // data to be sent
 
     // function for received messages on rhs2
     let recvListener = (msg:RH_ReceivedMessage)=>{
@@ -114,7 +114,7 @@ let rhs2:RadioHeadSerial = null;
   }
 
   @test 'from 0x02 to 0x01' (done){
-    const sendData = new Buffer('Here we go!'); // data to be sent
+    const sendData = Buffer.from('Here we go!'); // data to be sent
 
     // function for received messages on rhs2
     let recvListener = (msg:RH_ReceivedMessage)=>{
@@ -138,14 +138,14 @@ let rhs2:RadioHeadSerial = null;
   }
 
   @test 'from 0x01 to 0x02 with limited data length' (done){
-    const sendData = new Buffer('Hey beauty!'); // data to be sent
+    const sendData = Buffer.from('Hey beauty!'); // data to be sent
 
     // function for received messages on rhs2
     let recvListener = (msg:RH_ReceivedMessage)=>{
       // remove the listener function from the emitter
       rhs2.removeListener('data', recvListener);
 
-      let sendDataPart = new Buffer('Hey');
+      let sendDataPart = Buffer.from('Hey');
       if(msg.data.compare(sendDataPart) === 0){
         done();
       }else{
@@ -163,13 +163,7 @@ let rhs2:RadioHeadSerial = null;
   }
 
   @test 'from 0x01 to 0x02 with control characters' (done){
-
-    const STX = 0x02;
-    const ETX = 0x03;
-    const DLE = 0x10;
-    const SYN = 0x16;
-
-    const sendData = new Buffer('abcdef'); // data to be sent
+    const sendData = Buffer.from('abcdef'); // data to be sent
     sendData[1] = 0x02; // STX
     sendData[2] = 0x03; // ETX
     sendData[3] = 0x10; // DLE
@@ -197,7 +191,7 @@ let rhs2:RadioHeadSerial = null;
   }
 
   @test 'from 0x01 to broadcast' (done){
-    const sendData = new Buffer('Hey beauty!'); // data to be sent
+    const sendData = Buffer.from('Hey beauty!'); // data to be sent
 
     // function for received messages on rhs2
     let recvListener = (msg:RH_ReceivedMessage)=>{
@@ -226,7 +220,7 @@ let rhs2:RadioHeadSerial = null;
   }
 
   @test 'from 0x01 to 0x42 should fail' (done){
-    const sendData = new Buffer('Hey beauty!'); // data to be sent
+    const sendData = Buffer.from('Hey beauty!'); // data to be sent
 
     // send data
     rhs1.send(0x42, sendData).catch((err)=>{
@@ -283,7 +277,7 @@ let rhs2:RadioHeadSerial = null;
 ///////////////////////////////
 @suite('send and receive messages') class SendRecv2 {
   @test 'from 0x01 to 0x05' (done){
-    const sendData = new Buffer('Hey beauty!'); // data to be sent
+    const sendData = Buffer.from('Hey beauty!'); // data to be sent
 
     // function for received messages on rhs2
     let recvListener = (msg:RH_ReceivedMessage)=>{
@@ -307,7 +301,7 @@ let rhs2:RadioHeadSerial = null;
   }
 
   @test 'from 0x05 to 0x42 (0x01 with promiscuous mode)' (done){
-    const sendData = new Buffer('Hey beauty!'); // data to be sent
+    const sendData = Buffer.from('Hey beauty!'); // data to be sent
 
     // function for received messages on rhs2
     let recvListener = (msg:RH_ReceivedMessage)=>{

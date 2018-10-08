@@ -42,7 +42,7 @@ rhs.on('data', (message:RH_ReceivedMessage) => {
   }
 
   // Create the answer for the client
-  let answer:Buffer = new Buffer('Hello back to you, client!');
+  let answer:Buffer = Buffer.from('Hello back to you, client!');
 
   // Send the answer to the client
   rhs.send(message.headerFrom, answer).then(()=>{
