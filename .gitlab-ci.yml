@@ -20,7 +20,7 @@ typescript-build:
     - npm config set unsafe-perm true
     - npm install
     - ./node_modules/.bin/tsc
-    - ./node_modules/.bin/tsc --noEmit examples/*.ts
+    - ./node_modules/.bin/tsc --noEmit --target es6 examples/*.ts
 
 tests:
   stage: test

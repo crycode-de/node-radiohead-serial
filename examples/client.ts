@@ -21,6 +21,7 @@
 
 // Import the radiohead-serial module
 //import {RadioHeadSerial, RH_ReceivedMessage} from 'radiohead-serial';
+// @ts-ignore
 import {RadioHeadSerial, RH_ReceivedMessage} from '../';
 
 // Create an instance of the RadioHeadSerial class

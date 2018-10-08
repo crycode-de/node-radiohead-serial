@@ -20,13 +20,19 @@ import expect = require('expect.js');
 import {
   RH_BROADCAST_ADDRESS, RH_FLAGS_RESERVED, RH_FLAGS_APPLICATION_SPECIFIC, RH_FLAGS_NONE,
   RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN, RH_SERIAL_MAX_MESSAGE_LEN,
-  RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES
+  RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES,
+  version
 } from '../src/radiohead-serial';
 
 //////////////////
 // Check consts //
 //////////////////
 @suite('check consts') class CheckConsts {
+  @test 'version of package.json and exported version' (){
+    const pkg = require('../../package.json');
+    expect(pkg.version).to.be(version);
+  }
+
   @test 'RH_BROADCAST_ADDRESS 0xff' (){
     expect(RH_BROADCAST_ADDRESS).to.be(0xff);
   }
