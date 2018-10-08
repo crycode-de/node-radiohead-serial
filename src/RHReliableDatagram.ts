@@ -294,7 +294,7 @@ export class RHReliableDatagram extends RHDatagram {
   private acknowledge(id:number, from:number):Promise<{}>{
     this.setHeaderId(id);
     this.setHeaderFlags(RH_FLAGS_ACK);
-    return this.sendto(new Buffer('!'), 1, from);
+    return this.sendto(Buffer.from('!'), 1, from);
   }
 
 }

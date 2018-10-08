@@ -92,7 +92,7 @@ export class RH_Serial extends EventEmitter {
   /**
    * The Rx buffer
    */
-  private _rxBuf:Buffer = new Buffer(RH_SERIAL_MAX_PAYLOAD_LEN); // XXX .fill(0) ?
+  private _rxBuf:Buffer = Buffer.alloc(RH_SERIAL_MAX_PAYLOAD_LEN); // XXX .fill(0) ?
 
   // The following vars come from RHGenericDriver
 
@@ -279,7 +279,7 @@ export class RH_Serial extends EventEmitter {
     if(this._promiscuous || this._rxBuf[0] == this._thisAddress || this._rxBuf[0] == RH_BROADCAST_ADDRESS){
 
       // emit event with the received data
-      let buf:Buffer = new Buffer(this._rxBufLen-RH_SERIAL_HEADER_LEN);
+      let buf:Buffer = Buffer.alloc(this._rxBufLen-RH_SERIAL_HEADER_LEN);
       this._rxBuf.copy(buf, 0, RH_SERIAL_HEADER_LEN, this._rxBufLen);
       this.emit('recv', <RH_ReceivedMessage>{
         data:        buf,
@@ -309,7 +309,7 @@ export class RH_Serial extends EventEmitter {
       len = RH_SERIAL_MAX_MESSAGE_LEN;
     }
 
-    let txBuf = new Buffer(RH_SERIAL_MAX_PAYLOAD_LEN + RH_SERIAL_MAX_MESSAGE_LEN + 6); // double message len because any byte in the message can be DLE, 2 prepended and 4 appended bytes
+    let txBuf = Buffer.alloc(RH_SERIAL_MAX_PAYLOAD_LEN + RH_SERIAL_MAX_MESSAGE_LEN + 6); // double message len because any byte in the message can be DLE, 2 prepended and 4 appended bytes
 
     let txFcs = 0xffff; // Initial value
 
