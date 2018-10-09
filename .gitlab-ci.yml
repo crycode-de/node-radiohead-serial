@@ -45,7 +45,7 @@ publish-to-npm:
   script:
     - npm config set unsafe-perm true
     - npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-    - npm publish --tag v3
+    - npm publish --tag latest-v3
   environment:
     name: production
     url: https://www.npmjs.com/package/radiohead-serial
