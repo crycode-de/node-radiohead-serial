@@ -10,7 +10,7 @@ For the general usage see [README.md](https://git.cryhost.de/crycode/node-radioh
 ### RadioHeadSerial
 The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
 
-For more information see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md#radioheadserial-options).
+For more information see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md#radioheadserialoptions-radioheadserialoptions).
 
 ### RH_Serial(port, baud)
 Driver to send and receive unaddressed, unreliable datagrams via a serial connection.
