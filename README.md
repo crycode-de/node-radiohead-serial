@@ -241,6 +241,12 @@ init():Promise<{}>;
 Initializes the manager and the serial port if options.autoInit was false on construction of the class.
 Returns a promise which will be resolved if the serial port is opened and the manager is initialized or rejected in case of an error.
 
+### rhs.isInitDone()
+```ts
+isInitDone():boolean;
+```
+Returns if the init is done (`true`) or not (`false`).
+
 ### rhs.close()
 ```ts
 close():Promise<{}>;

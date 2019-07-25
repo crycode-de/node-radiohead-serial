@@ -25,7 +25,7 @@ import {RHReliableDatagram, RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT,
   RH_DEFAULT_RETRIES} from './RHReliableDatagram';
 
 // export the current version of this module
-export const version = '4.1.0';
+export const version = '4.1.1';
 
 // export some imports to allow an custom usage
 export {
@@ -231,6 +231,14 @@ export class RadioHeadSerial extends EventEmitter {
       this._initDone = true;
       this.emit('init-done');
     });
+  }
+
+  /**
+   * Returns if the init is done.
+   * @return If the init is done (true) or not (false).
+   */
+  public isInitDone (): boolean {
+    return this._initDone;
   }
 
   /**

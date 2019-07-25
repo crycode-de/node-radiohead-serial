@@ -116,7 +116,12 @@ let rhs2:RadioHeadSerial = null;
     })
     .catch((err) => {
       // this is expected
-      done();
+      if (rhs.isInitDone()) {
+        // should not happen
+        done(new Error('isInitDone() reported true but should be false'));
+      }else {
+        done();
+      }
     });
   }
 
@@ -343,6 +348,14 @@ let rhs2:RadioHeadSerial = null;
 }
 
 @suite('test functions') class TestFunctions {
+  @test 'isInitDone()' (done){
+    if (rhs2.isInitDone()) {
+      done();
+    } else {
+      done(new Error('isInitDone() is false but should be true'));
+    }
+  }
+
   @test 'setAddress(0x05)' (){
     rhs2.setAddress(0x05);
   }

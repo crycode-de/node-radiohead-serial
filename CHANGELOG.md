@@ -1,3 +1,6 @@
+## v4.1.1 2019-07-25
+- Added method `isInitDone()`
+
 ## v4.1.0 2019-07-25
 - Added new constructor call with a single object as argument
 - Added option to not init the manager/serial port on instance creation
