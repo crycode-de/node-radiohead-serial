@@ -61,15 +61,17 @@ rhs.on('data', (message:RH_ReceivedMessage) => {
   });
 });
 
-// Rsun the init and catch possible error
+// Print info
+console.log('isInitDone =', rhs.isInitDone());
+
+// Run the init and catch possible error
 rhs.init()
 .then(() => {
-  console.log('init done');
+  // Print some info
+  console.log('isInitDone =', rhs.isInitDone());
+  console.log('Server example running.');
+  console.log('Now start the client example...');
 })
 .catch((err) => {
   console.log('init error: ', err);
 });
-
-// Print some info
-console.log('Server example running.');
-console.log('Now start the client example...');
