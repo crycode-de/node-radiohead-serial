@@ -1,7 +1,7 @@
 /*
  * Node.js module radiohead-serial
  *
- * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -11,7 +11,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 /// <reference types="node" />
 
@@ -25,7 +25,7 @@ import {RHReliableDatagram, RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT,
   RH_DEFAULT_RETRIES} from './RHReliableDatagram';
 
 // export the current version of this module
-export const version = '4.0.1';
+export const version = '4.1.0';
 
 // export some imports to allow an custom usage
 export {
@@ -85,6 +85,42 @@ export interface RH_ReceivedMessage {
 }
 
 /**
+ * Options for creating a new instance for the RadioHeadSerial class.
+ */
+export interface RadioHeadSerialOptions {
+  /**
+   * The serial port/device to be used for the communication. (e.g. /dev/ttyUSB0)
+   * @type {string}
+   */
+  port: string;
+
+  /**
+   * (optional) The baud rate to be used for the communication. (default 9600)
+   * @type {number}
+   */
+  baud?: number;
+
+  /**
+   * (optional) The address of this node in the RadioHead network. Address range goes from 1 to 254. (default 1)
+   * @type {number}
+   */
+  address?: number;
+
+  /**
+   * (optional) false if RHDatagram should be used instead of RHReliableDatagram. (default true)
+   * @type {boolean}
+   */
+  reliable?: boolean;
+
+  /**
+   * (optional) false if the manager/serial port should not be initialized automatically. (default true)
+   * If false you have to call instance.init() manually.
+   * @type {boolean}
+   */
+  autoInit?: boolean;
+}
+
+/**
  * The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
  */
 export class RadioHeadSerial extends EventEmitter {
@@ -106,18 +142,57 @@ export class RadioHeadSerial extends EventEmitter {
   private _manager:RHReliableDatagram|RHDatagram;
 
   /**
-   * Constructor for a new instance of this class.
+   * If the init is done or not.
+   */
+  private _initDone:boolean = false;
+
+  /**
+   * Constructor for a new instance of this class using an options object.
+   * @param {RadioHeadSerialOptions} options An object containing the options.
+   */
+  constructor(options: RadioHeadSerialOptions);
+
+  /**
+   * Constructor for a new instance of this class using the old style arguments
    * @param {string}  port     The serial port/device to be used for the communication. (e.g. /dev/ttyUSB0)
-   * @param {number}  baud     The baud rate to be used for the communication. (e.g. 9600)
-   * @param {number}  address  The address of this node in the RadioHead network. Address range goes from 1 to 254.
+   * @param {number}  baud     (optional) The baud rate to be used for the communication. (default 9600)
+   * @param {number}  address  (optional) The address of this node in the RadioHead network. Address range goes from 1 to 254. (default 1)
    * @param {boolean} reliable (optional) false if RHDatagram should be used instead of RHReliableDatagram. (default true)
    */
-  constructor(port:string, baud:number, address:number, reliable:boolean=true){
+  constructor(port: string, baud?: number, address?: number, reliable?: boolean);
+
+  /**
+   * Generic constructor for a new instance of this class.
+   */
+  constructor(options: string|RadioHeadSerialOptions, baud?: number, address?: number, reliable?: boolean){
     super();
 
-    this._reliable = reliable;
+    // create options object if a port is provided
+    if (typeof options === 'string') {
+      options = {
+        port: options,
+        baud: baud,
+        address: address,
+        reliable: reliable,
+        autoInit: true
+      };
+    } else if (typeof options !== 'object') {
+      throw new Error('Wrong arguments! The first argument must be a string or an object.');
+    }
 
-    this._driver = new RH_Serial(port, baud);
+    if (typeof options.port !== 'string' || options.port.length === 0) {
+      throw new Error('Port must be a string.');
+    }
+
+    // set defaults
+    if (typeof options.baud !== 'number') options.baud = 9600;
+    if (typeof options.address !== 'number') options.address = 0x01;
+    if (typeof options.reliable !== 'boolean') options.reliable = true;
+    if (typeof options.autoInit !== 'boolean') options.autoInit = true;
+
+    this._reliable = options.reliable;
+
+    this._driver = new RH_Serial(options.port, options.baud);
 
     // proxy driver errors
     this._driver.on('error', (err:Error)=>{
@@ -125,12 +200,24 @@ export class RadioHeadSerial extends EventEmitter {
     });
 
     if(this._reliable){
-      this._manager = new RHReliableDatagram(this._driver, address);
+      this._manager = new RHReliableDatagram(this._driver, options.address);
     }else{
-      this._manager = new RHDatagram(this._driver, address);
+      this._manager = new RHDatagram(this._driver, options.address);
     }
 
-    this._manager.init()
+    if (options.autoInit) {
+      this.init();
+    }
+  }
+
+  /**
+   * Init the manager (and the serial port).
+   * @return {Promise} Promise which will be resolved when the manager is initialized and the serial port is opened or rejected in case of an error.
+   */
+  public init (): Promise<void> {
+    if (this._initDone) return Promise.resolve();
+
+    return this._manager.init()
     .then(()=>{
       if(this._reliable){
         this._manager.on('recvfromAck',(message:RH_ReceivedMessage)=>{
@@ -141,10 +228,8 @@ export class RadioHeadSerial extends EventEmitter {
           this.emit('data', message);
         });
       }
+      this._initDone = true;
       this.emit('init-done');
-    })
-    .catch((err:Error)=>{
-      throw err;
     });
   }
 
@@ -153,7 +238,7 @@ export class RadioHeadSerial extends EventEmitter {
    * After close() is called, no messages can be received.
    * @return {Promise} Promise which will be resolved if the SerialPort is closed.
    */
-  public close():Promise<{}>{
+  public close():Promise<void>{
     return this._driver.close();
   }
 
@@ -164,7 +249,7 @@ export class RadioHeadSerial extends EventEmitter {
    * @param  {number} length   Optional number ob bytes to send from the buffer. If not given the whole buffer is sent.
    * @return {Promise}         A Promise which will be resolved when the message has been sent, or rejected in case of an error.
    */
-  public send(to:number, data:Buffer, length?:number):Promise<{}>{
+  public send(to:number, data:Buffer, length?:number):Promise<void>{
 
     if(!length){
       length = data.length;

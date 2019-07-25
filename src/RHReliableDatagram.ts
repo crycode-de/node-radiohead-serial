@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 /// <reference types="node" />
 
@@ -96,7 +96,7 @@ export class RHReliableDatagram extends RHDatagram {
    * Initialise this manager class.
    * @return {Promise}
    */
-  public init():Promise<{}>{
+  public init():Promise<void>{
     return super.init()
     .then<any>(()=>{
       // ack messages
@@ -176,7 +176,7 @@ export class RHReliableDatagram extends RHDatagram {
    * @param  {number}  address The address to send the message to.
    * @return {Promise}
    */
-  public sendtoWait(buf:Buffer, len:number, address:number):Promise<{}>{
+  public sendtoWait(buf:Buffer, len:number, address:number):Promise<void>{
     return new Promise((resolve:()=>void, reject:(err:Error)=>void)=>{
       // Assemble the message
       let thisSequenceNumber = ++this._lastSequenceNumber;
@@ -216,7 +216,7 @@ export class RHReliableDatagram extends RHDatagram {
    * @param  {number}  thisSequenceNumber The headerId for the message.
    * @return {Promise}
    */
-  private _sendtoWaitOne(buf:Buffer, len:number, address:number, thisSequenceNumber:number):Promise<{}>{
+  private _sendtoWaitOne(buf:Buffer, len:number, address:number, thisSequenceNumber:number):Promise<void>{
     return new Promise((resolve:()=>void, reject:(err:Error)=>void)=>{
 
       this.setHeaderId(thisSequenceNumber);
@@ -291,7 +291,7 @@ export class RHReliableDatagram extends RHDatagram {
    * @param  {number} id   The id of the message
    * @param  {number} from From address of the message
    */
-  private acknowledge(id:number, from:number):Promise<{}>{
+  private acknowledge(id:number, from:number):Promise<void>{
     this.setHeaderId(id);
     this.setHeaderFlags(RH_FLAGS_ACK);
     return this.sendto(Buffer.from('!'), 1, from);

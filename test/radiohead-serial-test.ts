@@ -1,7 +1,7 @@
 /*
  * Node.js module radiohead-serial
  *
- * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -11,7 +11,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { suite, test, slow, timeout, skip, only } from "mocha-typescript";
@@ -66,18 +66,122 @@ let rhs2:RadioHeadSerial = null;
   }
 }
 
+////////////////////////////////////////////
+// Check the RadioHeadSerial construcotrs //
+////////////////////////////////////////////
+@suite('check the RadioHeadSerial constructors') class RHS_Constructor {
+  @test 'object as argument' (done){
+    let rhs = new RadioHeadSerial({
+      port: tty1,
+      baud: 9600,
+      address: 0x01,
+      reliable: true,
+      autoInit: true
+    });
+    rhs.on('init-done', ()=>{
+      rhs.close()
+      .then(() => done());
+    });
+  }
+
+  @test 'object with port only as argument' (done){
+    let rhs = new RadioHeadSerial({
+      port: tty1
+    });
+    rhs.on('init-done', ()=>{
+      rhs.close()
+      .then(() => done());
+    });
+  }
+
+  @test 'single arguments' (done){
+    let rhs = new RadioHeadSerial(tty1, 9600, 0x01, true);
+    rhs.on('init-done', ()=>{
+      rhs.close()
+      .then(() => done());
+    });
+  }
+
+  @test 'object as argument, non existent port, no autoInit' (done){
+    let rhs = new RadioHeadSerial({
+      port: '/dev/ttyNonExistent',
+      baud: 9600,
+      address: 0x01,
+      reliable: true,
+      autoInit: false
+    });
+    rhs.init()
+    .then(() => {
+      done(new Error('Init successfull, but this should not happen'));
+    })
+    .catch((err) => {
+      // this is expected
+      done();
+    });
+  }
+
+  @test 'undefined options should throw an error' (done){
+    try {
+      let rhs = new RadioHeadSerial(undefined);
+      done(new Error('Empty port should throw an error'));
+    } catch (e) {
+      // this is expected
+      done();
+    }
+  }
+
+  @test 'number as argument should throw an error' (done){
+    try {
+      let rhs = new RadioHeadSerial(42 as any);
+      done(new Error('A number as argument should throw an error'));
+    } catch (e) {
+      // this is expected
+      done();
+    }
+  }
+
+  @test 'undefined port should throw an error' (done){
+    try {
+      let rhs = new RadioHeadSerial({ port: undefined });
+      done(new Error('Undefined port should throw an error'));
+    } catch (e) {
+      // this is expected
+      done();
+    }
+  }
+
+  @test 'empty port should throw an error' (done){
+    try {
+      let rhs = new RadioHeadSerial({ port: '' });
+      done(new Error('Empty port should throw an error'));
+    } catch (e) {
+      // this is expected
+      done();
+    }
+  }
+}
+
 /////////////////////////////////////////
 // Start two RadioHeadSerial instances //
 /////////////////////////////////////////
 @suite('create the two RadioHeadSerial instances') class RHS_Start {
   @test 'create rhs1 (address 0x01)' (done){
-    rhs1 = new RadioHeadSerial(tty1, 9600, 0x01);
+    rhs1 = new RadioHeadSerial({
+      port: tty1,
+      baud: 9600,
+      address: 0x01
+    });
     rhs1.on('init-done', ()=>{
       done();
     });
   }
+
   @test 'create rhs2 (address 0x02)' (done){
-    rhs2 = new RadioHeadSerial(tty2, 9600, 0x02);
+    rhs2 = new RadioHeadSerial({
+      port: tty2,
+      baud: 9600,
+      address: 0x02
+    });
     rhs2.on('init-done', ()=>{
       done();
     });
@@ -227,6 +331,15 @@ let rhs2:RadioHeadSerial = null;
       done();
     });
   }
+
+  @test 'from 0x01 to 0x02 with zero data should fail' (done){
+    const sendData = Buffer.alloc(0); // data to be sent
+
+    // send data
+    rhs1.send(0x02, sendData).catch((err)=>{
+      done();
+    });
+  }
 }
 
 @suite('test functions') class TestFunctions {
@@ -329,6 +442,14 @@ let rhs2:RadioHeadSerial = null;
 // Cleanup //
 /////////////
 @suite('cleanup') class Cleanup {
+  @test 'close rhs1' (done) {
+    rhs1.close()
+    .then(() => done());
+  }
+  @test 'close rhs2' (done) {
+    rhs2.close()
+    .then(() => done());
+  }
   @test 'kill socat' (done){
     socat.on('close', (code)=>{
       done();

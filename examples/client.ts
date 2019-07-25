@@ -1,7 +1,7 @@
 /*
  * Node.js module radiohead-serial
  *
- * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -11,7 +11,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Example for the communiation between two nodes.
  * This client example sends ten messages to the server and prints all received messages.
@@ -25,8 +25,13 @@
 import {RadioHeadSerial, RH_ReceivedMessage} from '../';
 
 // Create an instance of the RadioHeadSerial class
-let rhs:RadioHeadSerial = new RadioHeadSerial('/dev/ttyUSB1', 9600, 0x02);
-//let rhs:RadioHeadSerial = new RadioHeadSerial('COM2', 9600, 0x02);
+const rhs:RadioHeadSerial = new RadioHeadSerial({
+  port: '/dev/ttyUSB1', // COM2 on Windows
+  baud: 9600,
+  address: 0x02,
+  // reliable: true,
+  // autoInit: true
+});
 
 // Listen on the 'data' event for received messages
 rhs.on('data', (message:RH_ReceivedMessage) => {

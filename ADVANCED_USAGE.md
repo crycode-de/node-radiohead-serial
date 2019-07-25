@@ -10,7 +10,7 @@ For the general usage see [README.md](https://git.cryhost.de/crycode/node-radioh
 ### RadioHeadSerial
 The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
 
-For more information see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md).
+For more information see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md#radioheadserial-options).
 
 ### RH_Serial(port, baud)
 Driver to send and receive unaddressed, unreliable datagrams via a serial connection.
@@ -69,6 +69,11 @@ The default number of retries for `RHReliableDatagram`.
 
 
 ## Exported TypeScript interfaces
+
+### RadioHeadSerialOptions
+Options for creating a new instance of the RadioHeadSerial class.
+
+For more information see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md#radioheadserialoptions).
 
 ### RH_ReceivedMessage
 Interface for a received message containing:

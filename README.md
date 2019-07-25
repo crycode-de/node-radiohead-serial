@@ -13,7 +13,7 @@ With `radiohead-serial` you can build reliable networks based on serial hardware
 
 > RHReliableDatagram provides Addressed, reliable, retransmitted, acknowledged variable length messages.
 
-Based on RadioHead library *1.74 2017-03-08*
+Based on RadioHead library *1.92 2019-07-14*
 
 Since Version 3 this module is based on a TypeScript/JavaScript port of the native RadioHead library.
 
@@ -76,8 +76,11 @@ import {RadioHeadSerial} from 'radiohead-serial';
 var RadioHeadSerial = require('radiohead-serial').RadioHeadSerial;
 
 // Create an instance of the RadioHeadSerial class
-var rhs = new RadioHeadSerial('/dev/ttyUSB0', 9600, 0x01);
-//var rhs = new RadioHeadSerial('COM1', 9600, 0x01);
+var rhs = new RadioHeadSerial({
+  port: '/dev/ttyUSB0', // COM1 on Windows
+  baud: 9600,
+  address: 0x01
+});
 
 // Listen to the 'data' event for received messages
 rhs.on('data', function(message){
@@ -116,8 +119,11 @@ console.log('Now start the client example...');
 var RadioHeadSerial = require('radiohead-serial').RadioHeadSerial;
 
 // Create an instance of the RadioHeadSerial class
-var rhs = new RadioHeadSerial('/dev/ttyUSB1', 9600, 0x02);
-//var rhs = new RadioHeadSerial('COM2', 9600, 0x02);
+var rhs = new RadioHeadSerial({
+  port: '/dev/ttyUSB1', // COM2 on Windows
+  baud: 9600,
+  address: 0x02
+});
 
 // Listen on the 'data' event for received messages
 rhs.on('data', function(message){
@@ -189,17 +195,51 @@ Receiving and sending of messages is always done asynchronous.
 TypeScript typings are included in the package.
 
 
+### RadioHeadSerial(options: RadioHeadSerialOptions)
+```ts
+constructor(options: RadioHeadSerialOptions);
+```
+Constructor of the RadioHeadSerial class using an options object.
+Loads and initializes the RadioHead driver and manager.
+
+*This is the prefered way to create a new instance of the RadioHeadSerial class since v4.1.0*
+
+#### RadioHeadSerialOptions
+```ts
+{
+  port: string;
+  baud: number = 9600;
+  address: number = 1;
+  reliable: boolean = true;
+  autoInit: boolean = true;
+}
+```
+Object containing the options for a new RadioHeadSerial instance.
+
+* `port` - The serial port/device to be used for the communication. For example /dev/ttyUSB0 or COM1.
+* `baud` - *Optional* The baud rate to be used for the communication. Supported are 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400. (default 9600)
+* `address` - *Optional* The address of this node in the RadioHead network. Address range goes from 1 to 254. (default 1)
+* `reliable` - *Optional* false if RHDatagram should be used instead of RHReliableDatagram. (default true)
+* `autoInit` - *Optional*  false if the manager/serial port should not be initialized automatically. If false you have to call instance.init() manually. (default true)
+
 ### RadioHeadSerial(port, baud, address, reliable)
 ```ts
-constructor(port:string, baud:number, address:number, reliable:boolean=true);
+constructor(port:string, baud:number=9600, address:number=1, reliable:boolean=true);
 ```
-Constructor of the RadioHeadSerial class.
+Constructor of the RadioHeadSerial class using sinle arguments.
 Loads and initializes the RadioHead driver and manager.
 
 * `port` - The serial port/device to be used for the communication. For example /dev/ttyUSB0 or COM1.
-* `baud` - The baud rate to be used for the communication. Supported are 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400.
-* `address` - The address of this node in the RadioHead network. Address range goes from 1 to 254.
-* `reliable` - (optional) false if RHDatagram should be used instead of RHReliableDatagram. (default true)
+* `baud` - *Optional* The baud rate to be used for the communication. Supported are 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400. (default 9600)
+* `address` - *Optional* The address of this node in the RadioHead network. Address range goes from 1 to 254. (default 1)
+* `reliable` - *Optional* false if RHDatagram should be used instead of RHReliableDatagram. (default true)
+
+### rhs.init()
+```ts
+init():Promise<{}>;
+```
+Initializes the manager and the serial port if options.autoInit was false on construction of the class.
+Returns a promise which will be resolved if the serial port is opened and the manager is initialized or rejected in case of an error.
 
 ### rhs.close()
 ```ts
@@ -322,6 +362,6 @@ For more information see [ADVANCED_USAGE.md](https://git.cryhost.de/crycode/node
 
 Licensed under GPL Version 2
 
-Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
 
 The RadioHead library is Copyright (C) 2008 Mike McCauley.

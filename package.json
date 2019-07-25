@@ -1,6 +1,6 @@
 {
   "name": "radiohead-serial",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Bindings for the serial driver of the RadioHead library, useful to build reliable networks based on e.g. RS485 or radio.",
   "keywords": [
     "radiohead",
@@ -46,12 +46,12 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.27",
     "@types/expect.js": "^0.3.29",
-    "@types/node": "^10.14.10",
-    "@types/serialport": "^7.0.3",
+    "@types/node": "^10.14.13",
+    "@types/serialport": "^7.0.4",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
     "mocha-typescript": "^1.1.17",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.3"
   }
 }

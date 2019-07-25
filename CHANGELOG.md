@@ -1,3 +1,13 @@
+## v4.1.0 2019-07-25
+- Added new constructor call with a single object as argument
+- Added option to not init the manager/serial port on instance creation
+- Moved the manager/serial port init into an own method to provide an optional more comprehensibly init
+- Updated "Based on RadioHead library" version
+- Upgraded dependencies
+
+## v4.0.1 2019-06-26
+- Upgraded dependencies
+
 ## v4.0.0 2018-10-08
 - Upgraded all dependencies to use prebuild binaries and fix known vulnerabilities
 - BRAKING: v4 of radiohead-serial requires at least Node.js 8! For older released of Node.js use the latest v3.

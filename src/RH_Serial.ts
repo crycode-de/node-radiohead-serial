@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 /// <reference types="node" />
 
@@ -159,7 +159,7 @@ export class RH_Serial extends EventEmitter {
    * Initialise the Driver transport hardware and software.
    * @return {Promise} Promise which will be resolved if the SerialPort is opened.
    */
-  public init():Promise<{}>{
+  public init():Promise<void>{
     return new Promise((resolve, reject)=>{
       this._port.open((err:Error)=>{
         if(err){
@@ -176,7 +176,7 @@ export class RH_Serial extends EventEmitter {
    * Close the Driver transport hardware and software.
    * @return {Promise} Promise which will be resolved if the SerialPort is closed.
    */
-  public close():Promise<{}>{
+  public close():Promise<void>{
     return new Promise((resolve, reject)=>{
       this._port.close((err:Error)=>{
         if(err){
@@ -303,7 +303,7 @@ export class RH_Serial extends EventEmitter {
    * @param  {number}  len  Number of bytes from the buffer to send.
    * @return {Promise}      Promise which will be resolved if sending is completed.
    */
-  public send(data:Buffer, len:number):Promise<{}>{
+  public send(data:Buffer, len:number):Promise<void>{
 
     if(len > RH_SERIAL_MAX_MESSAGE_LEN){
       len = RH_SERIAL_MAX_MESSAGE_LEN;

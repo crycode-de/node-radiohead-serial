@@ -15,6 +15,8 @@
  *
  * Example for the communiation between two nodes.
  * This server example is listening for messages from a client and responding to it.
+ * The constructor is called with the `autoInit: false` option and the init is
+ * done later with error handling.
  */
 
 ///<reference types="node" />
@@ -29,8 +31,8 @@ const rhs:RadioHeadSerial = new RadioHeadSerial({
   port: '/dev/ttyUSB0', // COM1 on Windows
   baud: 9600,
   address: 0x01,
-  // reliable: true,
-  // autoInit: true
+  reliable: true,
+  autoInit: false // delayed init called by `rhs.init()`
 });
 
 // Listen to the 'data' event for received messages
@@ -57,6 +59,15 @@ rhs.on('data', (message:RH_ReceivedMessage) => {
     // Error while sending the message
     console.log('<- ERROR', error);
   });
+});
+
+// Rsun the init and catch possible error
+rhs.init()
+.then(() => {
+  console.log('init done');
+})
+.catch((err) => {
+  console.log('init error: ', err);
 });
 
 // Print some info
