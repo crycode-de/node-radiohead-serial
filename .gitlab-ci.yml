@@ -1,4 +1,4 @@
-image: node:8
+image: node:10
 
 stages:
   - build
@@ -38,6 +38,10 @@ tests-node8:
 
 tests-node10:
   image: node:10
+  <<: *tests
+
+tests-node12:
+  image: node:12
   <<: *tests
 
 publish-to-npm:
