@@ -9,8 +9,6 @@
     "sourceMap": true,
     "outDir": "dist"
   },
-  "files": [
-    "src/radiohead-serial.ts"],
   "include": [
       "src/*.ts",
       "src/*.d.ts",

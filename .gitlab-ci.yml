@@ -1,4 +1,4 @@
-image: node:10
+image: node:14
 
 stages:
   - build
@@ -19,7 +19,7 @@ typescript-build:
   script:
     - npm config set unsafe-perm true
     - npm install
-    - ./node_modules/.bin/tsc
+    - npm run build
     - ./node_modules/.bin/tsc --noEmit --target es6 examples/*.ts
 
 .tests: &tests
@@ -29,12 +29,20 @@ typescript-build:
   script:
     - apt-get update && apt-get install -y socat
     - npm config set unsafe-perm true
+    - rm -rf node_modules/serialport node_modules/@serialport
     - npm install
     - npm test
 
 tests-node8:
   image: node:8
   <<: *tests
+  script:
+    - apt-get update && apt-get install -y socat
+    - npm config set unsafe-perm true
+    - rm -rf node_modules/serialport node_modules/@serialport
+    - npm install
+    - npm install mocha@7
+    - npm test
 
 tests-node10:
   image: node:10
@@ -42,6 +50,10 @@ tests-node10:
 
 tests-node12:
   image: node:12
+  <<: *tests
+
+tests-node14:
+  image: node:14
   <<: *tests
 
 publish-to-npm:

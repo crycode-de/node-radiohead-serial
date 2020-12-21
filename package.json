@@ -1,6 +1,6 @@
 {
   "name": "radiohead-serial",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "Bindings for the serial driver of the RadioHead library, useful to build reliable networks based on e.g. RS485 or radio.",
   "keywords": [
     "radiohead",
@@ -15,7 +15,9 @@
   "main": "dist/src/radiohead-serial.js",
   "typings": "dist/src/radiohead-serial.d.ts",
   "scripts": {
-    "prepare": "./node_modules/.bin/tsc",
+    "prebuild": "rimraf ./dist",
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
     "test": "./test/test.sh"
   },
   "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
@@ -36,22 +38,20 @@
     "test/test.sh"
   ],
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=8.6.0"
   },
   "dependencies": {
-    "@serialport/parser-byte-length": "^2.0.2",
-    "bluebird": "^3.5.5",
-    "serialport": "^7.1.5"
+    "@serialport/parser-byte-length": "^9.0.1",
+    "serialport": "^9.0.4"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.27",
     "@types/expect.js": "^0.3.29",
-    "@types/node": "^10.14.13",
-    "@types/serialport": "^7.0.4",
+    "@types/node": "^14.14.14",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
-    "mocha": "^5.2.0",
+    "mocha": "^8.2.1",
     "mocha-typescript": "^1.1.17",
-    "typescript": "^3.5.3"
+    "rimraf": "^3.0.2",
+    "typescript": "^4.1.3"
   }
 }

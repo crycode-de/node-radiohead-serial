@@ -2,7 +2,7 @@
 #
 # Node.js RadioHead Serial
 #
-# Copyright (c) 2017 Peter Müller <peter@crycode.de> (https://crycode.de/)
+# Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
 #
 # Node.js module for communication between some RadioHead nodes and Node.js using
 # the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -19,4 +19,4 @@ fi
 
 export PATH=$PATH:$MAIN_DIR/node_modules/mocha/bin:$MAIN_DIR/node_modules/istanbul/bin
 
-istanbul cover _mocha --harmony dist/test
+npx istanbul cover _mocha --harmony dist/test

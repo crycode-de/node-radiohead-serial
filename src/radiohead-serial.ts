@@ -1,7 +1,7 @@
 /*
  * Node.js module radiohead-serial
  *
- * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -11,12 +11,11 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 /// <reference types="node" />
 
 import {EventEmitter} from 'events';
-import * as Promise from 'bluebird';
 
 import {RH_Serial, RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN,
   RH_SERIAL_MAX_MESSAGE_LEN} from './RH_Serial';
@@ -25,7 +24,7 @@ import {RHReliableDatagram, RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT,
   RH_DEFAULT_RETRIES} from './RHReliableDatagram';
 
 // export the current version of this module
-export const version = '4.1.1';
+export const version = '4.2.0';
 
 // export some imports to allow an custom usage
 export {

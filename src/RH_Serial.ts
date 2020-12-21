@@ -5,13 +5,11 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
-/// <reference types="node" />
 
 import {EventEmitter} from 'events';
 
-import * as Promise from 'bluebird';
 import * as SerialPort from 'serialport';
 import * as ParserByteLength from '@serialport/parser-byte-length';
 
