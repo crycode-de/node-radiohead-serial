@@ -18,19 +18,18 @@
     "prebuild": "rimraf ./dist",
     "build": "tsc -p tsconfig.json",
     "examples-build-check": "tsc -p examples/tsconfig.json",
-    "prepare": "npm run build",
     "lint": "eslint --ext .ts src examples",
     "test": "./test/test.sh"
   },
   "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
-  "license": "GPL-2.0",
-  "homepage": "https://git.cryhost.de/crycode/node-radiohead-serial",
+  "license": "GPL-2.0-only",
+  "homepage": "https://github.com/crycode-de/node-radiohead-serial",
   "repository": {
     "type": "git",
-    "url": "https://git.cryhost.de/crycode/node-radiohead-serial.git"
+    "url": "https://github.com/crycode-de/node-radiohead-serial.git"
   },
   "bugs": {
-    "url": "https://git.cryhost.de/crycode/node-radiohead-serial/issues"
+    "url": "https://github.com/crycode-de/node-radiohead-serial/issues"
   },
   "engines": {
     "node": ">=8.6.0"

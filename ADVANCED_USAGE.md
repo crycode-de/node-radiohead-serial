@@ -2,7 +2,7 @@
 
 This Readme contains information about the advanced usage of the `radiohead-serial` Node.js module.
 
-For the general usage see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md).
+For the general usage see [README.md](https://github.com/crycode-de/node-radiohead-serial/blob/master/README.md).
 
 
 ## Exported classes
@@ -10,23 +10,23 @@ For the general usage see [README.md](https://git.cryhost.de/crycode/node-radioh
 ### RadioHeadSerial
 The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
 
-For more information see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md#radioheadserialoptions-radioheadserialoptions).
+For more information see [README.md](https://github.com/crycode-de/node-radiohead-serial/blob/master/README.md#radioheadserialoptions-radioheadserialoptions).
 
 ### RH_Serial(port, baud)
 Driver to send and receive unaddressed, unreliable datagrams via a serial connection.
 
-For more information see [src/RH_Serial.ts](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/src/RH_Serial.ts).
+For more information see [src/RH_Serial.ts](https://github.com/crycode-de/node-radiohead-serial/blob/master/src/RH_Serial.ts).
 
 
 ### RHDatagram
 Manager class for addressed, unreliable messages.
 
-For more information see [src/RHDatagram.ts](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/src/RHDatagram.ts).
+For more information see [src/RHDatagram.ts](https://github.com/crycode-de/node-radiohead-serial/blob/master/src/RHDatagram.ts).
 
 ### RHReliableDatagram
 RHDatagram subclass for sending addressed, acknowledged, retransmitted datagrams.
 
-For more information see [src/RHReliableDatagram.ts](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/src/RHReliableDatagram.ts).
+For more information see [src/RHReliableDatagram.ts](https://github.com/crycode-de/node-radiohead-serial/blob/master/src/RHReliableDatagram.ts).
 
 
 ## Exported Constants
@@ -73,13 +73,13 @@ The default number of retries for `RHReliableDatagram`.
 ### RadioHeadSerialOptions
 Options for creating a new instance of the RadioHeadSerial class.
 
-For more information see [README.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/README.md#radioheadserialoptions).
+For more information see [README.md](https://github.com/crycode-de/node-radiohead-serial/blob/master/README.md#radioheadserialoptions).
 
 ### RH_ReceivedMessage
 Interface for a received message containing:
-* `data:Buffer` - Buffer containing the received data.
-* `length:number` - Length of the received data.
-* `headerTo:number` - TO header.
-* `headerFrom:number` - FROM header.
-* `headerId:number` - ID header.
-* `headerFlags:number` - FLAGS header.
+* `data: Buffer` - Buffer containing the received data.
+* `length: number` - Length of the received data.
+* `headerTo: number` - TO header.
+* `headerFrom: number` - FROM header.
+* `headerId: number` - ID header.
+* `headerFlags: number` - FLAGS header.

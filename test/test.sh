@@ -7,7 +7,7 @@
 # Node.js module for communication between some RadioHead nodes and Node.js using
 # the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
 #
-MAIN_DIR=$(dirname $(dirname $(readlink -f ${0})))
+MAIN_DIR=$(dirname $(cd $(dirname "$0"); pwd -P))
 
 cd $MAIN_DIR
 

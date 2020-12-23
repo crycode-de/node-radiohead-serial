@@ -8,3 +8,4 @@ src
 *.tgz
 **/tsconfig.json
 .eslint*
+.github

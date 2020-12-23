@@ -1,8 +1,13 @@
 # radiohead-serial
 
-[![build status](https://git.cryhost.de/crycode/node-radiohead-serial/badges/master/build.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/master)
-[![coverage report](https://git.cryhost.de/crycode/node-radiohead-serial/badges/master/coverage.svg)](https://git.cryhost.de/crycode/node-radiohead-serial/commits/master)
-[![npm version](https://badge.fury.io/js/radiohead-serial.svg)](https://badge.fury.io/js/radiohead-serial)
+[![NPM version](https://img.shields.io/npm/v/radiohead-serial.svg)](https://www.npmjs.com/package/radiohead-serial)
+[![Downloads](https://img.shields.io/npm/dm/radiohead-serial.svg)](https://www.npmjs.com/package/radiohead-serial)
+[![Dependency Status](https://img.shields.io/david/crycode-de/node-radiohead-serial.svg)](https://david-dm.org/crycode-de/node-radiohead-serial)
+
+[![NPM](https://nodei.co/npm/radiohead-serial.png?downloads=true)](https://nodei.co/npm/radiohead-serial/)
+
+**Tests:** ![Test and Release](https://github.com/crycode-de/node-radiohead-serial/workflows/Test%20and%20Release/badge.svg)
+
 
 Communication between some **RadioHead** nodes and **Node.js** using the *RH_Serial* driver and the *RHReliableDatagram* or *RHDatagram* manager of the RadioHead library.
 
@@ -13,13 +18,14 @@ With `radiohead-serial` you can build reliable networks based on serial hardware
 
 > RHReliableDatagram provides Addressed, reliable, retransmitted, acknowledged variable length messages.
 
-Based on RadioHead library *1.92 2019-07-14*
+Based on RadioHead library *1.92 2019-07-14*.  
+Should also work together with newer versions of the RadioHead library.
 
 Since Version 3 this module is based on a TypeScript/JavaScript port of the native RadioHead library.
 
 This module can be used on any Linux, Mac or Windows system, for example a Raspberry Pi with Raspbian or a regular computer.
 
-**Hint:** Version 4 of `radiohead-serial` requires Node.js version 8 or higher. For older Node.js releases you may use the v3 branch of `radiohead-serial` which supports Node.js version 4 or higher.
+**Hint:** Version 4 of `radiohead-serial` requires Node.js version 8.6 or higher. For older Node.js releases you may use the v3 branch of `radiohead-serial` which supports Node.js version 4 or higher.
 
 
 ## Example scenario for using radiohead-serial
@@ -36,7 +42,7 @@ In addition using a serial-radio gateway is possible (see below).
 If you want to use other RadioHead drivers (for example *RH_ASK*), you can simply use an Arduino nano ($2 to $10) as an serial gateway.
 Other microprocessors can be used too.
 
-Connect your radio hardware to the Arduino and upload the `rh_serial_ask_gateway` sketch. Some example sketches are included in the [*examples*](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/examples) directory.
+Connect your radio hardware to the Arduino and upload the `rh_serial_ask_gateway` sketch. Some example sketches are included in the [*examples*](https://github.com/crycode-de/node-radiohead-serial/tree/master/examples) directory.
 The Arduino will act as a gateway between the serial and the radio network.
 
 Optionally the gateway can filter messages, so that only a specific address range is transmitted through the radio network.
@@ -49,7 +55,7 @@ To install the latest version simply use:
 npm install radiohead-serial
 ```
 
-If you want install the latest version of the *v3* branch use:
+If you want to install the latest version of the *v3* branch use:
 ```
 npm install radiohead-serial@3
 ```
@@ -57,7 +63,7 @@ npm install radiohead-serial@3
 
 ## Examples
 
-The examples blow can be found in the [*examples*](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/examples) directory of this package together with TypeScript examples and a gateway Arduino sketch.
+The examples blow can be found in the [*examples*](https://github.com/crycode-de/node-radiohead-serial/tree/master/examples) directory of this package together with TypeScript examples and a gateway Arduino sketch.
 
 The examples assume a Linux system with two USB-RS485 adapters connected.
 The A and B lines of the RS485 are connected between both adapters.
@@ -197,7 +203,7 @@ TypeScript typings are included in the package.
 
 ### RadioHeadSerial(options: RadioHeadSerialOptions)
 ```ts
-constructor(options: RadioHeadSerialOptions);
+constructor (options: RadioHeadSerialOptions);
 ```
 Constructor of the RadioHeadSerial class using an options object.
 Loads and initializes the RadioHead driver and manager.
@@ -224,7 +230,7 @@ Object containing the options for a new RadioHeadSerial instance.
 
 ### RadioHeadSerial(port, baud, address, reliable)
 ```ts
-constructor(port:string, baud:number=9600, address:number=1, reliable:boolean=true);
+constructor (port: string, baud: number = 9600, address: number = 1, reliable: boolean = true);
 ```
 Constructor of the RadioHeadSerial class using sinle arguments.
 Loads and initializes the RadioHead driver and manager.
@@ -236,20 +242,20 @@ Loads and initializes the RadioHead driver and manager.
 
 ### rhs.init()
 ```ts
-init():Promise<{}>;
+init (): Promise<{}>;
 ```
 Initializes the manager and the serial port if options.autoInit was false on construction of the class.
 Returns a promise which will be resolved if the serial port is opened and the manager is initialized or rejected in case of an error.
 
 ### rhs.isInitDone()
 ```ts
-isInitDone():boolean;
+isInitDone (): boolean;
 ```
 Returns if the init is done (`true`) or not (`false`).
 
 ### rhs.close()
 ```ts
-close():Promise<{}>;
+close (): Promise<{}>;
 ```
 Closes the serial port.
 After close() is called, no messages can be received.
@@ -257,7 +263,7 @@ Returns a promise which will be resolved if the serial port is closed.
 
 ### rhs.send(to, data, length)
 ```ts
-send(to:number, data:Buffer, length?:number):Promise<{}>;
+send (to: number, data: Buffer, length?: number): Promise<{}>;
 ```
 Sends a message through the RadioHead network.
 Returns a Promise which will be resolved when the message has been sent, or rejected in case of an error.
@@ -268,7 +274,7 @@ Returns a Promise which will be resolved when the message has been sent, or reje
 
 ### rhs.setAddress(address)
 ```ts
-setAddress(address:number):void;
+setAddress (address: number): void;
 ```
 Sets the address of this node in the RadioHead network.
 
@@ -276,13 +282,13 @@ Sets the address of this node in the RadioHead network.
 
 ### rhs.thisAddress()
 ```ts
-thisAddress():number;
+thisAddress (): number;
 ```
 Returns the address of this node.
 
 ### rhs.setRetries(count)
 ```ts
-setRetries(count:number):void;
+setRetries (count: number): void;
 ```
 Sets the maximum number of retries.
 Defaults to 3 at construction time.
@@ -292,13 +298,13 @@ If set to 0, each message will only ever be sent once.
 
 ### rhs.getRetries()
 ```ts
-getRetries():number
+getRetries (): number
 ```
 Returns the currently configured maximum retries count.
 
 ### rhs.setTimeout(timeout)
 ```ts
-setTimeout(timeout:number):void;
+setTimeout (timeout: number): void;
 ```
 Sets the minimum retransmit timeout in milliseconds.
 If an ack is taking longer than this time, a message will be retransmitted.
@@ -308,19 +314,19 @@ Default is 200.
 
 ### rhs.getRetransmissions()
 ```ts
-getRetransmissions():number;
+getRetransmissions (): number;
 ```
 Returns the number of retransmissions we have had to send since starting or since the last call to resetRetransmissions().
 
 ### rhs.resetRetransmissions()
 ```ts
-resetRetransmissions():void;
+resetRetransmissions (): void;
 ```
 Resets the count of the number of retransmissions to 0.
 
 ### rhs.setPromiscuous(promiscuous)
 ```ts
-setPromiscuous(promiscuous:boolean):void;
+setPromiscuous (promiscuous: boolean): void;
 ```
 Tells the receiver to accept messages with any to address, not just messages addressed to this node or the broadcast address.
 
@@ -328,7 +334,7 @@ Tells the receiver to accept messages with any to address, not just messages add
 
 ### rhs.on('data', function(receivedData){ })
 ```ts
-rhs.on('data', (message:RH_ReceivedMessage) => { /* do something */ });
+rhs.on('data', (message: RH_ReceivedMessage) => { /* do something */ });
 ```
 The `data` event is emitted for every received message and includes an object with the following information.
 
@@ -341,7 +347,7 @@ The `data` event is emitted for every received message and includes an object wi
 
 ### rhs.on('error', function(err){ })
 ```ts
-rhs.on('error', (err:Error) => { /* do something */ });
+rhs.on('error', (err: Error) => { /* do something */ });
 ```
 The `error` event is emitted if there is an error with the driver.
 
@@ -361,13 +367,13 @@ This is the maximum size for a Buffer used for sending or receiving messages.
 They represent the same classes from the native RadioHead library.
 You can use them to create custom implementations.
 
-For more information see [ADVANCED_USAGE.md](https://git.cryhost.de/crycode/node-radiohead-serial/tree/master/ADVANCED_USAGE.md)
+For more information see [ADVANCED_USAGE.md](https://github.com/crycode-de/node-radiohead-serial/blob/master/ADVANCED_USAGE.md)
 
 
 ## License
 
 Licensed under GPL Version 2
 
-Copyright (c) 2017-2019 Peter Müller <peter@crycode.de> (https://crycode.de/)
+Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
 
 The RadioHead library is Copyright (C) 2008 Mike McCauley.
