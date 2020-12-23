@@ -1,5 +1,10 @@
 node_modules/
 coverage/
-**/*.log
+test/*.ts
+dist/test/*.d.ts
+src
+*.log
+*.map
 *.tgz
-.gitlab-ci.yml
+**/tsconfig.json
+.eslint*

@@ -32,15 +32,6 @@
   "bugs": {
     "url": "https://git.cryhost.de/crycode/node-radiohead-serial/issues"
   },
-  "files": [
-    "dist/**/*.js",
-    "dist/**/*.d.ts",
-    "*.md",
-    "examples/*.js",
-    "examples/*.ts",
-    "examples/*.ino",
-    "test/test.sh"
-  ],
   "engines": {
     "node": ">=8.6.0"
   },
