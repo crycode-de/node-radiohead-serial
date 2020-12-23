@@ -53,7 +53,7 @@
  * @param  {number} x The original 16-bit number.
  * @return {number}   The new number from the lower 8 bits.
  */
-function lo8(x:number):number{
+function lo8 (x: number): number {
   return (x)&0xff;
 }
 
@@ -62,7 +62,7 @@ function lo8(x:number):number{
  * @param  {number} x The original 16-bit number.
  * @return {number}   The new number from the higher 8 bits.
  */
-function hi8(x:number):number{
+function hi8 (x: number): number {
   return (x)>>8;
 }
 
@@ -71,7 +71,7 @@ function hi8(x:number):number{
  * @param  {number} x The original number.
  * @return {number}   The new number from the lower 16 bits.
  */
-function lo16(x:number):number{
+function lo16 (x: number): number {
   return (x)&0xffff;
 }
 
@@ -81,7 +81,7 @@ function lo16(x:number):number{
  * @param  {number} data The new byte.
  * @return {number}      The new CRCITT checksum.
  */
-export function RHcrc_ccitt_update (crc:number, data:number):number{
+export function RHcrc_ccitt_update (crc: number, data: number): number {
   data ^= lo8 (crc);
   data ^= lo8 (data << 4);
 

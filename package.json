@@ -17,7 +17,9 @@
   "scripts": {
     "prebuild": "rimraf ./dist",
     "build": "tsc -p tsconfig.json",
+    "examples-build-check": "tsc -p examples/tsconfig.json",
     "prepare": "npm run build",
+    "lint": "eslint --ext .ts src examples",
     "test": "./test/test.sh"
   },
   "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
@@ -34,7 +36,9 @@
     "dist/**/*.js",
     "dist/**/*.d.ts",
     "*.md",
-    "examples",
+    "examples/*.js",
+    "examples/*.ts",
+    "examples/*.ino",
     "test/test.sh"
   ],
   "engines": {
@@ -47,6 +51,9 @@
   "devDependencies": {
     "@types/expect.js": "^0.3.29",
     "@types/node": "^14.14.14",
+    "@typescript-eslint/eslint-plugin": "^4.11.0",
+    "@typescript-eslint/parser": "^4.11.0",
+    "eslint": "^7.16.0",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
     "mocha": "^8.2.1",

@@ -13,15 +13,22 @@
  * Port from native C/C++ code to TypeScript
  * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
-/// <reference types="node" />
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 
-import {RH_Serial, RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN,
-  RH_SERIAL_MAX_MESSAGE_LEN} from './RH_Serial';
-import {RHDatagram} from './RHDatagram';
-import {RHReliableDatagram, RH_FLAGS_ACK, RH_DEFAULT_TIMEOUT,
-  RH_DEFAULT_RETRIES} from './RHReliableDatagram';
+import {
+  RH_Serial,
+  RH_SERIAL_MAX_PAYLOAD_LEN,
+  RH_SERIAL_HEADER_LEN,
+  RH_SERIAL_MAX_MESSAGE_LEN
+} from './RH_Serial';
+import { RHDatagram } from './RHDatagram';
+import {
+  RHReliableDatagram,
+  RH_FLAGS_ACK,
+  RH_DEFAULT_TIMEOUT,
+  RH_DEFAULT_RETRIES
+} from './RHReliableDatagram';
 
 // export the current version of this module
 export const version = '4.2.0';
@@ -50,37 +57,37 @@ export interface RH_ReceivedMessage {
    * Buffer containing the received data.
    * @type {Buffer}
    */
-  data:Buffer;
+  data: Buffer;
 
   /**
    * Length of the received data.
    * @type {number}
    */
-  length:number;
+  length: number;
 
   /**
    * TO header.
    * @type {number}
    */
-  headerTo:number;
+  headerTo: number;
 
   /**
    * FROM header.
    * @type {number}
    */
-  headerFrom:number;
+  headerFrom: number;
 
   /**
    * ID header.
    * @type {number}
    */
-  headerId:number;
+  headerId: number;
 
   /**
    * FLAGS header.
    * @type {number}
    */
-  headerFlags:number;
+  headerFlags: number;
 }
 
 /**
@@ -127,23 +134,23 @@ export class RadioHeadSerial extends EventEmitter {
   /**
    * Private flag if RHReliableDatagram (true) or RHDatagram (false) is used.
    */
-  private _reliable:boolean;
+  private _reliable: boolean;
 
   /**
    * The used driver.
    */
-  private _driver:RH_Serial;
+  private _driver: RH_Serial;
 
   /**
    * The used manager.
    * An instance of either RHReliableDatagram or RHDatagram.
    */
-  private _manager:RHReliableDatagram|RHDatagram;
+  private _manager: RHReliableDatagram|RHDatagram;
 
   /**
    * If the init is done or not.
    */
-  private _initDone:boolean = false;
+  private _initDone: boolean = false;
 
   /**
    * Constructor for a new instance of this class using an options object.
@@ -163,7 +170,7 @@ export class RadioHeadSerial extends EventEmitter {
   /**
    * Generic constructor for a new instance of this class.
    */
-  constructor(options: string|RadioHeadSerialOptions, baud?: number, address?: number, reliable?: boolean){
+  constructor (options: string|RadioHeadSerialOptions, baud?: number, address?: number, reliable?: boolean) {
     super();
 
     // create options object if a port is provided
@@ -194,13 +201,13 @@ export class RadioHeadSerial extends EventEmitter {
     this._driver = new RH_Serial(options.port, options.baud);
 
     // proxy driver errors
-    this._driver.on('error', (err:Error)=>{
+    this._driver.on('error', (err: Error) => {
       this.emit('error', err);
     });
 
-    if(this._reliable){
+    if (this._reliable) {
       this._manager = new RHReliableDatagram(this._driver, options.address);
-    }else{
+    } else {
       this._manager = new RHDatagram(this._driver, options.address);
     }
 
@@ -217,13 +224,13 @@ export class RadioHeadSerial extends EventEmitter {
     if (this._initDone) return Promise.resolve();
 
     return this._manager.init()
-    .then(()=>{
-      if(this._reliable){
-        this._manager.on('recvfromAck',(message:RH_ReceivedMessage)=>{
+    .then(() => {
+      if (this._reliable) {
+        this._manager.on('recvfromAck',(message: RH_ReceivedMessage) => {
           this.emit('data', message);
         });
-      }else{
-        this._manager.on('recv',(message:RH_ReceivedMessage)=>{
+      } else {
+        this._manager.on('recv',(message: RH_ReceivedMessage) => {
           this.emit('data', message);
         });
       }
@@ -245,7 +252,7 @@ export class RadioHeadSerial extends EventEmitter {
    * After close() is called, no messages can be received.
    * @return {Promise} Promise which will be resolved if the SerialPort is closed.
    */
-  public close():Promise<void>{
+  public close (): Promise<void> {
     return this._driver.close();
   }
 
@@ -256,19 +263,19 @@ export class RadioHeadSerial extends EventEmitter {
    * @param  {number} length   Optional number ob bytes to send from the buffer. If not given the whole buffer is sent.
    * @return {Promise}         A Promise which will be resolved when the message has been sent, or rejected in case of an error.
    */
-  public send(to:number, data:Buffer, length?:number):Promise<void>{
+  public send (to: number, data: Buffer, length?: number): Promise<void> {
 
-    if(!length){
+    if (!length) {
       length = data.length;
     }
 
-    if(length <= 0){
+    if (length <= 0) {
       return Promise.reject(new Error('Nothing to send'))
     }
 
-    if(this._reliable){
-      return (<RHReliableDatagram>this._manager).sendtoWait(data, length, to);
-    }else{
+    if (this._reliable) {
+      return (<RHReliableDatagram> this._manager).sendtoWait(data, length, to);
+    } else {
       return this._manager.sendto(data, length, to);
     }
 
@@ -278,7 +285,7 @@ export class RadioHeadSerial extends EventEmitter {
    * Set the address of this node in the RadioHead network.
    * @param {number} address The new address.
    */
-  public setAddress(address:number):void{
+  public setAddress (address: number): void {
     this._manager.setThisAddress(address);
   }
 
@@ -286,7 +293,7 @@ export class RadioHeadSerial extends EventEmitter {
    * Returns the address of this node.
    * @return {number} The address of this node.
    */
-  public thisAddress():number{
+  public thisAddress (): number {
     return this._manager.thisAddress();
   }
 
@@ -296,9 +303,9 @@ export class RadioHeadSerial extends EventEmitter {
    * If set to 0, each message will only ever be sent once.
    * @param {number} count New number of retries.
    */
-  public setRetries(count:number):void{
-    if(!this._reliable) return;
-    (<RHReliableDatagram>this._manager).setRetries(count);
+  public setRetries (count: number): void {
+    if (!this._reliable) return;
+    (<RHReliableDatagram> this._manager).setRetries(count);
   }
 
   /**
@@ -306,9 +313,9 @@ export class RadioHeadSerial extends EventEmitter {
    * Can be changed with setRetries().
    * @return {number} The currently configured maximum retries count.
    */
-  public getRetries():number{
-    if(!this._reliable) return 0;
-    return (<RHReliableDatagram>this._manager).retries();
+  public getRetries (): number {
+    if (!this._reliable) return 0;
+    return (<RHReliableDatagram> this._manager).retries();
   }
 
   /**
@@ -317,9 +324,9 @@ export class RadioHeadSerial extends EventEmitter {
    * Default is 200.
    * @param {number} timeout New timeout in milliseconds.
    */
-  public setTimeout(timeout:number):void{
-    if(!this._reliable) return;
-    (<RHReliableDatagram>this._manager).setTimeout(timeout);
+  public setTimeout (timeout: number): void {
+    if (!this._reliable) return;
+    (<RHReliableDatagram> this._manager).setTimeout(timeout);
   }
 
   /**
@@ -327,24 +334,24 @@ export class RadioHeadSerial extends EventEmitter {
    * or since the last call to resetRetransmissions().
    * @return {number} The number of retransmissions we have had to send since starting.
    */
-  public getRetransmissions():number{
-    if(!this._reliable) return 0;
-    return (<RHReliableDatagram>this._manager).retransmissions();
+  public getRetransmissions (): number {
+    if (!this._reliable) return 0;
+    return (<RHReliableDatagram> this._manager).retransmissions();
   }
 
   /**
    * Resets the count of the number of retransmissions to 0.
    */
-  public resetRetransmissions():void{
-    if(!this._reliable) return;
-    (<RHReliableDatagram>this._manager).resetRetransmissions();
+  public resetRetransmissions (): void {
+    if (!this._reliable) return;
+    (<RHReliableDatagram> this._manager).resetRetransmissions();
   }
 
   /**
    * Tells the receiver to accept messages with any to address, not just messages addressed to this node or the broadcast address.
    * @param {boolean} promiscuous true if you wish to receive messages with any to address. (default false)
    */
-  public setPromiscuous(promiscuous:boolean):void{
+  public setPromiscuous (promiscuous: boolean): void {
     this._driver.setPromiscuous(promiscuous);
   }
 }

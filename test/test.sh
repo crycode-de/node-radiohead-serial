@@ -17,6 +17,6 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-export PATH=$PATH:$MAIN_DIR/node_modules/mocha/bin:$MAIN_DIR/node_modules/istanbul/bin
+export PATH=$PATH:$MAIN_DIR/node_modules/.bin
 
-npx istanbul cover _mocha --harmony dist/test
+istanbul cover _mocha --harmony dist/test

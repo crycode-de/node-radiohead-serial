@@ -8,13 +8,17 @@
  * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 
 import * as SerialPort from 'serialport';
 import * as ParserByteLength from '@serialport/parser-byte-length';
 
-import {RH_BROADCAST_ADDRESS, RH_ReceivedMessage, RH_FLAGS_APPLICATION_SPECIFIC} from './radiohead-serial';
-import {RHcrc_ccitt_update} from './RHCRC';
+import {
+  RH_BROADCAST_ADDRESS,
+  RH_ReceivedMessage,
+  RH_FLAGS_APPLICATION_SPECIFIC
+} from './radiohead-serial';
+import { RHcrc_ccitt_update } from './RHCRC';
 
 /**
  * Defines different receiver states in teh receiver state machine
@@ -33,7 +37,7 @@ enum RxState {
 const STX = 0x02;
 const ETX = 0x03;
 const DLE = 0x10;
-const SYN = 0x16;
+//const SYN = 0x16;
 
 /**
  * Maximum message length (including the headers) we are willing to support
@@ -60,76 +64,76 @@ export class RH_Serial extends EventEmitter {
   /**
    * The SerialPort we will use
    */
-  private _port:SerialPort;
+  private _port: SerialPort;
 
   /**
    * The parser we will use for the SerialPort.
    */
-  private _parser:any;
+  private _parser: any;
 
   /**
    * The current state of the Rx state machine
    */
-  private _rxState:RxState = RxState.RxStateInitialising;
+  private _rxState: RxState = RxState.RxStateInitialising;
 
   /**
    * Progressive FCS calc (CCITT CRC-16 covering all received data (but not stuffed DLEs), plus trailing DLE, ETX)
    */
-  private _rxFcs:number = 0xffff;
+  private _rxFcs: number = 0xffff;
 
   /**
    * The received FCS at the end of the current message
    */
-  private _rxRecdFcs:number = 0x0000;
+  private _rxRecdFcs: number = 0x0000;
 
   /**
    * Current length of data in the Rx buffer
    */
-  private _rxBufLen:number = 0;
+  private _rxBufLen: number = 0;
 
   /**
    * The Rx buffer
    */
-  private _rxBuf:Buffer = Buffer.alloc(RH_SERIAL_MAX_PAYLOAD_LEN); // XXX .fill(0) ?
+  private _rxBuf: Buffer = Buffer.alloc(RH_SERIAL_MAX_PAYLOAD_LEN);
 
   // The following vars come from RHGenericDriver
 
   /**
    * This node id
    */
-  private _thisAddress:number = RH_BROADCAST_ADDRESS;
+  private _thisAddress: number = RH_BROADCAST_ADDRESS;
 
   /**
    * Whether the transport is in promiscuous mode
    */
-  private _promiscuous:boolean = false;
+  private _promiscuous: boolean = false;
 
   /**
    * TO header to send in all messages
    */
-  private _txHeaderTo:number = RH_BROADCAST_ADDRESS;
+  private _txHeaderTo: number = RH_BROADCAST_ADDRESS;
 
   /**
    * FROM header to send in all messages
    */
-  private _txHeaderFrom:number = RH_BROADCAST_ADDRESS;
+  private _txHeaderFrom: number = RH_BROADCAST_ADDRESS;
 
   /**
    * ID header to send in all messages
    */
-  private _txHeaderId:number = 0;
+  private _txHeaderId: number = 0;
 
   /**
    * FLAGS header to send in all messages
    */
-  private _txHeaderFlags:number = 0;
+  private _txHeaderFlags: number = 0;
 
   /**
    * Constructor
    * @param  {string} port The name of the port we will use. (e.g. /dev/ttyUSB0 or COM1)
    * @param  {number} baud The baud rate we will use.
    */
-  constructor(port:string, baud:number){
+  constructor (port: string, baud: number) {
     super();
 
     // construct the SerialPort
@@ -143,12 +147,12 @@ export class RH_Serial extends EventEmitter {
 
 
     // proxy errors
-    this._port.on('error', (err:Error)=>{
+    this._port.on('error', (err: Error) => {
       this.emit('error', err);
     });
 
     // handle received bytes
-    this._parser.on('data', (buf:Buffer)=>{
+    this._parser.on('data', (buf: Buffer) => {
       this.handleRx(buf[0]);
     });
   }
@@ -157,12 +161,12 @@ export class RH_Serial extends EventEmitter {
    * Initialise the Driver transport hardware and software.
    * @return {Promise} Promise which will be resolved if the SerialPort is opened.
    */
-  public init():Promise<void>{
-    return new Promise((resolve, reject)=>{
-      this._port.open((err:Error)=>{
-        if(err){
+  public init (): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this._port.open((err: Error) => {
+        if (err) {
           reject(err);
-        }else{
+        } else {
           this._rxState = RxState.RxStateIdle;
           resolve();
         }
@@ -174,12 +178,12 @@ export class RH_Serial extends EventEmitter {
    * Close the Driver transport hardware and software.
    * @return {Promise} Promise which will be resolved if the SerialPort is closed.
    */
-  public close():Promise<void>{
-    return new Promise((resolve, reject)=>{
-      this._port.close((err:Error)=>{
-        if(err){
+  public close (): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this._port.close((err: Error) => {
+        if (err) {
           reject(err);
-        }else{
+        } else {
           resolve();
         }
       });
@@ -190,42 +194,42 @@ export class RH_Serial extends EventEmitter {
    * the receiver state machine.
    * @param {number} ch One received byte.
    */
-  private handleRx(ch:number):void{
+  private handleRx (ch: number): void {
 
-    switch(this._rxState){
+    switch (this._rxState) {
       case RxState.RxStateIdle:
-        if(ch == DLE){
+        if (ch == DLE) {
           this._rxState = RxState.RxStateDLE;
         }
         break;
 
       case RxState.RxStateDLE:
-        if(ch == STX){
+        if (ch == STX) {
           this.clearRxBuf();
           this._rxState = RxState.RxStateData;
-        }else{
+        } else {
           this._rxState = RxState.RxStateIdle;
         }
         break;
 
       case RxState.RxStateData:
-        if(ch == DLE){
+        if (ch == DLE) {
           this._rxState = RxState.RxStateEscape;
-        }else{
+        } else {
           this.appendRxBuf(ch);
         }
         break;
 
       case RxState.RxStateEscape:
-        if(ch == ETX){
+        if (ch == ETX) {
           // add fcs for DLE, ETX
           this._rxFcs = RHcrc_ccitt_update(this._rxFcs, DLE);
           this._rxFcs = RHcrc_ccitt_update(this._rxFcs, ETX);
           this._rxState = RxState.RxStateWaitFCS1; // End frame
-        }else if(ch == DLE){
+        } else if (ch == DLE) {
           this.appendRxBuf(ch);
           this._rxState = RxState.RxStateData;
-        }else{
+        } else {
           this._rxState = RxState.RxStateIdle; // Unexpected
         }
         break;
@@ -248,7 +252,7 @@ export class RH_Serial extends EventEmitter {
   /**
    * Empties the Rx buffer.
    */
-  protected clearRxBuf():void{
+  protected clearRxBuf (): void {
     this._rxFcs = 0xffff;
     this._rxBufLen = 0;
   }
@@ -257,8 +261,8 @@ export class RH_Serial extends EventEmitter {
    * Adds a charater to the Rx buffer
    * @param  {number} ch The charater.
    */
-  protected appendRxBuf(ch:number):void{
-    if(this._rxBufLen < RH_SERIAL_MAX_PAYLOAD_LEN){
+  protected appendRxBuf (ch: number): void {
+    if (this._rxBufLen < RH_SERIAL_MAX_PAYLOAD_LEN) {
       // Normal data, save and add to FCS
       this._rxBuf[this._rxBufLen++] = ch;
       this._rxFcs = RHcrc_ccitt_update(this._rxFcs, ch);
@@ -268,16 +272,16 @@ export class RH_Serial extends EventEmitter {
   /**
    * Check whether the latest received message is complete and uncorrupted.
    */
-  protected validateRxBuf():void{
-    if(this._rxRecdFcs != this._rxFcs){
+  protected validateRxBuf (): void {
+    if (this._rxRecdFcs != this._rxFcs) {
       return;
     }
 
     // check if the message is addressed to this node
-    if(this._promiscuous || this._rxBuf[0] == this._thisAddress || this._rxBuf[0] == RH_BROADCAST_ADDRESS){
+    if (this._promiscuous || this._rxBuf[0] == this._thisAddress || this._rxBuf[0] == RH_BROADCAST_ADDRESS) {
 
       // emit event with the received data
-      let buf:Buffer = Buffer.alloc(this._rxBufLen-RH_SERIAL_HEADER_LEN);
+      const buf: Buffer = Buffer.alloc(this._rxBufLen-RH_SERIAL_HEADER_LEN);
       this._rxBuf.copy(buf, 0, RH_SERIAL_HEADER_LEN, this._rxBufLen);
       this.emit('recv', <RH_ReceivedMessage>{
         data:        buf,
@@ -301,13 +305,13 @@ export class RH_Serial extends EventEmitter {
    * @param  {number}  len  Number of bytes from the buffer to send.
    * @return {Promise}      Promise which will be resolved if sending is completed.
    */
-  public send(data:Buffer, len:number):Promise<void>{
+  public send (data: Buffer, len: number): Promise<void> {
 
-    if(len > RH_SERIAL_MAX_MESSAGE_LEN){
+    if (len > RH_SERIAL_MAX_MESSAGE_LEN) {
       len = RH_SERIAL_MAX_MESSAGE_LEN;
     }
 
-    let txBuf = Buffer.alloc(RH_SERIAL_MAX_PAYLOAD_LEN + RH_SERIAL_MAX_MESSAGE_LEN + 6); // double message len because any byte in the message can be DLE, 2 prepended and 4 appended bytes
+    const txBuf = Buffer.alloc(RH_SERIAL_MAX_PAYLOAD_LEN + RH_SERIAL_MAX_MESSAGE_LEN + 6); // double message len because any byte in the message can be DLE, 2 prepended and 4 appended bytes
 
     let txFcs = 0xffff; // Initial value
 
@@ -328,12 +332,12 @@ export class RH_Serial extends EventEmitter {
     let idx = 6;
 
     // Now the message
-    for(let i = 0; i < len; i++){
+    for (let i = 0; i < len; i++) {
       txBuf[idx++] = data[i];
       txFcs = RHcrc_ccitt_update(txFcs, data[i]);
 
       // duplicate DLE
-      if(data[i] == DLE){
+      if (data[i] == DLE) {
         txBuf[idx++] = DLE; // Not in FCS
       }
     }
@@ -349,11 +353,11 @@ export class RH_Serial extends EventEmitter {
     txBuf[idx++] = txFcs & 0xff;
 
     // Send the used part of the tx buffer
-    return new Promise((resolve:()=>void, reject:(err:Error)=>void)=>{
-      this._port.write(txBuf.slice(0,idx), (err:Error)=>{
-        if(err){
+    return new Promise((resolve: () => void, reject: (err: Error) => void) => {
+      this._port.write(txBuf.slice(0,idx), (err: Error) => {
+        if (err) {
           reject(err);
-        }else{
+        } else {
           resolve();
         }
       });
@@ -370,8 +374,8 @@ export class RH_Serial extends EventEmitter {
    * allowing the possibilty of address spoofing).
    * @param  {number} address The address of this node.
    */
-  public setThisAddress(address:number):void{
-    if(address < 0 || address > 255) return;
+  public setThisAddress (address: number): void {
+    if (address < 0 || address > 255) return;
     this._thisAddress = address;
   }
 
@@ -379,8 +383,8 @@ export class RH_Serial extends EventEmitter {
    * Sets the TO header to be sent in all subsequent messages.
    * @param {number} to The new TO header value.
    */
-  public setHeaderTo(to:number):void{
-    if(to < 0 || to > 255) return;
+  public setHeaderTo (to: number): void {
+    if (to < 0 || to > 255) return;
     this._txHeaderTo = to;
   }
 
@@ -388,8 +392,8 @@ export class RH_Serial extends EventEmitter {
    * Sets the FROM header to be sent in all subsequent messages.
    * @param {number} from The new FROM header value.
    */
-  public setHeaderFrom(from:number):void{
-    if(from < 0 || from > 255) return;
+  public setHeaderFrom (from: number): void {
+    if (from < 0 || from > 255) return;
     this._txHeaderFrom = from;
   }
 
@@ -397,8 +401,8 @@ export class RH_Serial extends EventEmitter {
    * Sets the ID header to be sent in all subsequent messages.
    * @param {number} id The new ID header value.
    */
-  public setHeaderId(id:number):void{
-    if(id < 0 || id > 255) return;
+  public setHeaderId (id: number): void {
+    if (id < 0 || id > 255) return;
     this._txHeaderId = id;
   }
 
@@ -409,11 +413,11 @@ export class RH_Serial extends EventEmitter {
    * @param {number} set   Bitmask of bits to be set. Flags are cleared with the clear mask before being set.
    * @param {number} clear Bitmask of flags to clear. Defaults to RH_FLAGS_APPLICATION_SPECIFIC which clears the application specific flags, resulting in new application specific flags identical to the set.
    */
-  public setHeaderFlags(set:number, clear:number=RH_FLAGS_APPLICATION_SPECIFIC):void{
-    if(set >=0 && set <=255){
+  public setHeaderFlags (set: number, clear: number=RH_FLAGS_APPLICATION_SPECIFIC): void {
+    if (set >=0 && set <=255) {
       this._txHeaderFlags &= ~clear;
     }
-    if(clear >= 0 && clear <= 255){
+    if (clear >= 0 && clear <= 255) {
       this._txHeaderFlags |= set;
     }
   }
@@ -423,7 +427,7 @@ export class RH_Serial extends EventEmitter {
    * addressed to thisAddress or the broadcast address.
    * @param {boolean} promiscuous true if you wish to receive messages with any TO address.
    */
-  public setPromiscuous(promiscuous:boolean):void{
+  public setPromiscuous (promiscuous: boolean): void {
     this._promiscuous = promiscuous;
   }
 }

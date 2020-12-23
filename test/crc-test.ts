@@ -14,21 +14,23 @@
  * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
-import { suite, test, slow, timeout, skip, only } from "mocha-typescript";
+import { suite, test } from 'mocha-typescript';
 import expect = require('expect.js');
 
-import {RHcrc_ccitt_update} from '../src/RHCRC';
+import { RHcrc_ccitt_update } from '../src/RHCRC';
+
+/* eslint-disable @typescript-eslint/no-unused-vars,@typescript-eslint/explicit-function-return-type */
 
 @suite('RHCRC') class RHCRC {
 
-  @test 'RHcrc_ccitt_update 42 127 should be 21811' (){
+  @test 'RHcrc_ccitt_update 42 127 should be 21811' () {
     let crc = 0;
     crc = RHcrc_ccitt_update(crc,42);
     crc = RHcrc_ccitt_update(crc,127);
     expect(crc).to.be(21811);
   }
 
-  @test 'RHcrc_ccitt_update 255 255 should be 61624' (){
+  @test 'RHcrc_ccitt_update 255 255 should be 61624' () {
     let crc = 0;
     crc = RHcrc_ccitt_update(crc,255);
     crc = RHcrc_ccitt_update(crc,255);

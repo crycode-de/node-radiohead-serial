@@ -8,11 +8,11 @@
  * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
-import {RH_BROADCAST_ADDRESS, RH_FLAGS_NONE, RH_ReceivedMessage} from './radiohead-serial';
+import { RH_BROADCAST_ADDRESS, RH_FLAGS_NONE, RH_ReceivedMessage } from './radiohead-serial';
 
-import {RH_Serial} from './RH_Serial';
+import { RH_Serial } from './RH_Serial';
 
-import {RHDatagram} from './RHDatagram';
+import { RHDatagram } from './RHDatagram';
 
 /**
  * The acknowledgement bit in the FLAGS.
@@ -38,28 +38,28 @@ export class RHReliableDatagram extends RHDatagram {
    * Count of retransmissions we have had to send
    * @type {number}
    */
-  private _retransmissions:number; // uint32_t
+  private _retransmissions: number; // uint32_t
 
   /**
    * The last sequence number to be used
    * Defaults to 0
    * @type {number}
    */
-  private _lastSequenceNumber:number; // uint8_t
+  private _lastSequenceNumber: number; // uint8_t
 
   /**
    * Retransmit timeout (milliseconds)
    * Defaults to 200
    * @type {number}
    */
-  private _timeout:number; // uint16_t
+  private _timeout: number; // uint16_t
 
   /**
    * Retries (0 means one try only)
    * Defaults to 3
    * @type {number}
    */
-  private _retries:number;
+  private _retries: number;
 
   /**
    * Array of the last seen sequence number indexed by node address that sent it
@@ -68,14 +68,14 @@ export class RHReliableDatagram extends RHDatagram {
    * received that message)
    * @type {number[]}
    */
-  private _seenIds:number[];
+  private _seenIds: number[];
 
   /**
    * Constructor.
    * @param  {RH_Serial} driver      The RadioHead driver to use to transport messages.
    * @param  {number}    thisAddress The address to assign to this node.
    */
-  constructor(driver:RH_Serial, thisAddress:number){
+  constructor (driver: RH_Serial, thisAddress: number) {
     super(driver, thisAddress);
 
     this._retransmissions = 0;
@@ -84,7 +84,7 @@ export class RHReliableDatagram extends RHDatagram {
     this._retries = RH_DEFAULT_RETRIES;
 
     this._seenIds = [];
-    for(let i=0; i<256; i++){
+    for (let i=0; i<256; i++) {
       this._seenIds[i] = 0;
     }
   }
@@ -93,9 +93,9 @@ export class RHReliableDatagram extends RHDatagram {
    * Initialise this manager class.
    * @return {Promise}
    */
-  public init():Promise<void>{
+  public init (): Promise<void> {
     return super.init()
-    .then<any>(()=>{
+    .then<any>(() => {
       // ack messages
       this.on('recv', this._recvfromAckHandler.bind(this));
     });
@@ -106,18 +106,18 @@ export class RHReliableDatagram extends RHDatagram {
    * This sends ack messages and emits the recvfromAck event.
    * @param {RecvMessage} msg The received message to handle.
    */
-  private _recvfromAckHandler(msg:RH_ReceivedMessage):void{
+  private _recvfromAckHandler (msg: RH_ReceivedMessage): void {
     // Never ACK an ACK
-    if(!(msg.headerFlags & RH_FLAGS_ACK)){
+    if (!(msg.headerFlags & RH_FLAGS_ACK)) {
       // Its a normal message not an ACK
-      if(msg.headerTo === this._thisAddress){
+      if (msg.headerTo === this._thisAddress) {
         // Its for this node and
         // Its not a broadcast, so ACK it
         // Acknowledge message with ACK set in flags and ID set to received ID
         this.acknowledge(msg.headerId, msg.headerFrom);
       }
       // If we have not seen this message before, then we are interested in it
-      if(msg.headerId !== this._seenIds[msg.headerFrom]){
+      if (msg.headerId !== this._seenIds[msg.headerFrom]) {
         // emit event for new message
         this.emit('recvfromAck', msg);
         this._seenIds[msg.headerFrom] = msg.headerId;
@@ -138,7 +138,7 @@ export class RHReliableDatagram extends RHDatagram {
    * The actual timeout is randomly varied between timeout and timeout*2.
    * @param {number} timeout The new timeout period in milliseconds
    */
-  public setTimeout(timeout:number):void{
+  public setTimeout (timeout: number): void {
     this._timeout = timeout;
   }
 
@@ -149,7 +149,7 @@ export class RHReliableDatagram extends RHDatagram {
    * and the retries count is exhausted.
    * @param  {number} retries The maximum number a retries.
    */
-  public setRetries(retries:number):void{
+  public setRetries (retries: number): void {
     this._retries = retries;
   }
 
@@ -158,7 +158,7 @@ export class RHReliableDatagram extends RHDatagram {
    * Can be changed with setRetries().
    * @return {number} The currently configured maximum number of retries.
    */
-  public retries():number{
+  public retries (): number {
     return this._retries;
   }
 
@@ -173,29 +173,29 @@ export class RHReliableDatagram extends RHDatagram {
    * @param  {number}  address The address to send the message to.
    * @return {Promise}
    */
-  public sendtoWait(buf:Buffer, len:number, address:number):Promise<void>{
-    return new Promise((resolve:()=>void, reject:(err:Error)=>void)=>{
+  public sendtoWait (buf: Buffer, len: number, address: number): Promise<void> {
+    return new Promise((resolve: () => void, reject: (err: Error) => void) => {
       // Assemble the message
-      let thisSequenceNumber = ++this._lastSequenceNumber;
+      const thisSequenceNumber = ++this._lastSequenceNumber;
       let retries = 0;
 
       // promise chain loop with the retries
-      let prom:Promise<any>;
+      let prom: Promise<void> = Promise.resolve();
 
-      let succeeded = ()=>{
+      const succeeded = (): void => {
         // _sendtoWaitOne succeeded
         resolve();
       };
 
-      let failed = (_err:Error)=>{
+      const failed = (_err: Error): void => {
         // _sendtoWaitOne failed
-        if(retries++ <= this._retries){
+        if (retries++ <= this._retries) {
           // retry
           this._retransmissions++;
-          prom.then(()=>{
+          prom.then(() => {
             return this._sendtoWaitOne(buf, len, address, thisSequenceNumber).then(succeeded).catch(failed);
           });
-        }else{
+        } else {
           // max retries reached
           reject(new Error('sendtoWait failed'));
         }
@@ -213,30 +213,30 @@ export class RHReliableDatagram extends RHDatagram {
    * @param  {number}  thisSequenceNumber The headerId for the message.
    * @return {Promise}
    */
-  private _sendtoWaitOne(buf:Buffer, len:number, address:number, thisSequenceNumber:number):Promise<void>{
-    return new Promise((resolve:()=>void, reject:(err:Error)=>void)=>{
+  private _sendtoWaitOne (buf: Buffer, len: number, address: number, thisSequenceNumber: number): Promise<void> {
+    return new Promise((resolve: () => void, reject: (err: Error) => void) => {
 
       this.setHeaderId(thisSequenceNumber);
       this.setHeaderFlags(RH_FLAGS_NONE, RH_FLAGS_ACK); // Clear the ACK flag
 
       this.sendto(buf, len, address)
       // sendto succeeded
-      .then(()=>{
+      .then(() => {
         // Never wait for ACKS to broadcasts:
-        if(address === RH_BROADCAST_ADDRESS){
+        if (address === RH_BROADCAST_ADDRESS) {
           resolve();
           return;
         }
 
         // variable for the ack timeout
-        let ackTimeout:NodeJS.Timer = null;
+        let ackTimeout: NodeJS.Timer = null;
 
         // on ack listener
-        let ackListener = (msg:RH_ReceivedMessage)=>{
-          if(msg.headerFrom === address
+        const ackListener = (msg: RH_ReceivedMessage): void => {
+          if (msg.headerFrom === address
            && msg.headerTo === this._thisAddress
            && (msg.headerFlags & RH_FLAGS_ACK)
-           && msg.headerId === thisSequenceNumber){
+           && msg.headerId === thisSequenceNumber) {
             // ack received
             // clear timeout, remove listener and resolve
             clearTimeout(ackTimeout);
@@ -249,10 +249,10 @@ export class RHReliableDatagram extends RHDatagram {
         // Compute a new timeout, random between _timeout and _timeout*2
         // This is to prevent collisions on every retransmit
         // if 2 nodes try to transmit at the same time
-        let timeout = this._timeout + Math.floor(Math.random() * this._timeout);
+        const timeout = this._timeout + Math.floor(Math.random() * this._timeout);
 
         // set ack timeout
-        ackTimeout = setTimeout(()=>{
+        ackTimeout = setTimeout(() => {
           // ack timed out
           // remove listener and reject
           this.removeListener('recv', ackListener);
@@ -261,7 +261,7 @@ export class RHReliableDatagram extends RHDatagram {
 
       })
       // sendto failed
-      .catch((err:Error)=>{
+      .catch((err: Error) => {
         reject(err);
       });
     });
@@ -272,14 +272,14 @@ export class RHReliableDatagram extends RHDatagram {
    *  we have had to send since starting or since the last call to resetRetransmissions().
    * @return {number} The number of retransmissions since initialisation.
    */
-  public retransmissions():number{
+  public retransmissions (): number {
     return this._retransmissions;
   }
 
   /**
    * Resets the count of the number of retransmissions to 0.
    */
-  public resetRetransmissions():void{
+  public resetRetransmissions (): void {
     this._retransmissions = 0;
   }
 
@@ -288,7 +288,7 @@ export class RHReliableDatagram extends RHDatagram {
    * @param  {number} id   The id of the message
    * @param  {number} from From address of the message
    */
-  private acknowledge(id:number, from:number):Promise<void>{
+  private acknowledge (id: number, from: number): Promise<void> {
     this.setHeaderId(id);
     this.setHeaderFlags(RH_FLAGS_ACK);
     return this.sendto(Buffer.from('!'), 1, from);

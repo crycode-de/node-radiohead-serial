@@ -18,9 +18,9 @@ typescript-build:
       - dist/
   script:
     - npm config set unsafe-perm true
-    - npm install
+    - npm ci
     - npm run build
-    - ./node_modules/.bin/tsc --noEmit --target es6 examples/*.ts
+    - npm run examples-build-check
 
 .tests: &tests
   stage: test
@@ -29,8 +29,7 @@ typescript-build:
   script:
     - apt-get update && apt-get install -y socat
     - npm config set unsafe-perm true
-    - rm -rf node_modules/serialport node_modules/@serialport
-    - npm install
+    - npm ci
     - npm test
 
 tests-node8:
@@ -39,8 +38,7 @@ tests-node8:
   script:
     - apt-get update && apt-get install -y socat
     - npm config set unsafe-perm true
-    - rm -rf node_modules/serialport node_modules/@serialport
-    - npm install
+    - npm ci
     - npm install mocha@7
     - npm test
 
