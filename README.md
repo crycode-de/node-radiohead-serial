@@ -27,6 +27,7 @@ This module can be used on any Linux, Mac or Windows system, for example a Raspb
 
 **Hint:** Version 4 of `radiohead-serial` requires Node.js version 8.6 or higher. For older Node.js releases you may use the v3 branch of `radiohead-serial` which supports Node.js version 4 or higher.
 
+Currently tested with Node.js versions _8.x_, _10.x_, _12.x_, _14.x_ and _16.x_.
 
 ## Example scenario for using radiohead-serial
 
