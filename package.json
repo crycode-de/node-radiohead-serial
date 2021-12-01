@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@serialport/parser-byte-length": "^9.2.4",
-    "serialport": "^9.2.4"
+    "serialport": "^9.2.8"
   },
   "devDependencies": {
     "@types/expect.js": "^0.3.29",
