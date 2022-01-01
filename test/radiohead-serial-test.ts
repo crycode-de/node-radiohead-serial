@@ -69,7 +69,7 @@ let rhs2: RadioHeadSerial = null;
 }
 
 ////////////////////////////////////////////
-// Check the RadioHeadSerial construcotrs //
+// Check the RadioHeadSerial constructors //
 ////////////////////////////////////////////
 @suite('check the RadioHeadSerial constructors') class RHS_Constructor {
   @test 'object as argument' (done) {

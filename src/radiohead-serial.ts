@@ -205,10 +205,22 @@ export class RadioHeadSerial extends EventEmitter {
       this.emit('error', err);
     });
 
+    // proxy driver close
+    this._driver.on('close', () => {
+      this.emit('close');
+    });
+
+    // proxy messages
     if (this._reliable) {
       this._manager = new RHReliableDatagram(this._driver, options.address);
+      this._manager.on('recvfromAck', (message: RH_ReceivedMessage) => {
+        this.emit('data', message);
+      });
     } else {
       this._manager = new RHDatagram(this._driver, options.address);
+      this._manager.on('recv', (message: RH_ReceivedMessage) => {
+        this.emit('data', message);
+      });
     }
 
     if (options.autoInit) {
@@ -221,19 +233,10 @@ export class RadioHeadSerial extends EventEmitter {
    * @return {Promise} Promise which will be resolved when the manager is initialized and the serial port is opened or rejected in case of an error.
    */
   public init (): Promise<void> {
-    if (this._initDone) return Promise.resolve();
+    this._initDone = false;
 
     return this._manager.init()
     .then(() => {
-      if (this._reliable) {
-        this._manager.on('recvfromAck',(message: RH_ReceivedMessage) => {
-          this.emit('data', message);
-        });
-      } else {
-        this._manager.on('recv',(message: RH_ReceivedMessage) => {
-          this.emit('data', message);
-        });
-      }
       this._initDone = true;
       this.emit('init-done');
     });

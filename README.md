@@ -245,8 +245,9 @@ Loads and initializes the RadioHead driver and manager.
 ```ts
 init (): Promise<{}>;
 ```
-Initializes the manager and the serial port if options.autoInit was false on construction of the class.
-Returns a promise which will be resolved if the serial port is opened and the manager is initialized or rejected in case of an error.
+Initializes the manager and the serial port if options.autoInit was false on construction of the class.  
+Returns a promise which will be resolved if the serial port is opened and the manager is initialized or rejected in case of an error.  
+May be called multiple times to re-init the serial port on errors.
 
 ### rhs.isInitDone()
 ```ts
@@ -354,6 +355,13 @@ The `error` event is emitted if there is an error with the driver.
 
 * `err` - The error.
 
+### rhs.on('close', function(){ })
+```ts
+rhs.on('close', () => { /* do something */ });
+```
+The `close` event is emitted if the serial port is closed.
+This may be intended by calling `rhs.close()` or caused by any port failure.
+
 ### Exported Constants
 
 #### version
@@ -375,6 +383,6 @@ For more information see [ADVANCED_USAGE.md](https://github.com/crycode-de/node-
 
 Licensed under GPL Version 2
 
-Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
+Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
 
 The RadioHead library is Copyright (C) 2008 Mike McCauley.

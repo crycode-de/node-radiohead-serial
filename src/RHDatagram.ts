@@ -34,6 +34,11 @@ export class RHDatagram extends EventEmitter {
 
     this._driver = driver;
     this._thisAddress = thisAddress;
+
+    // emit recv event from driver on this class
+    this._driver.on('recv', (msg: RH_ReceivedMessage) => {
+      this.emit('recv', msg);
+    });
   }
 
   /**
@@ -44,11 +49,6 @@ export class RHDatagram extends EventEmitter {
     return this._driver.init()
     .then<any>(() => {
       this.setThisAddress(this._thisAddress);
-
-      // emit recv event from driver on this class
-      this._driver.on('recv', (msg: RH_ReceivedMessage) => {
-        this.emit('recv', msg);
-      });
     });
   }
 

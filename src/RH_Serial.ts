@@ -151,6 +151,11 @@ export class RH_Serial extends EventEmitter {
       this.emit('error', err);
     });
 
+    // proxy port close
+    this._port.on('close', () => {
+      this.emit('close');
+    });
+
     // handle received bytes
     this._parser.on('data', (buf: Buffer) => {
       this.handleRx(buf[0]);

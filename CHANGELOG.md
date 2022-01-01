@@ -1,9 +1,14 @@
+## v4.3.0 2022-01-01
+- Proxy port close events to the driver an RHS instances
+- Optimize some internal event bindings
+- Allow multiple calls of the init function
+
 ## v4.2.0 2020-12-23
 - Compatibilitiy tested with Node.js 8, 10, 12 and 14
   - Minimum required Node.js version is >= 8.6
 - Removed Bluebird dependency
 - Updated all dependencies
-- Typescript optimisations
+- Typescript optimizations
 - Moved public repository to [GitHub](https://github.com/crycode-de/node-radiohead-serial)
 
 ## v4.1.1 2019-07-25
