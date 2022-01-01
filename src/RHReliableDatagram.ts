@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { RH_BROADCAST_ADDRESS, RH_FLAGS_NONE, RH_ReceivedMessage } from './radiohead-serial';
@@ -90,7 +90,7 @@ export class RHReliableDatagram extends RHDatagram {
   }
 
   /**
-   * Initialise this manager class.
+   * Initialize this manager class.
    * @return {Promise}
    */
   public init (): Promise<void> {
@@ -270,7 +270,7 @@ export class RHReliableDatagram extends RHDatagram {
   /**
    * Returns the number of retransmissions
    *  we have had to send since starting or since the last call to resetRetransmissions().
-   * @return {number} The number of retransmissions since initialisation.
+   * @return {number} The number of retransmissions since initialization.
    */
   public retransmissions (): number {
     return this._retransmissions;

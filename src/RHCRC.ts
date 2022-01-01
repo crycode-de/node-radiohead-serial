@@ -45,7 +45,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 /**

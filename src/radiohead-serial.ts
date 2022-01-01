@@ -1,7 +1,7 @@
 /*
  * Node.js module radiohead-serial
  *
- * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -11,7 +11,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
@@ -31,7 +31,7 @@ import {
 } from './RHReliableDatagram';
 
 // export the current version of this module
-export const version = '4.2.0';
+export const version = '4.3.0';
 
 // export some imports to allow an custom usage
 export {
@@ -127,7 +127,7 @@ export interface RadioHeadSerialOptions {
 }
 
 /**
- * The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
+ * The RadioHeadSerial main class for sending and receiving messages through the RadioHead network.
  */
 export class RadioHeadSerial extends EventEmitter {
 

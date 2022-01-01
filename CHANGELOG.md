@@ -4,7 +4,7 @@
 - Allow multiple calls of the init function
 
 ## v4.2.0 2020-12-23
-- Compatibilitiy tested with Node.js 8, 10, 12 and 14
+- Compatibility tested with Node.js 8, 10, 12 and 14
   - Minimum required Node.js version is >= 8.6
 - Removed Bluebird dependency
 - Updated all dependencies
@@ -37,7 +37,7 @@
 - All needed classes from the RadioHead library are now ported to TypeScript!
 - Linux, Windows and Mac are now supported
 - New APIv3 mostly compatible to APIv2
-- New advanced usage possibilty using the exported `RH_Serial`, `RHDatagram` and `RHReliableDatagram` classes
+- New advanced usage possibility using the exported `RH_Serial`, `RHDatagram` and `RHReliableDatagram` classes
 - Added constants RH_SERIAL_MAX_MESSAGE_LEN, RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN, RH_FLAGS_NONE, RH_FLAGS_RESERVED, RH_FLAGS_APPLICATION_SPECIFIC, RH_FLAGS_ACK, RH_BROADCAST_ADDRESS, RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES
 - Added serial-rf95 gateway arduino sketch
 - Updated tests

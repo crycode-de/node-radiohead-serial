@@ -2,7 +2,7 @@
 #
 # Node.js RadioHead Serial
 #
-# Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
+# Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
 #
 # Node.js module for communication between some RadioHead nodes and Node.js using
 # the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.

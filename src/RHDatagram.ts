@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
@@ -42,7 +42,7 @@ export class RHDatagram extends EventEmitter {
   }
 
   /**
-   * Initialise this instance and the driver connected to it.
+   * Initialize this instance and the driver connected to it.
    * @return {Promise} Promise which will be resolved if the init of the driver is done.
    */
   public init (): Promise<void> {

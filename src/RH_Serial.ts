@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2020 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
@@ -24,7 +24,7 @@ import { RHcrc_ccitt_update } from './RHCRC';
  * Defines different receiver states in teh receiver state machine
  */
 enum RxState {
-  RxStateInitialising = 0, // Before init() is called
+  RxStateInitializing = 0, // Before init() is called
   RxStateIdle,             // Waiting for an STX
   RxStateDLE,              // Waiting for the DLE after STX
   RxStateData,             // Receiving data
@@ -74,7 +74,7 @@ export class RH_Serial extends EventEmitter {
   /**
    * The current state of the Rx state machine
    */
-  private _rxState: RxState = RxState.RxStateInitialising;
+  private _rxState: RxState = RxState.RxStateInitializing;
 
   /**
    * Progressive FCS calc (CCITT CRC-16 covering all received data (but not stuffed DLEs), plus trailing DLE, ETX)
@@ -163,7 +163,7 @@ export class RH_Serial extends EventEmitter {
   }
 
   /**
-   * Initialise the Driver transport hardware and software.
+   * Initialize the Driver transport hardware and software.
    * @return {Promise} Promise which will be resolved if the SerialPort is opened.
    */
   public init (): Promise<void> {
@@ -304,7 +304,7 @@ export class RH_Serial extends EventEmitter {
   }
 
   /**
-   * Sends data fron a buffer using the currently set headers.
+   * Sends data from a buffer using the currently set headers.
    * Note that a message length of 0 is NOT permitted.
    * @param  {Buffer}  data The buffer containing the data to send.
    * @param  {number}  len  Number of bytes from the buffer to send.
@@ -376,7 +376,7 @@ export class RH_Serial extends EventEmitter {
    * In promiscuous mode, all messages will be accepted regardless of the TO header.
    * In a conventional multinode system, all nodes will have a unique address.
    * You would normally set the header FROM address to be the same as thisAddress (though you dont have to,
-   * allowing the possibilty of address spoofing).
+   * allowing the possibility of address spoofing).
    * @param  {number} address The address of this node.
    */
   public setThisAddress (address: number): void {

@@ -8,7 +8,7 @@ For the general usage see [README.md](https://github.com/crycode-de/node-radiohe
 ## Exported classes
 
 ### RadioHeadSerial
-The RadioHeasSerial main class for sending and receiving messages through the RadioHead network.
+The RadioHeadSerial main class for sending and receiving messages through the RadioHead network.
 
 For more information see [README.md](https://github.com/crycode-de/node-radiohead-serial/blob/master/README.md#radioheadserialoptions-radioheadserialoptions).
 
