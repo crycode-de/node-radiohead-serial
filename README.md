@@ -2,7 +2,6 @@
 
 [![NPM version](https://img.shields.io/npm/v/radiohead-serial.svg)](https://www.npmjs.com/package/radiohead-serial)
 [![Downloads](https://img.shields.io/npm/dm/radiohead-serial.svg)](https://www.npmjs.com/package/radiohead-serial)
-[![Dependency Status](https://img.shields.io/david/crycode-de/node-radiohead-serial.svg)](https://david-dm.org/crycode-de/node-radiohead-serial)
 
 [![NPM](https://nodei.co/npm/radiohead-serial.png?downloads=true)](https://nodei.co/npm/radiohead-serial/)
 

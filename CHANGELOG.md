@@ -1,4 +1,4 @@
-## v4.3.0 2022-01-01
+## v4.3.0 2022-01-07
 - Proxy port close events to the driver an RHS instances
 - Optimize some internal event bindings
 - Allow multiple calls of the init function
