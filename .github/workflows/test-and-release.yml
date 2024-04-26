@@ -32,13 +32,13 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Lint source code
-              run: npm run lint
-
-            - name: Perform a type check
-              run: npm run build -- --noEmit
+            - name: Perform a type check/build
+              run: npm run build
               env:
                   CI: true
+
+            - name: Lint source code
+              run: npm run lint
 
     # Runs tests on all supported node versions and OSes
     tests:
