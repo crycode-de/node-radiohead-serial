@@ -1,6 +1,6 @@
 # Changelog
 
-## v5.0.0 WIP
+## v5.0.0 2024-04-26
 
 - Dependency updates
 - 💥 Node.js >= 16 required
