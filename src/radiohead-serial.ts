@@ -11,34 +11,34 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
 
 import {
   RH_Serial,
-  RH_SERIAL_MAX_PAYLOAD_LEN,
   RH_SERIAL_HEADER_LEN,
-  RH_SERIAL_MAX_MESSAGE_LEN
+  RH_SERIAL_MAX_MESSAGE_LEN,
+  RH_SERIAL_MAX_PAYLOAD_LEN,
 } from './RH_Serial';
 import { RHDatagram } from './RHDatagram';
 import {
-  RHReliableDatagram,
-  RH_FLAGS_ACK,
+  RH_DEFAULT_RETRIES,
   RH_DEFAULT_TIMEOUT,
-  RH_DEFAULT_RETRIES
+  RH_FLAGS_ACK,
+  RHReliableDatagram,
 } from './RHReliableDatagram';
 
 // export the current version of this module
-export const version = '4.3.0';
+export const version = '5.0.0';
 
 // export some imports to allow an custom usage
 export {
   RH_Serial, RHDatagram, RHReliableDatagram,
   RH_SERIAL_MAX_PAYLOAD_LEN, RH_SERIAL_HEADER_LEN, RH_SERIAL_MAX_MESSAGE_LEN,
   RH_FLAGS_ACK,
-  RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES
+  RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES,
 };
 
 /** This is the address that indicates a broadcast */
@@ -145,7 +145,7 @@ export class RadioHeadSerial extends EventEmitter {
    * The used manager.
    * An instance of either RHReliableDatagram or RHDatagram.
    */
-  private _manager: RHReliableDatagram|RHDatagram;
+  private _manager: RHReliableDatagram | RHDatagram;
 
   /**
    * If the init is done or not.
@@ -156,7 +156,7 @@ export class RadioHeadSerial extends EventEmitter {
    * Constructor for a new instance of this class using an options object.
    * @param {RadioHeadSerialOptions} options An object containing the options.
    */
-  constructor(options: RadioHeadSerialOptions);
+  constructor (options: RadioHeadSerialOptions);
 
   /**
    * Constructor for a new instance of this class using the old style arguments
@@ -165,12 +165,12 @@ export class RadioHeadSerial extends EventEmitter {
    * @param {number}  address  (optional) The address of this node in the RadioHead network. Address range goes from 1 to 254. (default 1)
    * @param {boolean} reliable (optional) false if RHDatagram should be used instead of RHReliableDatagram. (default true)
    */
-  constructor(port: string, baud?: number, address?: number, reliable?: boolean);
+  constructor (port: string, baud?: number, address?: number, reliable?: boolean);
 
   /**
    * Generic constructor for a new instance of this class.
    */
-  constructor (options: string|RadioHeadSerialOptions, baud?: number, address?: number, reliable?: boolean) {
+  constructor (options: string | RadioHeadSerialOptions, baud?: number, address?: number, reliable?: boolean) {
     super();
 
     // create options object if a port is provided
@@ -180,7 +180,7 @@ export class RadioHeadSerial extends EventEmitter {
         baud: baud,
         address: address,
         reliable: reliable,
-        autoInit: true
+        autoInit: true,
       };
     } else if (typeof options !== 'object') {
       throw new Error('Wrong arguments! The first argument must be a string or an object.');
@@ -239,6 +239,9 @@ export class RadioHeadSerial extends EventEmitter {
     .then(() => {
       this._initDone = true;
       this.emit('init-done');
+    })
+    .catch((err) => {
+      this.emit('error', err);
     });
   }
 
@@ -273,11 +276,11 @@ export class RadioHeadSerial extends EventEmitter {
     }
 
     if (length <= 0) {
-      return Promise.reject(new Error('Nothing to send'))
+      return Promise.reject(new Error('Nothing to send'));
     }
 
     if (this._reliable) {
-      return (<RHReliableDatagram> this._manager).sendtoWait(data, length, to);
+      return (this._manager as RHReliableDatagram).sendtoWait(data, length, to);
     } else {
       return this._manager.sendto(data, length, to);
     }
@@ -308,7 +311,7 @@ export class RadioHeadSerial extends EventEmitter {
    */
   public setRetries (count: number): void {
     if (!this._reliable) return;
-    (<RHReliableDatagram> this._manager).setRetries(count);
+    (this._manager as RHReliableDatagram).setRetries(count);
   }
 
   /**
@@ -318,7 +321,7 @@ export class RadioHeadSerial extends EventEmitter {
    */
   public getRetries (): number {
     if (!this._reliable) return 0;
-    return (<RHReliableDatagram> this._manager).retries();
+    return (this._manager as RHReliableDatagram).retries();
   }
 
   /**
@@ -329,7 +332,7 @@ export class RadioHeadSerial extends EventEmitter {
    */
   public setTimeout (timeout: number): void {
     if (!this._reliable) return;
-    (<RHReliableDatagram> this._manager).setTimeout(timeout);
+    (this._manager as RHReliableDatagram).setTimeout(timeout);
   }
 
   /**
@@ -339,7 +342,7 @@ export class RadioHeadSerial extends EventEmitter {
    */
   public getRetransmissions (): number {
     if (!this._reliable) return 0;
-    return (<RHReliableDatagram> this._manager).retransmissions();
+    return (this._manager as RHReliableDatagram).retransmissions();
   }
 
   /**
@@ -347,7 +350,7 @@ export class RadioHeadSerial extends EventEmitter {
    */
   public resetRetransmissions (): void {
     if (!this._reliable) return;
-    (<RHReliableDatagram> this._manager).resetRetransmissions();
+    (this._manager as RHReliableDatagram).resetRetransmissions();
   }
 
   /**

@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { RH_BROADCAST_ADDRESS, RH_FLAGS_NONE, RH_ReceivedMessage } from './radiohead-serial';
@@ -84,7 +84,7 @@ export class RHReliableDatagram extends RHDatagram {
     this._retries = RH_DEFAULT_RETRIES;
 
     this._seenIds = [];
-    for (let i=0; i<256; i++) {
+    for (let i = 0; i < 256; i++) {
       this._seenIds[i] = 0;
     }
   }
@@ -95,7 +95,7 @@ export class RHReliableDatagram extends RHDatagram {
    */
   public init (): Promise<void> {
     return super.init()
-    .then<any>(() => {
+    .then(() => {
       // ack messages
       this.on('recv', this._recvfromAckHandler.bind(this));
     });
@@ -229,7 +229,7 @@ export class RHReliableDatagram extends RHDatagram {
         }
 
         // variable for the ack timeout
-        let ackTimeout: NodeJS.Timer = null;
+        let ackTimeout: NodeJS.Timeout | undefined = undefined;
 
         // on ack listener
         const ackListener = (msg: RH_ReceivedMessage): void => {

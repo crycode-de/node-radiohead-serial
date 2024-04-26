@@ -5,12 +5,12 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
 
-import { RH_ReceivedMessage, RH_FLAGS_APPLICATION_SPECIFIC } from './radiohead-serial';
+import { RH_FLAGS_APPLICATION_SPECIFIC, RH_ReceivedMessage } from './radiohead-serial';
 import { RH_Serial } from './RH_Serial';
 
 /**
@@ -39,6 +39,10 @@ export class RHDatagram extends EventEmitter {
     this._driver.on('recv', (msg: RH_ReceivedMessage) => {
       this.emit('recv', msg);
     });
+
+    this._driver.on('error', (err: Error) => {
+      this.emit('error', err);
+    });
   }
 
   /**
@@ -47,7 +51,7 @@ export class RHDatagram extends EventEmitter {
    */
   public init (): Promise<void> {
     return this._driver.init()
-    .then<any>(() => {
+    .then(() => {
       this.setThisAddress(this._thisAddress);
     });
   }
@@ -116,7 +120,7 @@ export class RHDatagram extends EventEmitter {
    * @param  {number} set   Bitmask of bits to be set.
    * @param  {number} clear Bitmask of flags to clear.
    */
-  public setHeaderFlags (set: number, clear: number=RH_FLAGS_APPLICATION_SPECIFIC): void {
+  public setHeaderFlags (set: number, clear: number = RH_FLAGS_APPLICATION_SPECIFIC): void {
     this._driver.setHeaderFlags(set, clear);
   }
 }

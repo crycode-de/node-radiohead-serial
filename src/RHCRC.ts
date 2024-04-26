@@ -45,7 +45,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 /**
@@ -54,7 +54,7 @@
  * @return {number}   The new number from the lower 8 bits.
  */
 function lo8 (x: number): number {
-  return (x)&0xff;
+  return (x) & 0xff;
 }
 
 /**
@@ -63,7 +63,7 @@ function lo8 (x: number): number {
  * @return {number}   The new number from the higher 8 bits.
  */
 function hi8 (x: number): number {
-  return (x)>>8;
+  return (x) >> 8;
 }
 
 /**
@@ -72,7 +72,7 @@ function hi8 (x: number): number {
  * @return {number}   The new number from the lower 16 bits.
  */
 function lo16 (x: number): number {
-  return (x)&0xffff;
+  return (x) & 0xffff;
 }
 
 /**
@@ -82,8 +82,8 @@ function lo16 (x: number): number {
  * @return {number}      The new CRCITT checksum.
  */
 export function RHcrc_ccitt_update (crc: number, data: number): number {
-  data ^= lo8 (crc);
-  data ^= lo8 (data << 4);
+  data ^= lo8(crc);
+  data ^= lo8(data << 4);
 
-  return ((lo16(data << 8) | hi8 (crc)) ^ (data >> 4) ^ lo16(data << 3));
+  return ((lo16(data << 8) | hi8(crc)) ^ (data >> 4) ^ lo16(data << 3));
 }

@@ -5,18 +5,18 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
 
-import * as SerialPort from 'serialport';
-import * as ParserByteLength from '@serialport/parser-byte-length';
+import { SerialPort } from 'serialport';
+import { ByteLengthParser } from '@serialport/parser-byte-length';
 
 import {
   RH_BROADCAST_ADDRESS,
+  RH_FLAGS_APPLICATION_SPECIFIC,
   RH_ReceivedMessage,
-  RH_FLAGS_APPLICATION_SPECIFIC
 } from './radiohead-serial';
 import { RHcrc_ccitt_update } from './RHCRC';
 
@@ -30,14 +30,14 @@ enum RxState {
   RxStateData,             // Receiving data
   RxStateEscape,           // Got a DLE while receiving data.
   RxStateWaitFCS1,         // Got DLE ETX, waiting for first FCS octet
-  RxStateWaitFCS2          // Waiting for second FCS octet
+  RxStateWaitFCS2,         // Waiting for second FCS octet
 }
 
 // Special characters
 const STX = 0x02;
 const ETX = 0x03;
 const DLE = 0x10;
-//const SYN = 0x16;
+// const SYN = 0x16;
 
 /**
  * Maximum message length (including the headers) we are willing to support
@@ -69,7 +69,7 @@ export class RH_Serial extends EventEmitter {
   /**
    * The parser we will use for the SerialPort.
    */
-  private _parser: any;
+  private _parser: ByteLengthParser;
 
   /**
    * The current state of the Rx state machine
@@ -137,13 +137,14 @@ export class RH_Serial extends EventEmitter {
     super();
 
     // construct the SerialPort
-    this._port = new SerialPort(port, {
+    this._port = new SerialPort({
+      path: port,
       autoOpen: false, // will be opened at init()
-      baudRate: baud
+      baudRate: baud,
     });
 
 
-    this._parser = this._port.pipe(new ParserByteLength({ length: 1 }));
+    this._parser = this._port.pipe(new ByteLengthParser({ length: 1 }));
 
 
     // proxy errors
@@ -194,6 +195,7 @@ export class RH_Serial extends EventEmitter {
       });
     });
   }
+
   /**
    * Handle a character received from the serial port. Implements
    * the receiver state machine.
@@ -203,13 +205,13 @@ export class RH_Serial extends EventEmitter {
 
     switch (this._rxState) {
       case RxState.RxStateIdle:
-        if (ch == DLE) {
+        if (ch === DLE) {
           this._rxState = RxState.RxStateDLE;
         }
         break;
 
       case RxState.RxStateDLE:
-        if (ch == STX) {
+        if (ch === STX) {
           this.clearRxBuf();
           this._rxState = RxState.RxStateData;
         } else {
@@ -218,7 +220,7 @@ export class RH_Serial extends EventEmitter {
         break;
 
       case RxState.RxStateData:
-        if (ch == DLE) {
+        if (ch === DLE) {
           this._rxState = RxState.RxStateEscape;
         } else {
           this.appendRxBuf(ch);
@@ -226,12 +228,12 @@ export class RH_Serial extends EventEmitter {
         break;
 
       case RxState.RxStateEscape:
-        if (ch == ETX) {
+        if (ch === ETX) {
           // add fcs for DLE, ETX
           this._rxFcs = RHcrc_ccitt_update(this._rxFcs, DLE);
           this._rxFcs = RHcrc_ccitt_update(this._rxFcs, ETX);
           this._rxState = RxState.RxStateWaitFCS1; // End frame
-        } else if (ch == DLE) {
+        } else if (ch === DLE) {
           this.appendRxBuf(ch);
           this._rxState = RxState.RxStateData;
         } else {
@@ -248,6 +250,7 @@ export class RH_Serial extends EventEmitter {
         this._rxRecdFcs |= ch;
         this._rxState = RxState.RxStateIdle;
         this.validateRxBuf();
+        break;
 
       default:
         break;
@@ -278,24 +281,25 @@ export class RH_Serial extends EventEmitter {
    * Check whether the latest received message is complete and uncorrupted.
    */
   protected validateRxBuf (): void {
-    if (this._rxRecdFcs != this._rxFcs) {
+    if (this._rxRecdFcs !== this._rxFcs) {
       return;
     }
 
     // check if the message is addressed to this node
-    if (this._promiscuous || this._rxBuf[0] == this._thisAddress || this._rxBuf[0] == RH_BROADCAST_ADDRESS) {
+    if (this._promiscuous || this._rxBuf[0] === this._thisAddress || this._rxBuf[0] === RH_BROADCAST_ADDRESS) {
 
       // emit event with the received data
-      const buf: Buffer = Buffer.alloc(this._rxBufLen-RH_SERIAL_HEADER_LEN);
+      const buf: Buffer = Buffer.alloc(this._rxBufLen - RH_SERIAL_HEADER_LEN);
       this._rxBuf.copy(buf, 0, RH_SERIAL_HEADER_LEN, this._rxBufLen);
-      this.emit('recv', <RH_ReceivedMessage>{
-        data:        buf,
-        length:      this._rxBufLen-RH_SERIAL_HEADER_LEN,
-        headerTo:    this._rxBuf[0],
-        headerFrom:  this._rxBuf[1],
-        headerId:    this._rxBuf[2],
+      const recv: RH_ReceivedMessage = {
+        data: buf,
+        length: this._rxBufLen - RH_SERIAL_HEADER_LEN,
+        headerTo: this._rxBuf[0],
+        headerFrom: this._rxBuf[1],
+        headerId: this._rxBuf[2],
         headerFlags: this._rxBuf[3],
-      });
+      };
+      this.emit('recv', recv);
     }
 
     // clear the rx buffer for ne next message
@@ -342,7 +346,7 @@ export class RH_Serial extends EventEmitter {
       txFcs = RHcrc_ccitt_update(txFcs, data[i]);
 
       // duplicate DLE
-      if (data[i] == DLE) {
+      if (data[i] === DLE) {
         txBuf[idx++] = DLE; // Not in FCS
       }
     }
@@ -359,7 +363,7 @@ export class RH_Serial extends EventEmitter {
 
     // Send the used part of the tx buffer
     return new Promise((resolve: () => void, reject: (err: Error) => void) => {
-      this._port.write(txBuf.slice(0,idx), (err: Error) => {
+      this._port.write(txBuf.subarray(0, idx), (err: Error) => {
         if (err) {
           reject(err);
         } else {
@@ -418,8 +422,8 @@ export class RH_Serial extends EventEmitter {
    * @param {number} set   Bitmask of bits to be set. Flags are cleared with the clear mask before being set.
    * @param {number} clear Bitmask of flags to clear. Defaults to RH_FLAGS_APPLICATION_SPECIFIC which clears the application specific flags, resulting in new application specific flags identical to the set.
    */
-  public setHeaderFlags (set: number, clear: number=RH_FLAGS_APPLICATION_SPECIFIC): void {
-    if (set >=0 && set <=255) {
+  public setHeaderFlags (set: number, clear: number = RH_FLAGS_APPLICATION_SPECIFIC): void {
+    if (set >= 0 && set <= 255) {
       this._txHeaderFlags &= ~clear;
     }
     if (clear >= 0 && clear <= 255) {
