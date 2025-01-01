@@ -35,7 +35,7 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "@serialport/parser-byte-length": "^12.0.0",
+    "@serialport/parser-byte-length": "^13.0.0",
     "serialport": "^12.0.0"
   },
   "devDependencies": {
