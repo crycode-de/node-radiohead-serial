@@ -23,9 +23,9 @@ Since Version 3 this module is based on a TypeScript/JavaScript port of the nati
 
 This module can be used on any Linux, Mac or Windows system, for example a Raspberry Pi with Raspbian or a regular computer.
 
-**Hint:** Version 5 of `radiohead-serial` requires Node.js version 16 or higher.
+**Hint:** Version 6 of `radiohead-serial` requires Node.js version 20 or higher.
 
-Currently tested with Node.js versions *16.x*, *18.x*, *20.x*.
+Currently tested with Node.js versions *20.x*, *22.x*, *24.x*.
 
 ## Example scenario for using radiohead-serial
 
@@ -413,6 +413,6 @@ For more information see [ADVANCED_USAGE.md](https://github.com/crycode-de/node-
 
 Licensed under GPL Version 2
 
-Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
 
 The RadioHead library is Copyright (C) 2008 Mike McCauley.
