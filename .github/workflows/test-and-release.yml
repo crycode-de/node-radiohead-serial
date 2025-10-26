@@ -101,12 +101,13 @@ jobs:
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
-            - name: Use Node.js 22x
-              uses: actions/setup-node@v1
+            - name: Use Node.js 22.x and configure npm registry
+              uses: actions/setup-node@v4
               with:
                   node-version: 22.x
+                  registry-url: 'https://registry.npmjs.org'
 
             - name: Extract the version and commit body from the tag
               id: extract_release
@@ -125,7 +126,7 @@ jobs:
 
             - name: Publish package to npm
               run: |
-                  npm publish
+                  npm publish --provenance
 
             - name: Create Github Release
               uses: softprops/action-gh-release@v1
