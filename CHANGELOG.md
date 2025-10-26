@@ -1,6 +1,6 @@
 # Changelog
 
-## v6.0.0 2025-10-26
+## v6.0.1 2025-10-26
 
 - Dependency updates
 - 💥 Node.js >= 20 required

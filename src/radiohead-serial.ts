@@ -31,7 +31,7 @@ import {
 } from './RHReliableDatagram';
 
 // export the current version of this module
-export const version = '6.0.0';
+export const version = '6.0.1';
 
 // export some imports to allow an custom usage
 export {
