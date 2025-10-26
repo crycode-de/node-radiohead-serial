@@ -1,7 +1,7 @@
 /*
  * Node.js module radiohead-serial
  *
- * Copyright (c) 2017-2022 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -11,7 +11,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
@@ -31,7 +31,7 @@ import {
 } from './RHReliableDatagram';
 
 // export the current version of this module
-export const version = '5.0.0';
+export const version = '6.0.0';
 
 // export some imports to allow an custom usage
 export {
@@ -51,6 +51,7 @@ export const RH_FLAGS_NONE = 0;
 /**
  * Interface for a received message.
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface RH_ReceivedMessage {
 
   /**
@@ -224,7 +225,7 @@ export class RadioHeadSerial extends EventEmitter {
     }
 
     if (options.autoInit) {
-      this.init();
+      void this.init();
     }
   }
 
@@ -232,17 +233,17 @@ export class RadioHeadSerial extends EventEmitter {
    * Init the manager (and the serial port).
    * @return {Promise} Promise which will be resolved when the manager is initialized and the serial port is opened or rejected in case of an error.
    */
-  public init (): Promise<void> {
+  public async init (): Promise<void> {
     this._initDone = false;
 
-    return this._manager.init()
-    .then(() => {
-      this._initDone = true;
-      this.emit('init-done');
-    })
-    .catch((err) => {
-      this.emit('error', err);
-    });
+    await this._manager.init()
+      .then(() => {
+        this._initDone = true;
+        this.emit('init-done');
+      })
+      .catch((err) => {
+        this.emit('error', err);
+      });
   }
 
   /**
@@ -258,8 +259,8 @@ export class RadioHeadSerial extends EventEmitter {
    * After close() is called, no messages can be received.
    * @return {Promise} Promise which will be resolved if the SerialPort is closed.
    */
-  public close (): Promise<void> {
-    return this._driver.close();
+  public async close (): Promise<void> {
+    return await this._driver.close();
   }
 
   /**
@@ -269,20 +270,18 @@ export class RadioHeadSerial extends EventEmitter {
    * @param  {number} length   Optional number ob bytes to send from the buffer. If not given the whole buffer is sent.
    * @return {Promise}         A Promise which will be resolved when the message has been sent, or rejected in case of an error.
    */
-  public send (to: number, data: Buffer, length?: number): Promise<void> {
+  public async send (to: number, data: Buffer, length?: number): Promise<void> {
 
-    if (!length) {
-      length = data.length;
-    }
+    length ??= data.length;
 
     if (length <= 0) {
-      return Promise.reject(new Error('Nothing to send'));
+      throw new Error('Nothing to send');
     }
 
     if (this._reliable) {
-      return (this._manager as RHReliableDatagram).sendtoWait(data, length, to);
+      return await (this._manager as RHReliableDatagram).sendtoWait(data, length, to);
     } else {
-      return this._manager.sendto(data, length, to);
+      return await this._manager.sendto(data, length, to);
     }
 
   }

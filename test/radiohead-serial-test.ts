@@ -1,7 +1,7 @@
 /*
 * Node.js module radiohead-serial
 *
-* Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+* Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -11,12 +11,11 @@
  * Copyright (c) 2014 Mike McCauley
 *
 * Port from native C/C++ code to TypeScript
-* Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+* Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
 */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 /* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 
@@ -51,8 +50,8 @@ let rhs2: RadioHeadSerial | null = null;
 
     socat.stderr?.on('data', (data: Buffer) => {
       const parts = data.toString().split('\n');
-      for (let i = 0; i < parts.length; i++) {
-        const m = parts[i].match(/PTY is (\/dev.*)$/);
+      for (const part of parts) {
+        const m = /PTY is (\/dev.*)$/.exec(part);
         if (m) {
           if (tty1 === null) {
             tty1 = m[1];
@@ -65,16 +64,16 @@ let rhs2: RadioHeadSerial | null = null;
     });
   }
 
-
   @test 'check the tty\'s created by socat' () {
-    expect(tty1).to.match(/^\/dev\/[\/a-zA-Z]+\d+$/);
-    expect(tty2).to.match(/^\/dev\/[\/a-zA-Z]+\d+$/);
+    expect(tty1).to.match(/^\/dev\/[/a-zA-Z]+\d+$/);
+    expect(tty2).to.match(/^\/dev\/[/a-zA-Z]+\d+$/);
   }
 }
 
 /******************************************
  * Check the RadioHeadSerial constructors *
  ******************************************/
+// eslint-disable-next-line @typescript-eslint/naming-convention
 @suite('check the RadioHeadSerial constructors') class RHS_Constructor {
   @test 'object as argument' (done: (error?: unknown) => void) {
     const rhs = new RadioHeadSerial({
@@ -85,12 +84,12 @@ let rhs2: RadioHeadSerial | null = null;
       autoInit: true,
     });
     rhs.on('error', (err) => {
-      rhs.close()
-        .catch(() => {}).then(() => done(err));
+      void rhs.close()
+        .catch(() => { /* noop */ }).then(() => done(err));
     });
     rhs.on('init-done', () => {
-      rhs.close()
-      .then(() => done());
+      void rhs.close()
+        .then(() => done());
     });
   }
 
@@ -99,24 +98,24 @@ let rhs2: RadioHeadSerial | null = null;
       port: tty1!,
     });
     rhs.on('error', (err) => {
-      rhs.close()
-      .catch(() => {}).then(() => done(err));
+      void rhs.close()
+        .catch(() => { /* noop */ }).then(() => done(err));
     });
     rhs.on('init-done', () => {
-      rhs.close()
-      .then(() => done());
+      void rhs.close()
+        .then(() => done());
     });
   }
 
   @test 'single arguments' (done: (error?: unknown) => void) {
     const rhs = new RadioHeadSerial(tty1!, 9600, 0x01, true);
     rhs.on('error', (err) => {
-      rhs.close()
-      .catch(() => {}).then(() => done(err));
+      void rhs.close()
+        .catch(() => { /* noop */ }).then(() => done(err));
     });
     rhs.on('init-done', () => {
-      rhs.close()
-      .then(() => done());
+      void rhs.close()
+        .then(() => done());
     });
   }
 
@@ -129,18 +128,18 @@ let rhs2: RadioHeadSerial | null = null;
       autoInit: false,
     });
     rhs.init()
-    .then(() => {
-      done(new Error('Init successfull, but this should not happen'));
-    })
-    .catch((err) => {
-      // this is expected
-      if (rhs.isInitDone()) {
-        // should not happen
-        done(new Error('isInitDone() reported true but should be false'));
-      } else {
-        done();
-      }
-    });
+      .then(() => {
+        done(new Error('Init successfull, but this should not happen'));
+      })
+      .catch((err) => {
+        // this is expected
+        if (rhs.isInitDone()) {
+          // should not happen
+          done(new Error('isInitDone() reported true but should be false'));
+        } else {
+          done();
+        }
+      });
   }
 
   @test 'undefined options should throw an error' (done: (error?: unknown) => void) {
@@ -167,7 +166,7 @@ let rhs2: RadioHeadSerial | null = null;
 
   @test 'undefined port should throw an error' (done: (error?: unknown) => void) {
     try {
-      // @ts-expect-error shold throw an error
+      // @ts-expect-error should throw an error
       const rhs = new RadioHeadSerial({ port: undefined });
       done(new Error('Undefined port should throw an error'));
     } catch (e) {
@@ -190,6 +189,7 @@ let rhs2: RadioHeadSerial | null = null;
 /***************************************
  * Start two RadioHeadSerial instances *
  ***************************************/
+// eslint-disable-next-line @typescript-eslint/naming-convention
 @suite('create the two RadioHeadSerial instances') class RHS_Start {
   @test 'create rhs1 (address 0x01)' (done: (error?: unknown) => void) {
     rhs1 = new RadioHeadSerial({
@@ -198,8 +198,8 @@ let rhs2: RadioHeadSerial | null = null;
       address: 0x01,
     });
     rhs1.on('error', (err) => {
-      rhs1!.close()
-      .catch(() => {}).then(() => done(err));
+      void rhs1!.close()
+        .catch(() => { /* noop */ }).then(() => done(err));
     });
     rhs1.on('init-done', () => {
       done();
@@ -213,8 +213,8 @@ let rhs2: RadioHeadSerial | null = null;
       address: 0x02,
     });
     rhs2.on('error', (err) => {
-      rhs2!.close()
-        .catch(() => {}).then(() => done(err));
+      void rhs2!.close()
+        .catch(() => { /* noop */ }).then(() => done(err));
     });
     rhs2.on('init-done', () => {
       done();
@@ -444,7 +444,7 @@ let rhs2: RadioHeadSerial | null = null;
       } else {
         done(new Error('The received data does not match the sent data'));
       }
-    }
+    };
 
     // attach the listener function to the emitter
     rhs2!.on('data', recvListener);
@@ -485,13 +485,13 @@ let rhs2: RadioHeadSerial | null = null;
  ***********/
 @suite('cleanup') class Cleanup {
   @test 'close rhs1' (done: (error?: unknown) => void) {
-    rhs1!.close()
-    .then(() => done());
+    void rhs1!.close()
+      .then(() => done());
   }
 
   @test 'close rhs2' (done: (error?: unknown) => void) {
-    rhs2!.close()
-    .then(() => done());
+    void rhs2!.close()
+      .then(() => done());
   }
 
   @test 'kill socat' (done: (error?: unknown) => void) {

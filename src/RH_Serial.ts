@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
@@ -23,6 +23,7 @@ import { RHcrc_ccitt_update } from './RHCRC';
 /**
  * Defines different receiver states in teh receiver state machine
  */
+/* eslint-disable @stylistic/no-multi-spaces */
 enum RxState {
   RxStateInitializing = 0, // Before init() is called
   RxStateIdle,             // Waiting for an STX
@@ -32,6 +33,7 @@ enum RxState {
   RxStateWaitFCS1,         // Got DLE ETX, waiting for first FCS octet
   RxStateWaitFCS2,         // Waiting for second FCS octet
 }
+/* eslint-enable @stylistic/no-multi-spaces */
 
 // Special characters
 const STX = 0x02;
@@ -59,6 +61,7 @@ export const RH_SERIAL_MAX_MESSAGE_LEN = (RH_SERIAL_MAX_PAYLOAD_LEN - RH_SERIAL_
 /**
  * Driver to send and receive unaddressed, unreliable datagrams via a serial connection
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export class RH_Serial extends EventEmitter {
 
   /**
@@ -143,9 +146,7 @@ export class RH_Serial extends EventEmitter {
       baudRate: baud,
     });
 
-
     this._parser = this._port.pipe(new ByteLengthParser({ length: 1 }));
-
 
     // proxy errors
     this._port.on('error', (err: Error) => {
@@ -167,8 +168,8 @@ export class RH_Serial extends EventEmitter {
    * Initialize the Driver transport hardware and software.
    * @return {Promise} Promise which will be resolved if the SerialPort is opened.
    */
-  public init (): Promise<void> {
-    return new Promise((resolve, reject) => {
+  public async init (): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
       this._port.open((err: Error) => {
         if (err) {
           reject(err);
@@ -184,8 +185,8 @@ export class RH_Serial extends EventEmitter {
    * Close the Driver transport hardware and software.
    * @return {Promise} Promise which will be resolved if the SerialPort is closed.
    */
-  public close (): Promise<void> {
-    return new Promise((resolve, reject) => {
+  public async close (): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
       this._port.close((err: Error) => {
         if (err) {
           reject(err);
@@ -197,124 +198,13 @@ export class RH_Serial extends EventEmitter {
   }
 
   /**
-   * Handle a character received from the serial port. Implements
-   * the receiver state machine.
-   * @param {number} ch One received byte.
-   */
-  private handleRx (ch: number): void {
-
-    switch (this._rxState) {
-      case RxState.RxStateIdle:
-        if (ch === DLE) {
-          this._rxState = RxState.RxStateDLE;
-        }
-        break;
-
-      case RxState.RxStateDLE:
-        if (ch === STX) {
-          this.clearRxBuf();
-          this._rxState = RxState.RxStateData;
-        } else {
-          this._rxState = RxState.RxStateIdle;
-        }
-        break;
-
-      case RxState.RxStateData:
-        if (ch === DLE) {
-          this._rxState = RxState.RxStateEscape;
-        } else {
-          this.appendRxBuf(ch);
-        }
-        break;
-
-      case RxState.RxStateEscape:
-        if (ch === ETX) {
-          // add fcs for DLE, ETX
-          this._rxFcs = RHcrc_ccitt_update(this._rxFcs, DLE);
-          this._rxFcs = RHcrc_ccitt_update(this._rxFcs, ETX);
-          this._rxState = RxState.RxStateWaitFCS1; // End frame
-        } else if (ch === DLE) {
-          this.appendRxBuf(ch);
-          this._rxState = RxState.RxStateData;
-        } else {
-          this._rxState = RxState.RxStateIdle; // Unexpected
-        }
-        break;
-
-      case RxState.RxStateWaitFCS1:
-        this._rxRecdFcs = ch << 8;
-        this._rxState = RxState.RxStateWaitFCS2;
-        break;
-
-      case RxState.RxStateWaitFCS2:
-        this._rxRecdFcs |= ch;
-        this._rxState = RxState.RxStateIdle;
-        this.validateRxBuf();
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  /**
-   * Empties the Rx buffer.
-   */
-  protected clearRxBuf (): void {
-    this._rxFcs = 0xffff;
-    this._rxBufLen = 0;
-  }
-
-  /**
-   * Adds a charater to the Rx buffer
-   * @param  {number} ch The charater.
-   */
-  protected appendRxBuf (ch: number): void {
-    if (this._rxBufLen < RH_SERIAL_MAX_PAYLOAD_LEN) {
-      // Normal data, save and add to FCS
-      this._rxBuf[this._rxBufLen++] = ch;
-      this._rxFcs = RHcrc_ccitt_update(this._rxFcs, ch);
-    }
-  }
-
-  /**
-   * Check whether the latest received message is complete and uncorrupted.
-   */
-  protected validateRxBuf (): void {
-    if (this._rxRecdFcs !== this._rxFcs) {
-      return;
-    }
-
-    // check if the message is addressed to this node
-    if (this._promiscuous || this._rxBuf[0] === this._thisAddress || this._rxBuf[0] === RH_BROADCAST_ADDRESS) {
-
-      // emit event with the received data
-      const buf: Buffer = Buffer.alloc(this._rxBufLen - RH_SERIAL_HEADER_LEN);
-      this._rxBuf.copy(buf, 0, RH_SERIAL_HEADER_LEN, this._rxBufLen);
-      const recv: RH_ReceivedMessage = {
-        data: buf,
-        length: this._rxBufLen - RH_SERIAL_HEADER_LEN,
-        headerTo: this._rxBuf[0],
-        headerFrom: this._rxBuf[1],
-        headerId: this._rxBuf[2],
-        headerFlags: this._rxBuf[3],
-      };
-      this.emit('recv', recv);
-    }
-
-    // clear the rx buffer for ne next message
-    this.clearRxBuf();
-
-  }
-
-  /**
    * Sends data from a buffer using the currently set headers.
    * Note that a message length of 0 is NOT permitted.
    * @param  {Buffer}  data The buffer containing the data to send.
    * @param  {number}  len  Number of bytes from the buffer to send.
    * @return {Promise}      Promise which will be resolved if sending is completed.
    */
-  public send (data: Buffer, len: number): Promise<void> {
+  public async send (data: Buffer, len: number): Promise<void> {
 
     if (len > RH_SERIAL_MAX_MESSAGE_LEN) {
       len = RH_SERIAL_MAX_MESSAGE_LEN;
@@ -362,7 +252,7 @@ export class RH_Serial extends EventEmitter {
     txBuf[idx++] = txFcs & 0xff;
 
     // Send the used part of the tx buffer
-    return new Promise((resolve: () => void, reject: (err: Error) => void) => {
+    await new Promise<void>((resolve, reject) => {
       this._port.write(txBuf.subarray(0, idx), (err: Error) => {
         if (err) {
           reject(err);
@@ -438,5 +328,116 @@ export class RH_Serial extends EventEmitter {
    */
   public setPromiscuous (promiscuous: boolean): void {
     this._promiscuous = promiscuous;
+  }
+
+  /**
+   * Empties the Rx buffer.
+   */
+  protected clearRxBuf (): void {
+    this._rxFcs = 0xffff;
+    this._rxBufLen = 0;
+  }
+
+  /**
+   * Adds a charater to the Rx buffer
+   * @param  {number} ch The charater.
+   */
+  protected appendRxBuf (ch: number): void {
+    if (this._rxBufLen < RH_SERIAL_MAX_PAYLOAD_LEN) {
+      // Normal data, save and add to FCS
+      this._rxBuf[this._rxBufLen++] = ch;
+      this._rxFcs = RHcrc_ccitt_update(this._rxFcs, ch);
+    }
+  }
+
+  /**
+   * Check whether the latest received message is complete and uncorrupted.
+   */
+  protected validateRxBuf (): void {
+    if (this._rxRecdFcs !== this._rxFcs) {
+      return;
+    }
+
+    // check if the message is addressed to this node
+    if (this._promiscuous || this._rxBuf[0] === this._thisAddress || this._rxBuf[0] === RH_BROADCAST_ADDRESS) {
+
+      // emit event with the received data
+      const buf: Buffer = Buffer.alloc(this._rxBufLen - RH_SERIAL_HEADER_LEN);
+      this._rxBuf.copy(buf, 0, RH_SERIAL_HEADER_LEN, this._rxBufLen);
+      const recv: RH_ReceivedMessage = {
+        data: buf,
+        length: this._rxBufLen - RH_SERIAL_HEADER_LEN,
+        headerTo: this._rxBuf[0],
+        headerFrom: this._rxBuf[1],
+        headerId: this._rxBuf[2],
+        headerFlags: this._rxBuf[3],
+      };
+      this.emit('recv', recv);
+    }
+
+    // clear the rx buffer for ne next message
+    this.clearRxBuf();
+
+  }
+
+  /**
+   * Handle a character received from the serial port. Implements
+   * the receiver state machine.
+   * @param {number} ch One received byte.
+   */
+  private handleRx (ch: number): void {
+
+    switch (this._rxState) {
+      case RxState.RxStateIdle:
+        if (ch === DLE) {
+          this._rxState = RxState.RxStateDLE;
+        }
+        break;
+
+      case RxState.RxStateDLE:
+        if (ch === STX) {
+          this.clearRxBuf();
+          this._rxState = RxState.RxStateData;
+        } else {
+          this._rxState = RxState.RxStateIdle;
+        }
+        break;
+
+      case RxState.RxStateData:
+        if (ch === DLE) {
+          this._rxState = RxState.RxStateEscape;
+        } else {
+          this.appendRxBuf(ch);
+        }
+        break;
+
+      case RxState.RxStateEscape:
+        if (ch === ETX) {
+          // add fcs for DLE, ETX
+          this._rxFcs = RHcrc_ccitt_update(this._rxFcs, DLE);
+          this._rxFcs = RHcrc_ccitt_update(this._rxFcs, ETX);
+          this._rxState = RxState.RxStateWaitFCS1; // End frame
+        } else if (ch === DLE) {
+          this.appendRxBuf(ch);
+          this._rxState = RxState.RxStateData;
+        } else {
+          this._rxState = RxState.RxStateIdle; // Unexpected
+        }
+        break;
+
+      case RxState.RxStateWaitFCS1:
+        this._rxRecdFcs = ch << 8;
+        this._rxState = RxState.RxStateWaitFCS2;
+        break;
+
+      case RxState.RxStateWaitFCS2:
+        this._rxRecdFcs |= ch;
+        this._rxState = RxState.RxStateIdle;
+        this.validateRxBuf();
+        break;
+
+      default:
+        break;
+    }
   }
 }

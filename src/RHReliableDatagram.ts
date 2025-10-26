@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { RH_BROADCAST_ADDRESS, RH_FLAGS_NONE, RH_ReceivedMessage } from './radiohead-serial';
@@ -93,37 +93,11 @@ export class RHReliableDatagram extends RHDatagram {
    * Initialize this manager class.
    * @return {Promise}
    */
-  public init (): Promise<void> {
-    return super.init()
-    .then(() => {
-      // ack messages
-      this.on('recv', this._recvfromAckHandler.bind(this));
-    });
-  }
+  public async init (): Promise<void> {
+    await super.init();
 
-  /**
-   * Handler for received messages.
-   * This sends ack messages and emits the recvfromAck event.
-   * @param {RecvMessage} msg The received message to handle.
-   */
-  private _recvfromAckHandler (msg: RH_ReceivedMessage): void {
-    // Never ACK an ACK
-    if (!(msg.headerFlags & RH_FLAGS_ACK)) {
-      // Its a normal message not an ACK
-      if (msg.headerTo === this._thisAddress) {
-        // Its for this node and
-        // Its not a broadcast, so ACK it
-        // Acknowledge message with ACK set in flags and ID set to received ID
-        this.acknowledge(msg.headerId, msg.headerFrom);
-      }
-      // If we have not seen this message before, then we are interested in it
-      if (msg.headerId !== this._seenIds[msg.headerFrom]) {
-        // emit event for new message
-        this.emit('recvfromAck', msg);
-        this._seenIds[msg.headerFrom] = msg.headerId;
-      }
-      // Else just re-ack it
-    }
+    // ack messages
+    this.on('recv', (msg: RH_ReceivedMessage) => this._recvfromAckHandler(msg));
   }
 
   /**
@@ -173,98 +147,25 @@ export class RHReliableDatagram extends RHDatagram {
    * @param  {number}  address The address to send the message to.
    * @return {Promise}
    */
-  public sendtoWait (buf: Buffer, len: number, address: number): Promise<void> {
-    return new Promise((resolve: () => void, reject: (err: Error) => void) => {
-      // Assemble the message
-      const thisSequenceNumber = ++this._lastSequenceNumber;
-      let retries = 0;
+  public async sendtoWait (buf: Buffer, len: number, address: number): Promise<void> {
+    // Assemble the message
+    const thisSequenceNumber = ++this._lastSequenceNumber;
+    let retries = 0;
 
-      // promise chain loop with the retries
-      let prom: Promise<void> = Promise.resolve();
+    // send with retries
+    while (retries++ <= this._retries) {
+      const success = await this._sendtoWaitOne(buf, len, address, thisSequenceNumber)
+        .then(() => true)
+        .catch(() => false);
+      if (success) {
+        return;
+      }
+      // retry
+      this._retransmissions++;
+    }
 
-      const succeeded = (): void => {
-        // _sendtoWaitOne succeeded
-        resolve();
-      };
-
-      const failed = (_err: Error): void => {
-        // _sendtoWaitOne failed
-        if (retries++ <= this._retries) {
-          // retry
-          this._retransmissions++;
-          prom.then(() => {
-            return this._sendtoWaitOne(buf, len, address, thisSequenceNumber).then(succeeded).catch(failed);
-          });
-        } else {
-          // max retries reached
-          reject(new Error('sendtoWait failed'));
-        }
-      };
-
-      prom = this._sendtoWaitOne(buf, len, address, thisSequenceNumber).then(succeeded).catch(failed);
-    });
-  }
-
-  /**
-   * Internal helper function for sendtoWait().
-   * @param  {Buffer}  buf     The buffer to send.
-   * @param  {number}  len     Length of the buffer to send.
-   * @param  {number}  address The address to send the message to.
-   * @param  {number}  thisSequenceNumber The headerId for the message.
-   * @return {Promise}
-   */
-  private _sendtoWaitOne (buf: Buffer, len: number, address: number, thisSequenceNumber: number): Promise<void> {
-    return new Promise((resolve: () => void, reject: (err: Error) => void) => {
-
-      this.setHeaderId(thisSequenceNumber);
-      this.setHeaderFlags(RH_FLAGS_NONE, RH_FLAGS_ACK); // Clear the ACK flag
-
-      this.sendto(buf, len, address)
-      // sendto succeeded
-      .then(() => {
-        // Never wait for ACKS to broadcasts:
-        if (address === RH_BROADCAST_ADDRESS) {
-          resolve();
-          return;
-        }
-
-        // variable for the ack timeout
-        let ackTimeout: NodeJS.Timeout | undefined = undefined;
-
-        // on ack listener
-        const ackListener = (msg: RH_ReceivedMessage): void => {
-          if (msg.headerFrom === address
-           && msg.headerTo === this._thisAddress
-           && (msg.headerFlags & RH_FLAGS_ACK)
-           && msg.headerId === thisSequenceNumber) {
-            // ack received
-            // clear timeout, remove listener and resolve
-            clearTimeout(ackTimeout);
-            this.removeListener('recv', ackListener);
-            resolve();
-          }
-        };
-        this.on('recv', ackListener);
-
-        // Compute a new timeout, random between _timeout and _timeout*2
-        // This is to prevent collisions on every retransmit
-        // if 2 nodes try to transmit at the same time
-        const timeout = this._timeout + Math.floor(Math.random() * this._timeout);
-
-        // set ack timeout
-        ackTimeout = setTimeout(() => {
-          // ack timed out
-          // remove listener and reject
-          this.removeListener('recv', ackListener);
-          reject(new Error('ACK timeout'));
-        }, timeout);
-
-      })
-      // sendto failed
-      .catch((err: Error) => {
-        reject(err);
-      });
-    });
+    // throws if we get here
+    throw new Error('sendtoWait failed');
   }
 
   /**
@@ -284,14 +185,93 @@ export class RHReliableDatagram extends RHDatagram {
   }
 
   /**
+   * Handler for received messages.
+   * This sends ack messages and emits the recvfromAck event.
+   * @param {RecvMessage} msg The received message to handle.
+   */
+  private _recvfromAckHandler (msg: RH_ReceivedMessage): void {
+    // Never ACK an ACK
+    if (!(msg.headerFlags & RH_FLAGS_ACK)) {
+      // Its a normal message not an ACK
+      if (msg.headerTo === this._thisAddress) {
+        // Its for this node and
+        // Its not a broadcast, so ACK it
+        // Acknowledge message with ACK set in flags and ID set to received ID
+        void this.acknowledge(msg.headerId, msg.headerFrom);
+      }
+      // If we have not seen this message before, then we are interested in it
+      if (msg.headerId !== this._seenIds[msg.headerFrom]) {
+        // emit event for new message
+        this.emit('recvfromAck', msg);
+        this._seenIds[msg.headerFrom] = msg.headerId;
+      }
+      // Else just re-ack it
+    }
+  }
+
+  /**
+   * Internal helper function for sendtoWait().
+   * @param  {Buffer}  buf     The buffer to send.
+   * @param  {number}  len     Length of the buffer to send.
+   * @param  {number}  address The address to send the message to.
+   * @param  {number}  thisSequenceNumber The headerId for the message.
+   * @return {Promise}
+   */
+  private async _sendtoWaitOne (buf: Buffer, len: number, address: number, thisSequenceNumber: number): Promise<void> {
+    this.setHeaderId(thisSequenceNumber);
+    this.setHeaderFlags(RH_FLAGS_NONE, RH_FLAGS_ACK); // Clear the ACK flag
+
+    await this.sendto(buf, len, address);
+    // sendto succeeded (error thrown on failure)
+
+    // Never wait for ACKs to broadcasts:
+    if (address === RH_BROADCAST_ADDRESS) {
+      return;
+    }
+
+    // variable for the ack timeout
+    let ackTimeout: NodeJS.Timeout | undefined;
+
+    return await new Promise<void>((resolve, reject) => {
+      // on ack listener
+      const ackListener = (msg: RH_ReceivedMessage): void => {
+        if (msg.headerFrom === address
+          && msg.headerTo === this._thisAddress
+          && (msg.headerFlags & RH_FLAGS_ACK)
+          && msg.headerId === thisSequenceNumber) {
+          // ack received
+          // clear timeout, remove listener and resolve
+          clearTimeout(ackTimeout);
+          this.removeListener('recv', ackListener);
+          resolve();
+        }
+      };
+      this.on('recv', ackListener);
+
+      // Compute a new timeout, random between _timeout and _timeout*2
+      // This is to prevent collisions on every retransmit
+      // if 2 nodes try to transmit at the same time
+      const timeout = this._timeout + Math.floor(Math.random() * this._timeout);
+
+      // set ack timeout
+      ackTimeout = setTimeout(() => {
+        // ack timed out
+        // remove listener and reject
+        this.removeListener('recv', ackListener);
+        reject(new Error('ACK timeout'));
+      }, timeout);
+    });
+  }
+
+  /**
    * Send an ACK for the message id to the given from address
    * @param  {number} id   The id of the message
    * @param  {number} from From address of the message
    */
-  private acknowledge (id: number, from: number): Promise<void> {
+  private async acknowledge (id: number, from: number): Promise<void> {
     this.setHeaderId(id);
     this.setHeaderFlags(RH_FLAGS_ACK);
-    return this.sendto(Buffer.from('!'), 1, from);
+    return await this.sendto(Buffer.from('!'), 1, from);
   }
 
 }

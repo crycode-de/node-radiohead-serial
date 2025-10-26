@@ -1,7 +1,7 @@
 /*
 * Node.js module radiohead-serial
  *
- * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
  *
  * Node.js module for communication between some RadioHead nodes and Node.js using
  * the RH_Serial driver and the RHReliableDatagram manager of the RadioHead library.
@@ -11,12 +11,11 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
 *
  * Example for the communication between two nodes.
  * This client example sends ten messages to the server and prints all received messages.
 */
-/* eslint-disable no-console */
 
 // Import the radiohead-serial module
 // import { RadioHeadSerial, RH_ReceivedMessage } from 'radiohead-serial';
@@ -74,7 +73,7 @@ function sendData (): void {
       // Close the SerialPort worker after 1 second and exit the client example
       // Use the timeout before close() to receive the answer from the server
       setTimeout(() => {
-        rhs.close().then(() => {
+        void rhs.close().then(() => {
           // The SerialPort is now closed
           console.log('Client example done. :-)');
         });

@@ -1,6 +1,6 @@
 {
   "name": "radiohead-serial",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Bindings for the serial driver of the RadioHead library, useful to build reliable networks based on e.g. RS485 or radio.",
   "keywords": [
     "radiohead",
@@ -14,11 +14,17 @@
   ],
   "main": "dist/src/radiohead-serial.js",
   "typings": "dist/src/radiohead-serial.d.ts",
+  "files": [
+    "dist/",
+    "LICENSE.md",
+    "README.md",
+    "ADVANCED_USAGE.md"
+  ],
   "scripts": {
     "prebuild": "rimraf ./dist",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "examples-build-check": "tsc -p examples/tsconfig.json",
-    "lint": "eslint --ext .ts src examples",
+    "lint": "eslint .",
     "test": "./test/test.sh"
   },
   "author": "Peter Müller <peter@crycode.de> (https://crycode.de/)",
@@ -32,22 +38,22 @@
     "url": "https://github.com/crycode-de/node-radiohead-serial/issues"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
-    "@serialport/parser-byte-length": "^12.0.0",
-    "serialport": "^12.0.0"
+    "@serialport/parser-byte-length": "^13.0.0",
+    "serialport": "^13.0.0"
   },
   "devDependencies": {
-    "@crycode/eslint-config": "^1.2.2",
+    "@crycode/eslint-config": "^2.2.1",
     "@types/expect.js": "^0.3.32",
-    "@types/node": "^16.18.96",
-    "eslint": "^8.57.0",
+    "@types/node": "^24.9.1",
+    "eslint": "^9.38.0",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
-    "mocha": "^10.4.0",
+    "mocha": "^11.7.4",
     "mocha-typescript": "^1.1.17",
-    "rimraf": "^5.0.5",
-    "typescript": "^5.4.5"
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.3"
   }
 }

@@ -29,8 +29,8 @@
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE. */
 
-//	Port to Energia / MPS430 by Yannick DEVOS XV4Y - (c) 2013
-//	http://xv4y.radioclub.asia/
+// Port to Energia / MPS430 by Yannick DEVOS XV4Y - (c) 2013
+// http://xv4y.radioclub.asia/
 //
 
 // Adapted to RadioHead use by Mike McCauley 2014
@@ -45,7 +45,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 /**

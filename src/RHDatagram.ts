@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Mike McCauley
  *
  * Port from native C/C++ code to TypeScript
- * Copyright (c) 2017-2024 Peter Müller <peter@crycode.de> (https://crycode.de/)
+ * Copyright (c) 2017-2025 Peter Müller <peter@crycode.de> (https://crycode.de/)
  */
 
 import { EventEmitter } from 'events';
@@ -49,11 +49,9 @@ export class RHDatagram extends EventEmitter {
    * Initialize this instance and the driver connected to it.
    * @return {Promise} Promise which will be resolved if the init of the driver is done.
    */
-  public init (): Promise<void> {
-    return this._driver.init()
-    .then(() => {
-      this.setThisAddress(this._thisAddress);
-    });
+  public async init (): Promise<void> {
+    await this._driver.init();
+    this.setThisAddress(this._thisAddress);
   }
 
   /**
@@ -78,9 +76,9 @@ export class RHDatagram extends EventEmitter {
    * @param  {number}  address The address to send the message to.
    * @return {Promise}         Promise which will be resolved if sending is completed.
    */
-  public sendto (data: Buffer, len: number, address: number): Promise<void> {
+  public async sendto (data: Buffer, len: number, address: number): Promise<void> {
     this.setHeaderTo(address);
-    return this._driver.send(data, len);
+    return await this._driver.send(data, len);
   }
 
   /**
