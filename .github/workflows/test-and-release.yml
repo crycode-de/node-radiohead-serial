@@ -120,6 +120,9 @@ jobs:
                   echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
                   git show -s --format=%b > .gh-release-notes.txt
 
+            - name: Use latest npm
+              run: npm install -g npm@latest
+
             - name: Install dependencies
               run: npm ci
 
