@@ -108,6 +108,8 @@ jobs:
               with:
                   node-version: 22.x
                   registry-url: 'https://registry.npmjs.org'
+                  cache: 'npm'
+                  always-auth: true
 
             - name: Extract the version and commit body from the tag
               id: extract_release
@@ -125,8 +127,7 @@ jobs:
               run: npm run build
 
             - name: Publish package to npm
-              run: |
-                  npm publish --provenance
+              run: npm publish
 
             - name: Create Github Release
               uses: softprops/action-gh-release@v1
